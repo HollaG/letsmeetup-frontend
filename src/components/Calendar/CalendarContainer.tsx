@@ -67,6 +67,13 @@ export const dateEncoder = (date: Date) => {
     return format(date, "yyyy-MM-dd");
 };
 
+/**
+ * Contains everything related to the calendar.
+ * 
+ * See https://github.com/chakra-ui/chakra-ui/issues/7269 for disabling buttons
+ * 
+ * @returns the component containing everything related to the calendar
+ */
 const CalendarContainer: React.FC = () => {
     const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
@@ -223,16 +230,16 @@ const CalendarContainer: React.FC = () => {
         console.log({ added, removed, stopped: "stopped" });
     };
 
-    console.log({ datesSelected });
+    console.log({ canGoLeft });
     return (
         <Stack>
             <Flex justifyContent={"center"}>
-                <Button size="xs" disabled={!canGoLeft} onClick={goLeft}>
+                <Button size="xs" isDisabled={!canGoLeft} onClick={goLeft} aria-label="Previous month">
                     {" "}
                     &lt;{" "}
                 </Button>
-                <Text mx={4}> {format(selectedDate, "MMM yyyy")}</Text>
-                <Button size="xs" onClick={goRight} disabled={!canGoRight}>
+                <Text data-testid="month-display" mx={4}> {format(selectedDate, "MMM yyyy")}</Text>
+                <Button size="xs" onClick={goRight} isDisabled={!canGoRight} aria-label="Next month">
                     {" "}
                     &gt;{" "}
                 </Button>
@@ -258,7 +265,6 @@ const CalendarContainer: React.FC = () => {
                 }}
             >
                 <Grid templateColumns="repeat(7, 1fr)" gap={0}>
-                    {/* Use a gap of zero which will help with colouring in the cells later*/}
                     <CalendarHeader />
                     <CalendarBody
                         drawnDays={drawnDays}
