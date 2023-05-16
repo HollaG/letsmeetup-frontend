@@ -45,7 +45,7 @@ const CalendarBody = ({ drawnDays, datesSelected, onTouchEnd }: CalendarBodyProp
     return (
         <>
             {drawnDays.map((d, i) => (
-                <GridItem py={2} key={dateEncoder(d.date)}>
+                <GridItem py={2} key={dateEncoder(d.date)} data-testid={i == drawnDays.length - 1 ? "last-day": `${i+1}-day`}>
                     <CalendarDay
                         key={dateEncoder(d.date)}
                         children={d.text}
@@ -59,7 +59,7 @@ const CalendarBody = ({ drawnDays, datesSelected, onTouchEnd }: CalendarBodyProp
                         )}
                         onTouchEnd={onTouchEnd}
                     />
-                    {/* <CalendarDay key={dateEncoder(d.date)} children={d.text} dataKey={dateEncoder(d.date)} selected={false}/> */}
+                    
                 </GridItem>
             ))}
             ;

@@ -91,7 +91,7 @@ const CalendarContainer: React.FC = () => {
         const d = new Date();
 
         const currentMonthNum = selectedDate.getMonth();
-        const currentYearNum = d.getFullYear();
+        const currentYearNum = selectedDate.getFullYear();
 
         // construct the first row
         // get the dayOfWeek for the first day in this month
@@ -257,6 +257,7 @@ const CalendarContainer: React.FC = () => {
                 </Button>
             </Flex>
             <SelectionArea
+                
                 className="select-container"
                 onStart={onStart}
                 onMove={onMove}
@@ -276,7 +277,7 @@ const CalendarContainer: React.FC = () => {
                     },
                 }}
             >
-                <Grid templateColumns="repeat(7, 1fr)" gap={0}>
+                <Grid templateColumns="repeat(7, 1fr)" gap={0} data-testid="select-container-calendar">
                     <CalendarHeader />
                     <CalendarBody
                         drawnDays={drawnDays}
