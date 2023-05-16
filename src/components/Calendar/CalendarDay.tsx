@@ -1,6 +1,7 @@
 import { Box, Circle, Square, Text, useColorModeValue } from "@chakra-ui/react";
 import { addDays, isAfter, isBefore, subDays } from "date-fns";
 import { isSameDay } from "date-fns/esm";
+import React from "react";
 import { BODY_STYLES } from "./CalendarBody";
 import { dateEncoder, dateParser } from "./CalendarContainer";
 
@@ -18,7 +19,12 @@ const LIGHT__SELECTED_DATE_COLOR = "blue.200";
 type CalendarDayProps = {
     children: string;
     dataKey: string;
-    datesSelected: string[];
+    // datesSelected: string[];
+    selected: boolean;
+    prevSelected: boolean;
+    nextSelected: boolean;
+    onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => void
+    // type: 0|1|2|3|4 // 0: unselected, 1: circle, 2: square, 3: left square, 4: right square
 };
 
 /**
@@ -29,8 +35,13 @@ type CalendarDayProps = {
 const CalendarDay = ({
     children,
     dataKey,
-    datesSelected,
+    // datesSelected,
+    selected,
+    nextSelected,
+    prevSelected,
+    onTouchEnd
 }: CalendarDayProps) => {
+    
     const UNSELECTABLE_TEXT_COLOR = useColorModeValue(
         LIGHT__UNSELECTABLE_TEXT_COLOR,
         DARK__UNSELECTABLE_TEXT_COLOR
@@ -47,8 +58,8 @@ const CalendarDay = ({
      *
      * @returns the color of the circle around the date
      */
-    const getCircleColor = () => {
-        if (datesSelected.includes(dataKey)) {
+    const getBgColor = () => {
+        if (selected) {
             return SELECTED_DATE_COLOR;
         } else if (isSameDay(dateParser(dataKey), new Date())) {
             return CURRENT_DATE_COLOR;
@@ -64,7 +75,7 @@ const CalendarDay = ({
      */
     const getClassName = () => {
         let className = "";
-        if (datesSelected.includes(dataKey)) {
+        if (selected) {
             className += "selected ";
         }
         if (isAfter(dateParser(dataKey), subDays(new Date(), 1))) {
@@ -85,42 +96,55 @@ const CalendarDay = ({
         }
     };
 
+    /**
+     * 
+     * @returns the border radius of the day depending on the selected state
+     */
+    const getRadius = () => {
+        if (!selected) {
+            return "99999px"
+        }
+        if (prevSelected && nextSelected) {
+            return "0"
+        }
+        if (!prevSelected && nextSelected) {
+            return "99999px 0 0 99999px";
+        }
+        if (prevSelected && !nextSelected) {
+            return "0 99999px 99999px 0";
+        }
+        if (!prevSelected && !nextSelected) {
+            return "99999px"
+        }
+    }
+
+    const getWidth = () => {
+        if (selected && (nextSelected || prevSelected)) {
+            return "100%"
+        } else {
+            return "unset"
+        }
+    }
+
     const prevDateStr = dateEncoder(subDays(dateParser(dataKey), 1));
     const nextDateStr = dateEncoder(addDays(dateParser(dataKey), 1));
 
-    /**
-     * Gets the appropiate border radius to set so that the calendar looks seamless when selecting multiple 
-     * dates.
-     * 
-     * @returns the border radius to set
-     */
-    const getBorderRadius = () => {
-
-    }
-    // return (
-    //     <Circle
-    //         bg={getCircleColor()}
-    //         size="36px"
-    //         mx="auto"
-    //         className={getClassName()}
-    //         data-key={dataKey} 
-    //     >
-    //         <Text {...BODY_STYLES} color={getTextColor()}>
-    //             {children}{" "}
-    //         </Text>
-    //     </Circle>
-    // );
     return (
         <Box data-key={dataKey} className={getClassName()} width="100%">
-            {datesSelected.includes(dataKey) &&
-            (datesSelected.includes(prevDateStr) ||
-            datesSelected.includes(nextDateStr)) ? (
+            <Square bg={getBgColor()} size="36px" mx="auto" borderRadius={getRadius()} minW={getWidth()}  onTouchEnd={(e) => onTouchEnd(e, dataKey)}>
+                <Text {...BODY_STYLES} color={getTextColor()}>
+                    {children}{" "}
+                </Text>
+            </Square>
+            {/* {selected &&
+            (true ||
+            true) ? (
                 <Square
                     bg={SELECTED_DATE_COLOR}
                     size="36px"
                     mx="auto"
                     minWidth="100%"
-                    borderRadius={datesSelected.includes(prevDateStr) && datesSelected.includes(nextDateStr) ? "0" : (!datesSelected.includes(prevDateStr) ? "99999px 0 0 99999px" : "0 99999px 99999px 0")}
+                    borderRadius={true && true ? "0" : (!true ? "99999px 0 0 99999px" : "0 99999px 99999px 0")}
                 >
                     <Text {...BODY_STYLES} color={getTextColor()}>
                         {children}{" "}
@@ -131,16 +155,14 @@ const CalendarDay = ({
                     bg={getCircleColor()}
                     size="36px"
                     mx="auto"
-
-                   
                 >
                     <Text {...BODY_STYLES} color={getTextColor()}>
                         {children}{" "}
                     </Text>
                 </Circle>
-            )}
+            )} */}
         </Box>
     );
 };
 
-export default CalendarDay;
+export default React.memo(CalendarDay);

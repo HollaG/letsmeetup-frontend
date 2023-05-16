@@ -20,6 +20,7 @@ import {
     subMonths,
 } from "date-fns";
 import { addDays, addMonths, isAfter, subDays } from "date-fns/esm";
+import React, { useCallback } from "react";
 import { useEffect, useMemo, useState } from "react";
 import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
@@ -69,9 +70,9 @@ export const dateEncoder = (date: Date) => {
 
 /**
  * Contains everything related to the calendar.
- * 
+ *
  * See https://github.com/chakra-ui/chakra-ui/issues/7269 for disabling buttons
- * 
+ *
  * @returns the component containing everything related to the calendar
  */
 const CalendarContainer: React.FC = () => {
@@ -166,18 +167,7 @@ const CalendarContainer: React.FC = () => {
     // const [datesSelected, setDatesSelected] = useState<Date[]>([]);
     const [datesSelected, setDatesSelected] = useState<string[]>([]);
 
-    const onDateClick = (date: Date) => {
-        // toggle prescence in the array
-        // setDatesSelected((prev) => {
-        //     if (prev.includes(date)) {
-        //         return prev.filter((d) => !isSameDay(d, date));
-        //     } else {
-        //         return [...prev, date];
-        //     }
-        // });
-    };
-
-    // console.log({ datesSelected });
+    const [isDragging, setIsDragging] = useState(false);
 
     /**
      * Extracts the IDs from an array of elements.
@@ -192,11 +182,11 @@ const CalendarContainer: React.FC = () => {
             .map(String);
 
     const onStart = ({ event, selection }: SelectionEvent) => {
-        console.log("On start fired", { event, selection });
         if (!event?.ctrlKey && !event?.metaKey) {
             selection.clearSelection(false);
             // setDatesSelected(() => [...new Set<Date>()]);
         }
+        setIsDragging(true);
     };
 
     const onMove = ({
@@ -204,13 +194,6 @@ const CalendarContainer: React.FC = () => {
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        if (removed.length) {
-            console.log({ removed: extractIds(removed) });
-        }
-        if (added.length) {
-            console.log({ added: extractIds(added) });
-        }
-
         setDatesSelected((prev) => {
             const next = new Set(prev);
             extractIds(added).forEach((id) => next.add(id));
@@ -219,27 +202,56 @@ const CalendarContainer: React.FC = () => {
         });
     };
 
-    const onStop = ({
-        store: {
-            changed: { added, removed },
+    const onStop = ({ event, selection }: SelectionEvent) =>
+        setIsDragging(false);
+
+
+
+    /**
+     * Updates datesSelected when a date is clicked.
+     * Don't update it if the user is dragging.
+     *
+     * This bypasses the library's requirement to touch and hold on mobile to select something.
+     *
+     * @param dateStr The date of the element that the touch was released on
+     */
+    const onTouchEnd = useCallback(
+        (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => {
+            if (isDragging) return;
+            e.stopPropagation();
+
+            setDatesSelected((prev) => {
+                const next = new Set(prev);
+                if (prev.includes(dateStr)) next.delete(dateStr);
+                else next.add(dateStr);
+                return [...next];
+            });
         },
-        selection,
-    }: SelectionEvent) => {
-        console.log("stopped, 'asdbjas");
+        [isDragging]
+    );
 
-        console.log({ added, removed, stopped: "stopped" });
-    };
-
-    console.log({ canGoLeft });
     return (
         <Stack>
             <Flex justifyContent={"center"}>
-                <Button size="xs" isDisabled={!canGoLeft} onClick={goLeft} aria-label="Previous month">
+                <Button
+                    size="xs"
+                    isDisabled={!canGoLeft}
+                    onClick={goLeft}
+                    aria-label="Previous month"
+                >
                     {" "}
                     &lt;{" "}
                 </Button>
-                <Text data-testid="month-display" mx={4}> {format(selectedDate, "MMM yyyy")}</Text>
-                <Button size="xs" onClick={goRight} isDisabled={!canGoRight} aria-label="Next month">
+                <Text data-testid="month-display" mx={4}>
+                    {" "}
+                    {format(selectedDate, "MMM yyyy")}
+                </Text>
+                <Button
+                    size="xs"
+                    onClick={goRight}
+                    isDisabled={!canGoRight}
+                    aria-label="Next month"
+                >
                     {" "}
                     &gt;{" "}
                 </Button>
@@ -268,7 +280,7 @@ const CalendarContainer: React.FC = () => {
                     <CalendarHeader />
                     <CalendarBody
                         drawnDays={drawnDays}
-                        onDateClick={onDateClick}
+                        onTouchEnd={onTouchEnd}
                         datesSelected={datesSelected}
                     />
                 </Grid>
@@ -277,4 +289,4 @@ const CalendarContainer: React.FC = () => {
     );
 };
 
-export default CalendarContainer;
+export default React.memo(CalendarContainer);

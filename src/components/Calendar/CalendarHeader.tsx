@@ -3,6 +3,7 @@
  * Displays the days of the weeks.
  */
 import { GridItem, Text, TextProps } from "@chakra-ui/react";
+import React from "react";
 import { CalendarGridItemProps } from "./CalendarContainer";
 
 const HEADER_STYLES: TextProps = {
@@ -38,4 +39,4 @@ const CalendarHeader = () => {
     );
 };
 
-export default CalendarHeader;
+export default React.memo(CalendarHeader);
