@@ -41,7 +41,7 @@ jobs:
             #   run: npm test
 
             - name: Build 🏗️
-              run: npm build
+              run: npm run build
 
             - name: Deploy to GH Pages 🚀
               if: ${{ github.event_name != 'pull_request' }}
