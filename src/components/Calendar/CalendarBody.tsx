@@ -43,7 +43,7 @@ const CalendarBody = ({
     datesSelected,
     onTouchEnd,
 }: CalendarBodyProps) => {
-    console.log("body reremndered");
+    // console.log("body reremndered");
 
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
     return (

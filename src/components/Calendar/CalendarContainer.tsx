@@ -199,8 +199,8 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        if (added.length) console.log({added: extractIds(added)})
-        if (removed.length) console.log({removed: extractIds(removed)})
+        // if (added.length) console.log({added: extractIds(added)})
+        // if (removed.length) console.log({removed: extractIds(removed)})
         
         setDatesSelected((prev) => {
             const next = new Set(prev);

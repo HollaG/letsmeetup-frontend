@@ -5,6 +5,7 @@ export interface ITelegramUser {
     last_name: string;
     username: string;
     language_code: string;
+    photo_url?: string;
 }
 
 export interface IWebApp {
@@ -33,6 +34,7 @@ export interface IWebApp {
     isClosingConfirmationEnabled: boolean;
     headerColor: string;
     backgroundColor: string;
+    sendData: (data: any) => void;
     BackButton: {
         isVisible: boolean;
     };
@@ -43,8 +45,17 @@ export interface IWebApp {
         isVisible: boolean;
         isProgressVisible: boolean;
         isActive: boolean;
+        setText: (text: string) => void;
+        onClick: (e: any) => void;
+        offClick: (e: any) => void;
+        showProgress: (leaveActive: boolean) => void;
+        hideProgress: () => void;
+        disable: () => void;
+        enable: () => void;
     };
     HapticFeedback: any;
+    close: () => void;
+    switchInlineQuery: (query: string, choose_chat_types: string[]) => void;
 }
 
-export {}
+export {};
