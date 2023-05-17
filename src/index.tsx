@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import * as serviceWorker from "./serviceWorker";
 
 import { TelegramProvider } from "./context/TelegramProvider";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, createHashRouter, RouterProvider } from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import theme from "./theme/theme";
@@ -16,8 +16,11 @@ import './index.css'
 import Layout from "./routes/layout";
 /**
  * React-router routes for handling viewing, creating, and home page
+ * 
+ * Github doesn't support createBrowserRouter
+ * @see https://stackoverflow.com/questions/71984401/react-router-not-working-with-github-pages
  */
-const router = createBrowserRouter([
+const router = createHashRouter([
     {
         path: "/",
         element: <Layout />,
