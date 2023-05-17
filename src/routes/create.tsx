@@ -31,7 +31,6 @@ const Create = () => {
     const [isFullDay, setIsFullDay] = useState<boolean>(false);
 
     const { user, webApp } = useTelegram();
-    console.log({ user, webApp });
 
     const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
     useEffect(() => {
@@ -51,7 +50,7 @@ const Create = () => {
         } else {
             setUserCanSubmit(false);
         }
-        console.log(userCanSubmit)
+        console.log(userCanSubmit);
     }, [
         datesSelected.length,
         timesSelected.length,
@@ -61,22 +60,19 @@ const Create = () => {
     ]);
 
     /**
-     * 
+     *
      * The submit handler when a user clicks Telegram's MainButton.
-     * 
+     *
      * Note: Runs twice for some reason.
+     *
      * 
-     * @returns void
      */
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const onSubmit = () => {
-        if (isSubmitting) return console.log("denied submission")
-        setIsSubmitting(true)
+        // setIsSubmitting(true);
         console.log("submitting data or smt");
         // webApp?.MainButton.showProgress(false);
-        console.log({userCanSubmit})
+        console.log({ userCanSubmit });
 
-  
         // Validate data
         if (!userCanSubmit) {
             return console.log("can't submit!");
@@ -96,19 +92,23 @@ const Create = () => {
             timeslots: isFullDay ? [] : timesSelected,
             dates: datesSelected,
             users: [],
-            notified: false
+            notified: false,
         };
 
-        create(MeetupData).then((res) => {
-            console.log(res);
+        console.log({ MeetupData });
 
-            // send the ID back to Telegram
-            // webApp?.sendData(res.id)
-            // webApp?.close()
-
-        }).catch(e => {
-            alert("somme error!!")
-        });
+        create(MeetupData)
+            .then((res) => {
+                // console.log(res);
+                // send the ID back to Telegram
+                // webApp?.sendData(res.id)
+                // webApp?.close()
+                const newDocId = res.id;
+                webApp?.switchInlineQuery(`share_${newDocId}`, ['users', 'groups', 'channels'] )
+            })
+            .catch((e) => {
+                alert("somme error!!");
+            });
     };
 
     /**
@@ -118,7 +118,7 @@ const Create = () => {
         if (webApp) {
             webApp.MainButton.isVisible = true;
             webApp.MainButton.text = "Create";
-            
+
             webApp.MainButton.disable();
         }
     }, [webApp, webApp?.MainButton]);
@@ -133,13 +133,22 @@ const Create = () => {
             } else {
                 webApp.MainButton.disable();
             }
-            webApp.MainButton.onClick(() => onSubmit());
+            console.log("updating onSubmit");
+            webApp.MainButton.onClick(onSubmit);
         }
 
         return () => {
-            webApp && webApp.MainButton.offClick(() => onSubmit());
-        }
-    }, [webApp, userCanSubmit]);
+            webApp && webApp.MainButton.offClick(onSubmit);
+        };
+    }, [
+        webApp,
+        userCanSubmit,
+        title,
+        description,
+        datesSelected,
+        timesSelected,
+        isFullDay,
+    ]);
 
     return (
         <Stack spacing={4}>

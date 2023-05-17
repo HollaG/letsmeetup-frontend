@@ -51,10 +51,11 @@ export interface IWebApp {
         showProgress: (leaveActive: boolean) => void;
         hideProgress: () => void;
         disable: () => void;
-        enable: () => void
+        enable: () => void;
     };
     HapticFeedback: any;
     close: () => void;
+    switchInlineQuery: (query: string, choose_chat_types: string[]) => void;
 }
 
 export {};
