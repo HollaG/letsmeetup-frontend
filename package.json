@@ -2,6 +2,7 @@
     "name": "meetup-frontend",
     "version": "0.1.0",
     "private": true,
+    "homepage": "https://hollag.github.io/letsmeetup-frontend",
     "dependencies": {
         "@chakra-ui/react": "^2.6.1",
         "@emotion/react": "^11.11.0",
