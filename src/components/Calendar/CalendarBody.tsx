@@ -43,7 +43,7 @@ const CalendarBody = ({
     datesSelected,
     onTouchEnd,
 }: CalendarBodyProps) => {
-    console.log("body reremndered")
+    console.log("body reremndered");
 
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
     return (
@@ -71,7 +71,6 @@ const CalendarBody = ({
                     />
                 </GridItem>
             ))}
-            ;
         </>
     );
 };
@@ -79,7 +78,7 @@ const CalendarBody = ({
 export default React.memo(CalendarBody, (prevProps, nextProps) => {
     // only update the body if the dates selected or the drawn days have changed
     const res =
-        prevProps.datesSelected.length == nextProps.datesSelected.length && 
-        prevProps.drawnDays.length == nextProps.drawnDays.length
+        prevProps.datesSelected.length == nextProps.datesSelected.length &&
+        prevProps.drawnDays.length == nextProps.drawnDays.length;
     return res;
 });
