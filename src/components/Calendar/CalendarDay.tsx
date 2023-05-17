@@ -41,6 +41,7 @@ const CalendarDay = ({
     prevSelected,
     onTouchEnd
 }: CalendarDayProps) => {
+    // console.log("day rerender")
     const UNSELECTABLE_TEXT_COLOR = useColorModeValue(
         LIGHT__UNSELECTABLE_TEXT_COLOR,
         DARK__UNSELECTABLE_TEXT_COLOR

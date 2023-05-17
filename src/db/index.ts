@@ -6,12 +6,12 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 // config value from add firebase sdk script that showed earlier.
 const config = {
-    apiKey: "AIzaSyBn4odTF2aQdfwrORAOhmFpUpsf6-aF7x0",
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: "meetup-8903c.firebaseapp.com",
     projectId: "meetup-8903c",
     storageBucket: "meetup-8903c.appspot.com",
     messagingSenderId: "316721016041",
-    appId: "1:316721016041:web:0cfea0c6ffb2beefd91478",
+    appId: process.env.REACT_APP_FIREBASE_APPID,
     measurementId: "G-41KSDTV1L5"
 };
 

@@ -6,6 +6,7 @@ import {
     query,
     where,
     getDocs,
+    addDoc,
 } from "firebase/firestore";
 
 const db = getFirestore(fire);
@@ -24,22 +25,23 @@ export type Meetup = {
     creator: {
         first_name: string;
         username: string;
-        user_ID: string;
+        user_ID: number;
+        photo_url?: string;
     };
-    timeslots: {
-        start: Date;
-        end: Date;
-    }[];
+    isFullDay: boolean;
+    timeslots: string[];
+    dates: string[];
     users: {
         comments: string;
-        selected: number[];
-        user_ID: string;
+        selected: string[];
+        user_ID: number;
         username: string;
         first_name: string;
     }[];
     date_created: Date;
-    title: string,
-    description?: string
+    title: string;
+    description?: string;
+    notified: boolean
 };
 
 // retrieve all todos
@@ -48,31 +50,34 @@ export const all = async (): Promise<Array<Meetup>> => {
     const data: Array<any> = [];
 
     const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(doc => {
+    querySnapshot.forEach((doc) => {
         // console.log(doc.id, " => ", doc.data());
 
         data.push({
             id: doc.id,
-            ...doc.data()
-        })
-    })
-
-   
+            ...doc.data(),
+        });
+    });
 
     // return and convert back it array of todo
     return data as Array<Meetup>;
 };
 
-// create a todo
-// export const create = async (todo: Todo): Promise<Todo> => {
-//     const docRef = await db.collection(COLLECTION_NAME).add(todo);
+// create a Meetup
+export const create = async (meetup: Meetup): Promise<Meetup> | never => {
+    const dbRef = collection(db, COLLECTION_NAME);
+    try {
+        const docRef = await addDoc(dbRef, meetup);
+        return {
+            id: docRef.id,
+            ...meetup,
+        } as Meetup;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
 
-//     // return new created todo
-//     return {
-//         id: docRef.id,
-//         ...todo,
-//     } as Todo;
-// };
+};
 
 // // update a todo
 // export const update = async (id: string, todo: Todo): Promise<Todo> => {

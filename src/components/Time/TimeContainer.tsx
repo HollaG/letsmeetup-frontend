@@ -1,5 +1,6 @@
 import {
     Box,
+    Button,
     Collapse,
     Divider,
     Flex,
@@ -103,8 +104,6 @@ const TimeContainer = ({
 }: TimeContainerProps) => {
     const [[startMin, endMin], setTime] = useState([9 * 60, 17 * 60]); // in minutes
 
-    console.log({ timesSelected });
-
     /**
      * Creates an array that holds the 30 minute increments between start and end.
      *
@@ -124,23 +123,15 @@ const TimeContainer = ({
      */
     const toggleIndividualTime = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            const newTimeSelection: TimeSelection = [];
+            selectAll()
+            
             setTouched(false);
-            datesSelected.forEach((date) => {
-                newTimeSelection.push(
-                    ...thirtyMinuteIncrements.map(
-                        (e) => `${e}${ENCODER_SEPARATOR}${date}`
-                    )
-                );
-            });
-            setTimesSelected(newTimeSelection);
+           
         } else {
             // setTimesSelected([]);
         }
         setShowIndividualTimes(e.target.checked);
     };
-
-    const [tempShow, setTempShow] = useState(true);
 
     /**
      * There are bugs when dynamically adding new elements to the SelectionArea.
@@ -189,7 +180,6 @@ const TimeContainer = ({
 
     // create an array that contains the startMins, every 30 minutes, until endMin
     // e.g. [540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840] for startMin = 530, endMin = 840
-    console.log(startMin, endMin)
     const thirtyMinuteIncrements = create30MinuteIncrements(startMin, endMin);
 
     const convertRowNumberToMinutes = (startMin: number, row: number) =>
@@ -277,23 +267,20 @@ const TimeContainer = ({
         },
         [touched]
     );
-    console.log({ timesSelected }, "outside");
 
     const onStart = ({ event, selection, store }: SelectionEvent) => {
         if (!event?.ctrlKey && !event?.metaKey) {
             // selection.clearSelection();
             // setSelected(() => new Set());
         }
-
-        console.log({ store });
     };
     const onMove = ({
         store: {
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        if (added.length) console.log({ added: extractIds(added) });
-        if (removed.length) console.log({ removed: extractIds(removed) });
+        // if (added.length) console.log({ added: extractIds(added) });
+        // if (removed.length) console.log({ removed: extractIds(removed) });
 
         setTimesSelected((prev) => {
             const next = new Set(prev);
@@ -311,8 +298,31 @@ const TimeContainer = ({
         setTouched(true);
     };
 
-    const onStop = ({ event, selection }: SelectionEvent) =>
-        console.log({ timesSelected });
+    const onStop = ({ event, selection }: SelectionEvent) => {};
+    // console.log({ timesSelected });
+
+    /**
+     * Select everything in the selectionarea
+     */
+    const selectAll = () => {
+        const newTimeSelection: TimeSelection = [];
+        datesSelected.forEach((date) => {
+            newTimeSelection.push(
+                ...thirtyMinuteIncrements.map(
+                    (e) => `${e}${ENCODER_SEPARATOR}${date}`
+                )
+            );
+        });
+
+        setTimesSelected(newTimeSelection);
+    };
+
+    /**
+     * Deselect everything
+     */
+    const deselectAll = () => {
+        setTimesSelected([]);
+    };
 
     return (
         <Stack>
@@ -322,18 +332,27 @@ const TimeContainer = ({
                 endMin={endMin}
                 setTime={setTime}
             />
-            <Divider />
 
             <Flex direction={"row"} justifyContent="space-between">
-                <Text> Set individual date times </Text>
+                <Text> Set time per day </Text>
                 <Switch
                     isChecked={showIndividualTimes}
                     onChange={toggleIndividualTime}
                 />
             </Flex>
-            {tempShow && (
-                <Collapse in={showIndividualTimes}>
-                    <Box>
+           
+                <Collapse in={showIndividualTimes} unmountOnExit>
+                    <Stack>
+                        <Flex justifyContent="end">
+                            <Button size="xs" colorScheme="blue" onClick={selectAll}>
+                                {" "}
+                                Select all{" "}
+                            </Button>
+                            <Button size="xs" colorScheme="red" ml={2} onClick={deselectAll}>
+                                {" "}
+                                Deselect all{" "}
+                            </Button>
+                        </Flex>
                         <Box
                             as={SelectionArea}
                             className="select-container"
@@ -465,9 +484,9 @@ const TimeContainer = ({
                                 }}
                             />
                         </Box>
-                    </Box>
+                    </Stack>
                 </Collapse>
-            )}
+           
         </Stack>
     );
 };
@@ -490,8 +509,6 @@ const TableCell =
         cellOutlineColor,
         renderText = true,
     }: SelectableCellProps) => {
-        // console.log({ data });
-        // console.log(`tablecell ${data.value} rendered`);
         if (data.isHeader) {
             return (
                 <Box
