@@ -104,7 +104,7 @@ const Create = () => {
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                webApp?.switchInlineQuery(`share_${newDocId}`, ['users', 'groups', 'channels'] )
+                webApp?.switchInlineQuery(`share_${newDocId}`, ['users', 'groups', 'channels', 'bots'] )
             })
             .catch((e) => {
                 alert("somme error!!");
