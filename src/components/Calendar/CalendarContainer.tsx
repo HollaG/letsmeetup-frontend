@@ -68,6 +68,11 @@ export const dateEncoder = (date: Date) => {
     return format(date, "yyyy-MM-dd");
 };
 
+type CalendarContainerProps = {
+    setDatesSelected: React.Dispatch<React.SetStateAction<string[]>>;
+    datesSelected: string[]
+}
+
 /**
  * Contains everything related to the calendar.
  *
@@ -75,7 +80,7 @@ export const dateEncoder = (date: Date) => {
  *
  * @returns the component containing everything related to the calendar
  */
-const CalendarContainer: React.FC = () => {
+const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerProps) => {
     const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
 
@@ -165,7 +170,7 @@ const CalendarContainer: React.FC = () => {
      */
     const [selectMode, setSelectMode] = useState<0 | 1>(0);
     // const [datesSelected, setDatesSelected] = useState<Date[]>([]);
-    const [datesSelected, setDatesSelected] = useState<string[]>([]);
+    // const [datesSelected, setDatesSelected] = useState<string[]>([]);
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -194,11 +199,14 @@ const CalendarContainer: React.FC = () => {
             changed: { added, removed },
         },
     }: SelectionEvent) => {
+        if (added.length) console.log({added: extractIds(added)})
+        if (removed.length) console.log({removed: extractIds(removed)})
+        
         setDatesSelected((prev) => {
             const next = new Set(prev);
             extractIds(added).forEach((id) => next.add(id));
             extractIds(removed).forEach((id) => next.delete(id));
-            return [...next];
+            return [...next].sort();
         });
     };
 
@@ -224,14 +232,14 @@ const CalendarContainer: React.FC = () => {
                 const next = new Set(prev);
                 if (prev.includes(dateStr)) next.delete(dateStr);
                 else next.add(dateStr);
-                return [...next];
+                return [...next].sort();
             });
         },
         [isDragging]
     );
 
     return (
-        <Stack>
+        <Stack data-testid="calendar-component">
             <Flex justifyContent={"center"}>
                 <Button
                     size="xs"

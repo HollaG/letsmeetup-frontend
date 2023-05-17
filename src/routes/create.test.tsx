@@ -28,8 +28,14 @@ afterEach(() => {
 });
 
 test("renders the create page", () => {
-    render(<Create />);
+    const { container }= render(<Create />);
 
-    
+    expect(container.querySelector("#title")).toBeInTheDocument();
+    expect(container.querySelector("#title")).toBeRequired();
+    expect(container.querySelector("#description")).toBeInTheDocument();
+
+    expect(screen.getByTestId("calendar-component")).toBeInTheDocument();
+
+    expect(screen.getByTestId("timerange-component")).toBeInTheDocument();
 });
 

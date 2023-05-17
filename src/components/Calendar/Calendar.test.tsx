@@ -28,7 +28,9 @@ afterEach(() => {
 });
 
 test("calendar displays properly", () => {
-    render(<CalendarContainer />);
+    const datesSelected: string[] = []
+    const setDatesSelectedMock = jest.fn()
+    render(<CalendarContainer datesSelected={datesSelected} setDatesSelected={setDatesSelectedMock}/>);
     // check if the month display displays the correct moment
     const monthDisplay = format(new Date(), "MMM yyyy");
     expect(screen.getByTestId("month-display")).toHaveTextContent(monthDisplay);

@@ -29,7 +29,7 @@ export type CalendarBodyProps = {
     drawnDays: CalendarDayProps[];
     // datesSelected: Date[];
     datesSelected: string[];
-    onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => void
+    onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => void;
 };
 
 // Color values
@@ -38,14 +38,24 @@ const LIGHT__UNSELECTABLE_TEXT_COLOR = "gray.400";
 const DARK__SELECTED_DATE_COLOR = "blue.800";
 const LIGHT__SELECTED_DATE_COLOR = "blue.200";
 
-const CalendarBody = ({ drawnDays, datesSelected, onTouchEnd }: CalendarBodyProps) => {
-    // console.log("body reremndered")
+const CalendarBody = ({
+    drawnDays,
+    datesSelected,
+    onTouchEnd,
+}: CalendarBodyProps) => {
+    console.log("body reremndered")
 
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
     return (
         <>
             {drawnDays.map((d, i) => (
-                <GridItem py={2} key={dateEncoder(d.date)} data-testid={i == drawnDays.length - 1 ? "last-day": `${i+1}-day`}>
+                <GridItem
+                    py={2}
+                    key={dateEncoder(d.date)}
+                    data-testid={
+                        i == drawnDays.length - 1 ? "last-day" : `${i + 1}-day`
+                    }
+                >
                     <CalendarDay
                         key={dateEncoder(d.date)}
                         children={d.text}
@@ -59,7 +69,6 @@ const CalendarBody = ({ drawnDays, datesSelected, onTouchEnd }: CalendarBodyProp
                         )}
                         onTouchEnd={onTouchEnd}
                     />
-                    
                 </GridItem>
             ))}
             ;
@@ -67,4 +76,10 @@ const CalendarBody = ({ drawnDays, datesSelected, onTouchEnd }: CalendarBodyProp
     );
 };
 
-export default React.memo(CalendarBody);
+export default React.memo(CalendarBody, (prevProps, nextProps) => {
+    // only update the body if the dates selected or the drawn days have changed
+    const res =
+        prevProps.datesSelected.length == nextProps.datesSelected.length && 
+        prevProps.drawnDays.length == nextProps.drawnDays.length
+    return res;
+});
