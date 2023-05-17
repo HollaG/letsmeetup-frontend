@@ -1,5 +1,7 @@
 name: GH Pages Deploy
 
+env: 
+  CI: false
 on:
     push:
         branches: [master]
