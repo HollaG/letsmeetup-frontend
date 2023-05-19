@@ -6,17 +6,25 @@ import reportWebVitals from "./reportWebVitals";
 import * as serviceWorker from "./serviceWorker";
 
 import { TelegramProvider } from "./context/TelegramProvider";
-import { createBrowserRouter, createHashRouter, RouterProvider } from "react-router-dom";
+import {
+    createBrowserRouter,
+    createHashRouter,
+    RouterProvider,
+} from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import theme from "./theme/theme";
 import Create from "./routes/create";
 
-import './index.css'
+import "./index.css";
 import Layout from "./routes/layout";
+import MeetupPage from "./routes/meetup";
+import { doc, getDoc } from "firebase/firestore";
+import fire, { db } from "./db";
+import { COLLECTION_NAME } from "./db/repositories/meetups";
 /**
  * React-router routes for handling viewing, creating, and home page
- * 
+ *
  * Github doesn't support createBrowserRouter
  * @see https://stackoverflow.com/questions/71984401/react-router-not-working-with-github-pages
  */
@@ -29,10 +37,23 @@ const router = createHashRouter([
             {
                 path: "/create",
                 element: <Create />,
-            }
-        ]
+            },
+            {
+                path: "/meetup/:meetupId",
+                element: <MeetupPage />,
+                loader: async ({ params: { meetupId } }) => {
+                    // https://react-location.tanstack.com/guides/route-loaders
+                    return {
+                        meetup: (
+                            await getDoc(
+                                doc(db, COLLECTION_NAME, meetupId || "")
+                            )
+                        ).data(), // fetch shit here
+                    };
+                },
+            },
+        ],
     },
-    
 ]);
 
 const container = document.getElementById("root");

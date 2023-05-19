@@ -30,6 +30,10 @@ export type CalendarBodyProps = {
     // datesSelected: Date[];
     datesSelected: string[];
     onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => void;
+    startDate: Date; // the start date of the calendar. Defaults to today
+    endDate: Date; // the end date of the calendar. Defaults to 1 year from today
+    selectedDate: Date;
+    allowedDates?: string[]
 };
 
 // Color values
@@ -42,9 +46,11 @@ const CalendarBody = ({
     drawnDays,
     datesSelected,
     onTouchEnd,
+    startDate,
+    endDate,
+    selectedDate,
+    allowedDates
 }: CalendarBodyProps) => {
-    // console.log("body reremndered");
-
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
     return (
         <>
@@ -68,6 +74,9 @@ const CalendarBody = ({
                             dateEncoder(addDays(d.date, 1))
                         )}
                         onTouchEnd={onTouchEnd}
+                        startDate={startDate}
+                        endDate={endDate}
+                        allowedDates={allowedDates}
                     />
                 </GridItem>
             ))}
@@ -78,7 +87,13 @@ const CalendarBody = ({
 export default React.memo(CalendarBody, (prevProps, nextProps) => {
     // only update the body if the dates selected or the drawn days have changed
     const res =
-        prevProps.datesSelected.length == nextProps.datesSelected.length &&
-        prevProps.drawnDays.length == nextProps.drawnDays.length;
+        prevProps.datesSelected.length === nextProps.datesSelected.length &&
+        prevProps.drawnDays.length === nextProps.drawnDays.length &&
+        prevProps.selectedDate.toString() ===
+            nextProps.selectedDate.toString() &&
+        prevProps.drawnDays[0].date.toString() ===
+            nextProps.drawnDays[0].date.toString();
+
+
     return res;
 });

@@ -53,7 +53,7 @@ const TimeRangeSelector = ({
 }: TimeRangeSelectorProps) => {
     const start = 0;
     const end = 24 * 60 - 1;
-
+    
     const [[localStart, localEnd], setLocals] = useState([9 * 60, 17 * 60]);
 
     return (

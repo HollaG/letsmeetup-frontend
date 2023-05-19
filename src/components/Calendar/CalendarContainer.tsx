@@ -70,8 +70,13 @@ export const dateEncoder = (date: Date) => {
 
 type CalendarContainerProps = {
     setDatesSelected: React.Dispatch<React.SetStateAction<string[]>>;
-    datesSelected: string[]
-}
+    datesSelected: string[];
+    startDate?: Date; // the start date of the calendar. Defaults to today
+    endDate?: Date; // the end date of the calendar. Defaults to 1 year from today
+    allowedDates?: string[];
+    onStop?: ({ event, selection }: SelectionEvent) => void;
+    onBeforeStart?: ({ event, selection }: SelectionEvent) => void;
+};
 
 /**
  * Contains everything related to the calendar.
@@ -80,7 +85,15 @@ type CalendarContainerProps = {
  *
  * @returns the component containing everything related to the calendar
  */
-const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerProps) => {
+const CalendarContainer = ({
+    datesSelected,
+    setDatesSelected,
+    startDate = new Date(),
+    endDate = addMonths(new Date(), 12),
+    allowedDates,
+    onStop,
+    onBeforeStart,
+}: CalendarContainerProps) => {
     const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
 
@@ -149,8 +162,8 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
         setDrawnDays(tempArray);
     }, [selectedDate]);
 
-    const canGoLeft = isAfter(selectedDate, new Date());
-    const canGoRight = isBefore(selectedDate, addMonths(new Date(), 11));
+    const canGoLeft = isAfter(selectedDate, startDate);
+    const canGoRight = isBefore(addMonths(selectedDate, 1), endDate);
 
     const goLeft = () => {
         // Disable go-left if the next month will be in the past
@@ -163,14 +176,6 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
         if (!canGoRight) return;
         setSelectedDate((prev) => addMonths(prev, 1));
     };
-
-    /**
-     * 0 = click-and-drag
-     * 1 = range-select
-     */
-    const [selectMode, setSelectMode] = useState<0 | 1>(0);
-    // const [datesSelected, setDatesSelected] = useState<Date[]>([]);
-    // const [datesSelected, setDatesSelected] = useState<string[]>([]);
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -201,7 +206,7 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
     }: SelectionEvent) => {
         // if (added.length) console.log({added: extractIds(added)})
         // if (removed.length) console.log({removed: extractIds(removed)})
-        
+
         setDatesSelected((prev) => {
             const next = new Set(prev);
             extractIds(added).forEach((id) => next.add(id));
@@ -210,10 +215,12 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
         });
     };
 
-    const onStop = ({ event, selection }: SelectionEvent) =>
+    // TODO: Check if this is really necessary
+    const _onStop = (store: SelectionEvent) => {
+        console.log("onstop")
+        onStop && onStop(store);
         setIsDragging(false);
-
-
+    };
 
     /**
      * Updates datesSelected when a date is clicked.
@@ -265,12 +272,23 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
                 </Button>
             </Flex>
             <SelectionArea
-                
                 className="select-container"
                 onStart={onStart}
                 onMove={onMove}
-                onStop={onStop}
+                onStop={_onStop}
+                onBeforeStart={onBeforeStart}
                 selectables=".selectable"
+                features={{
+                    singleTap: {
+                        allow: true,
+                        intersect: "touch",
+                    },
+                    // Enable / disable touch support.
+                    touch: true,
+
+                    // Range selection.
+                    range: true,
+                }}
                 behaviour={{
                     overlap: "invert",
                     intersect: "touch",
@@ -285,12 +303,20 @@ const CalendarContainer = ({datesSelected, setDatesSelected}: CalendarContainerP
                     },
                 }}
             >
-                <Grid templateColumns="repeat(7, 1fr)" gap={0} data-testid="select-container-calendar">
+                <Grid
+                    templateColumns="repeat(7, 1fr)"
+                    gap={0}
+                    data-testid="select-container-calendar"
+                >
                     <CalendarHeader />
                     <CalendarBody
                         drawnDays={drawnDays}
                         onTouchEnd={onTouchEnd}
                         datesSelected={datesSelected}
+                        startDate={startDate}
+                        endDate={endDate}
+                        selectedDate={selectedDate}
+                        allowedDates={allowedDates}
                     />
                 </Grid>
             </SelectionArea>
