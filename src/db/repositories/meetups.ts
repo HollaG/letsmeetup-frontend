@@ -38,6 +38,12 @@ export type Meetup = {
     selectionMap: {
         [dateOrTimeStr: string]: ITelegramUser[];
     };
+    messages: {
+        message_id: number;
+        message_thread_id?: number;
+        chat_id: number;
+        inline_message_id?: string;
+    }[]
 };
 
 export type UserAvailabilityData = {
@@ -83,9 +89,9 @@ export const create = async (meetup: Meetup): Promise<Meetup> | never => {
     }
 };
 
-// // update a todo
+// TODO: this function is incorrect ??
 export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
-    const docRef = doc(db, COLLECTION_NAME);
+    const docRef = doc(db, COLLECTION_NAME, id);
     try {
         const updated = await updateDoc(docRef, meetup);
         return {

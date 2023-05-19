@@ -42,7 +42,7 @@ export const assignColor = (totalNum: number, amount: number, colors: RangeColor
  * @param dateTimeStr the current time to check the next date of
  * @returns true if the next time slot has people who selected it
  */
-export const checkIfNextTimeSlotHasPeople = (
+export const hasPeopleInNextTimeSlot = (
     dateTimeStr: string,
     meetup: Meetup
 ) => {
@@ -67,7 +67,7 @@ export const checkIfNextTimeSlotHasPeople = (
  * @returns true if the previous time slot has the same people and the same # of people    *
  *
  */
-export const isPreviousTimeSlotSame = (dateTimeStr: string, meetup: Meetup) => {
+export const isSameAsPreviousTimeSlot = (dateTimeStr: string, meetup: Meetup) => {
     const [time, date] = dateTimeStr.split("::");
     const prevTime = parseInt(time) - 30;
     if (parseInt(time) < 0) {
@@ -102,7 +102,7 @@ export const isPreviousTimeSlotSame = (dateTimeStr: string, meetup: Meetup) => {
  * @returns true if the previous time slot has the same people and the same # of people    *
  *
  */
-export const isNextTimeSlotSame = (dateTimeStr: string, meetup: Meetup) => {
+export const isSameAsNextTimeSlot = (dateTimeStr: string, meetup: Meetup) => {
     const [time, date] = dateTimeStr.split("::");
     const nextTime = parseInt(time) + 30;
     if (parseInt(time) >= 24 * 60) {
@@ -150,7 +150,7 @@ export const getNumberOfConsectiveSelectedTimeSlots = (
             // it's the next day, we stop counting here
             break;
         }
-        if (isPreviousTimeSlotSame(`${nextTime}::${date}`, meetup)) {
+        if (isSameAsPreviousTimeSlot(`${nextTime}::${date}`, meetup)) {
             count++;
             nextTime += 30;
         } else {

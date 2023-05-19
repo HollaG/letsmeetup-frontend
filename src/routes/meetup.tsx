@@ -139,12 +139,15 @@ const MeetupPage = () => {
     const startDate = dateParser(meetup.dates.sort()[0]);
     const endDate = dateParser(meetup.dates.sort()[meetup.dates.length - 1]);
 
-    const times = [...new Set(meetup.timeslots.map(removeDate))].sort();
+    const times = [...new Set(meetup.timeslots.map(removeDate))].sort((a, b) => a - b);
 
+    console.log("----------");
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
+    console.log({meetuptime: meetup.timeslots, startMin, endMin, times})
+    console.log("----------");
 
     /**
      * Checks if a cell has been selected

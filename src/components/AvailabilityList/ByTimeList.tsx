@@ -38,9 +38,9 @@ import {
 import { removeDate } from "../../routes/meetup";
 import {
     assignColor,
-    checkIfNextTimeSlotHasPeople,
+    hasPeopleInNextTimeSlot,
     getNumberOfConsectiveSelectedTimeSlots,
-    isPreviousTimeSlotSame,
+    isSameAsPreviousTimeSlot,
     RangeColors,
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
@@ -63,7 +63,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     // only draw for
     // temporary array of length meetup.timeslots
 
-    const times = [...new Set(meetup.timeslots.map(removeDate))].sort();
+    const times = [...new Set(meetup.timeslots.map(removeDate))].sort((a, b) => a - b);
 
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
@@ -142,7 +142,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                     ...(meetup.selectionMap[`${minute}::${date}`] &&
                     meetup.selectionMap[`${minute}::${date}`].length
                         ? [
-                              ...(!isPreviousTimeSlotSame(
+                              ...(!isSameAsPreviousTimeSlot(
                                   `${minute}::${date}`,
                                   meetup
                               )
@@ -239,40 +239,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             }px`}
                                                         ></Box>
                                                     </Flex>
-                                                    {/* {getNumberOfConsectiveSelectedTimeSlots(
-                                                        `${minute}::${date}`
-                                                    ).map((num) => (
-                                                        <Flex>
-                                                            <DisplayBox
-                                                                key={num}
-                                                                bgColor={assignColor(
-                                                                    numberOfUsers,
-                                                                    meetup
-                                                                        .selectionMap[
-                                                                        `${minute}::${date}`
-                                                                    ]
-                                                                        ? meetup
-                                                                              .selectionMap[
-                                                                              `${minute}::${date}`
-                                                                          ]
-                                                                              .length
-                                                                        : 0
-                                                                )}
-
-                                                            >
-                                                                </DisplayBox>
-
-                                                            <Box
-                                                                w={`${FILLER_WIDTH}px`}
-                                                                bgColor={
-                                                                    bgColor
-                                                                }
-                                                                height={
-                                                                    CELL_HEIGHT
-                                                                }
-                                                            ></Box>
-                                                        </Flex>
-                                                    ))} */}
+                                                    
                                                 </Stack>
                                                 <Box
                                                     w="100%"
@@ -333,7 +300,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                         </GridItem>,
                                     ]
                                   : []),
-                              ...(!checkIfNextTimeSlotHasPeople(
+                              ...(!hasPeopleInNextTimeSlot(
                                   `${minute}::${date}`,
                                   meetup
                               )
