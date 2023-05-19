@@ -19,10 +19,35 @@ import {
 import { format } from "date-fns";
 import React from "react";
 import { Meetup } from "../../db/repositories/meetups";
+import {
+    RANGE_0_DARK,
+    RANGE_0_LIGHT,
+    RANGE_1_DARK,
+    RANGE_1_LIGHT,
+    RANGE_2_DARK,
+    RANGE_2_LIGHT,
+    RANGE_3_DARK,
+    RANGE_3_LIGHT,
+    RANGE_4_DARK,
+    RANGE_4_LIGHT,
+    RANGE_EMPTY_DARK,
+    RANGE_EMPTY_LIGHT,
+    RANGE_FULL_DARK,
+    RANGE_FULL_LIGHT,
+} from "../../lib/std";
 import { removeDate } from "../../routes/meetup";
+import {
+    assignColor,
+    checkIfNextTimeSlotHasPeople,
+    getNumberOfConsectiveSelectedTimeSlots,
+    isPreviousTimeSlotSame,
+    RangeColors,
+} from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import { create30MinuteIncrements } from "../Time/TimeContainer";
 import { convertMinutesToAmPm } from "../Time/TimeSelector";
+import ColorExplainer from "./common/ColorExplainer";
+import DisplayBox from "./common/DisplayBox";
 
 type ByTimeListProps = {
     meetup: Meetup;
@@ -45,20 +70,19 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
 
-    // console.log({startMin, endMin})
-    const arr = create30MinuteIncrements(startMin, endMin);
+
 
     const numberOfUsers = meetup.users.length;
 
-    const range_empty = useColorModeValue("red.300", "red.800");
-    const range_0 = useColorModeValue("red.100", "red.600");
-    const range_1 = useColorModeValue("green.100", "green.400");
-    const range_2 = useColorModeValue("green.200", "green.500");
-    const range_3 = useColorModeValue("green.300", "green.600");
-    const range_4 = useColorModeValue("green.400", "green.700");
-    const range_full = useColorModeValue("green.500", "green.800");
+    const range_empty = useColorModeValue(RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK);
+    const range_0 = useColorModeValue(RANGE_0_LIGHT, RANGE_0_DARK);
+    const range_1 = useColorModeValue(RANGE_1_LIGHT, RANGE_1_DARK);
+    const range_2 = useColorModeValue(RANGE_2_LIGHT, RANGE_2_DARK);
+    const range_3 = useColorModeValue(RANGE_3_LIGHT, RANGE_3_DARK);
+    const range_4 = useColorModeValue(RANGE_4_LIGHT, RANGE_4_DARK);
+    const range_full = useColorModeValue(RANGE_FULL_LIGHT, RANGE_FULL_DARK);
 
-    const colors = [
+    const colors: RangeColors = [
         range_empty,
         range_0,
         range_1,
@@ -71,158 +95,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     const pageBackgroundColor = useColorModeValue("white", "gray.800");
     const lineColor = useColorModeValue("blackAlpha.600", "whiteAlpha.600");
 
-    /**
-     * Gets the correct intensity of the color, based on the % of people who can attend
-     *
-     * @param totalNum The total number of people who have interacted with the calendar // TODO: Check if we need to remove users when they remove all their selections
-     * @param amount The number of people who have selected this time slot
-     * @returns the correct color in the scale
-     */
-    const assignColor = (totalNum: number, amount: number) => {
-        const percent = amount / totalNum;
-        if (percent === 0) {
-            return range_empty;
-        }
-        if (percent < 0.2) {
-            return range_0;
-        }
-        if (percent < 0.4) {
-            return range_1;
-        }
-        if (percent < 0.6) {
-            return range_2;
-        }
-        if (percent < 0.8) {
-            return range_3;
-        }
-        if (percent < 1) {
-            return range_4;
-        }
-        return range_full;
-    };
 
-    /**
-     * Checks to see if the next timing has people who selected it.
-     *
-     * e.g. if the current time is 12:00pm, and the next time is 12:30pm,
-     * this function will check if anyone selected 12:30pm
-     *
-     * If the next time slot is the next day, always return false
-     *
-     * @param dateTimeStr the current time to check the next date of
-     * @returns true if the next time slot has people who selected it
-     */
-    const checkIfNextTimeSlotHasPeople = (dateTimeStr: string) => {
-        const [time, date] = dateTimeStr.split("::");
-        const nextTime = parseInt(time) + 30;
-        if (parseInt(time) + 30 >= 24 * 60) {
-            // it's the next day, ALWAYS render the stop.
-            return false;
-        }
-        const nextDateTimeStr = `${nextTime}::${date}`;
-        const stat = meetup.selectionMap[nextDateTimeStr]
-            ? meetup.selectionMap[nextDateTimeStr].length > 0
-            : false;
-        return stat;
-    };
-
-    /**
-     * Checks to see if the PREVIOUS timing has the same # of people and the same people in it.
-     * If so, we can merge the two time slots together and don't render THIS current time slot.
-     *
-     * @param dateTimeStr the current time to check the previous date of
-     * @returns true if the previous time slot has the same people and the same # of people    *
-     *
-     */
-    const isPreviousTimeSlotSame = (dateTimeStr: string) => {
-        const [time, date] = dateTimeStr.split("::");
-        const prevTime = parseInt(time) - 30;
-        if (parseInt(time) < 0) {
-            // it's the previous day
-            return false;
-        }
-
-        const prevDateTimeStr = `${prevTime}::${date}`;
-        const curSelected = meetup.selectionMap[dateTimeStr];
-        const previousSelected = meetup.selectionMap[prevDateTimeStr];
-        if (
-            !previousSelected ||
-            !curSelected ||
-            (previousSelected && previousSelected.length != curSelected.length)
-        ) {
-            return false;
-        }
-
-        // check if the two arrays have the same contents
-        const temp: { [key: number]: number } = {};
-        curSelected.forEach((user) => (temp[user.id] = 1));
-        const isSame = previousSelected.every((user) => temp[user.id] === 1);
-
-        return isSame;
-    };
-
-    /**
-     * Checks to see if the NEXT timing has the same # of people and the same people in it.
-     * If so, we can merge the two time slots together and don't render THIS current time slot.
-     *
-     * @param dateTimeStr the current time to check the previous date of
-     * @returns true if the previous time slot has the same people and the same # of people    *
-     *
-     */
-    const isNextTimeSlotSame = (dateTimeStr: string) => {
-        const [time, date] = dateTimeStr.split("::");
-        const nextTime = parseInt(time) + 30;
-        if (parseInt(time) >= 24 * 60) {
-            // it's the previous day
-            return false;
-        }
-
-        const nextDateTimeStr = `${nextTime}::${date}`;
-        const curSelected = meetup.selectionMap[dateTimeStr];
-        const nextSelected = meetup.selectionMap[nextDateTimeStr];
-        if (
-            !nextSelected ||
-            !curSelected ||
-            (nextSelected && nextSelected.length != curSelected.length)
-        ) {
-            return false;
-        }
-
-        // check if the two arrays have the same contents
-        const temp: { [key: number]: number } = {};
-        curSelected.forEach((user) => (temp[user.id] = 1));
-        const isSame = nextSelected.every((user) => temp[user.id] === 1);
-
-        return isSame;
-    };
-
-    /**
-     * Checks to see how many of the next time slots have the same # of people and the same people in it.
-     *
-     * Stops counting at midnight.
-     *
-     * @param dateTimeStr the current date and time to check
-     * @returns An array [0, 1, ..., n-1] where n and
-     * length is equal to the number of consecutive time slots that have the same # of people and the same people in it.
-     */
-    const getNumberOfConsectiveSelectedTimeSlots = (dateTimeStr: string) => {
-        const [time, date] = dateTimeStr.split("::");
-        let nextTime = parseInt(time) + 30;
-        let count = 0;
-        while (true) {
-            if (nextTime >= 24 * 60) {
-                // it's the next day, we stop counting here
-                break;
-            }
-            if (isPreviousTimeSlotSame(`${nextTime}::${date}`)) {
-                count++;
-                nextTime += 30;
-            } else {
-                break;
-            }
-        }
-        return Array.from(Array(count).keys());
-    };
 
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter((date) => {
@@ -252,20 +125,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                 alignItems="center"
                 mb={3}
             >
-                <HStack>
-                    <Text> Least </Text>
-                    <Flex>
-                        {colors.map((color, i) => (
-                            <Box
-                                key={i}
-                                width="24px"
-                                height="24px"
-                                bgColor={color}
-                            />
-                        ))}
-                    </Flex>
-                    <Text> Most </Text>
-                </HStack>
+                <ColorExplainer />
             </GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={3} key={date} mb={2} display="flex">
@@ -282,7 +142,10 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                     ...(meetup.selectionMap[`${minute}::${date}`] &&
                     meetup.selectionMap[`${minute}::${date}`].length
                         ? [
-                              ...(!isPreviousTimeSlotSame(`${minute}::${date}`)
+                              ...(!isPreviousTimeSlotSame(
+                                  `${minute}::${date}`,
+                                  meetup
+                              )
                                   ? [
                                         <GridItem
                                             key={`${minute}::${date}-1`}
@@ -335,12 +198,14 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                           .selectionMap[
                                                                           `${minute}::${date}`
                                                                       ].length
-                                                                    : 0
+                                                                    : 0,
+                                                                colors
                                                             )}
                                                             height={
                                                                 CELL_HEIGHT_NUM *
                                                                 (getNumberOfConsectiveSelectedTimeSlots(
-                                                                    `${minute}::${date}`
+                                                                    `${minute}::${date}`,
+                                                                    meetup
                                                                 ).length +
                                                                     1)
                                                             }
@@ -367,7 +232,8 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             height={`${
                                                                 CELL_HEIGHT_NUM *
                                                                 (getNumberOfConsectiveSelectedTimeSlots(
-                                                                    `${minute}::${date}`
+                                                                    `${minute}::${date}`,
+                                                                    meetup
                                                                 ).length +
                                                                     1)
                                                             }px`}
@@ -468,7 +334,8 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                     ]
                                   : []),
                               ...(!checkIfNextTimeSlotHasPeople(
-                                  `${minute}::${date}`
+                                  `${minute}::${date}`,
+                                  meetup
                               )
                                   ? [
                                         <GridItem
@@ -732,33 +599,5 @@ const FILLER_WIDTH = 6;
 const CELL_HEIGHT = "24px";
 const CELL_HEIGHT_NUM = 24;
 
-/**
- * Computes the box component for a 30-minute time slot.
- *
- * @returns A box component representing a 30-minute time slot
- */
-const DisplayBox = ({
-    children,
-    bgColor,
-    height,
-}: {
-    children?: React.ReactNode;
-    bgColor: string;
-    height?: number;
-}) => {
-    return (
-        <Center
-            width={`${CELL_WIDTH_NUM}px`}
-            // height={`${height}px}`}
-            height={`${height}px`}
-            bgColor={bgColor}
-            // outline="1px dashed"
-            // outlineColor={cellOutlineColor}
-            borderRadius={"4px 0 0 4px"}
-        >
-            <Text fontSize="2xs"> {children}</Text>
-        </Center>
-    );
-};
 
 export default ByTimeList;
