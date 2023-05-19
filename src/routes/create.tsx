@@ -106,6 +106,7 @@ const Create = () => {
             users: [],
             notified: false,
             selectionMap: {},
+            messages: [],
         };
 
         console.log({ MeetupData });
