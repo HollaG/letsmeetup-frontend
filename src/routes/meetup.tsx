@@ -1,8 +1,16 @@
-import { Button, Divider, Heading, Stack, Text, useColorMode } from "@chakra-ui/react";
+import {
+    Button,
+    Divider,
+    Heading,
+    Stack,
+    Text,
+    useColorMode,
+} from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import { useEffect, useState } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
+import ByDateList from "../components/AvailabilityList/ByDateList";
 import ByTimeList from "../components/AvailabilityList/ByTimeList";
 import CalendarContainer, {
     dateParser,
@@ -25,9 +33,9 @@ let tempUser: ITelegramUser = {
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
- * 
+ *
  * @param time the string to swap
- * 
+ *
  * @returns the swapped string
  */
 export const swapDateTimeStr = (time: string) => {
@@ -137,7 +145,6 @@ const MeetupPage = () => {
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
-
 
     /**
      * Checks if a cell has been selected
@@ -280,7 +287,7 @@ const MeetupPage = () => {
     return (
         <Stack spacing={4}>
             <Button onClick={toggleColorMode}> toggle mode </Button>
-            
+
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
@@ -317,13 +324,9 @@ const MeetupPage = () => {
                 </>
             )}
 
-            {!meetup.isFullDay && (
-                <>
-                    <Heading fontSize='lg'> Others' availability </Heading>
-                    <ByTimeList meetup={liveMeetup}/>
-                </>
-            )}
-
+            <Heading fontSize="lg"> Others' availability </Heading>
+            {!meetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
+            {meetup.isFullDay && <ByDateList meetup={liveMeetup} />}
         </Stack>
     );
 };
