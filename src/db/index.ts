@@ -3,6 +3,7 @@
 // import firebase
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // config value from add firebase sdk script that showed earlier.
 const config = {
@@ -17,6 +18,8 @@ const config = {
 
 // init app
 const fire = initializeApp(config);
+export const db = getFirestore(fire);
 
 // export default firestore
 export default fire;
+

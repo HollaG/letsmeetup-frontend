@@ -24,6 +24,9 @@ type CalendarDayProps = {
     prevSelected: boolean;
     nextSelected: boolean;
     onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, dateStr: string) => void
+    startDate: Date, // the start date of the calendar. Defaults to today
+    endDate: Date // the end date of the calendar. Defaults to 1 year from today
+    allowedDates?: string[]
     // type: 0|1|2|3|4 // 0: unselected, 1: circle, 2: square, 3: left square, 4: right square
 };
 
@@ -39,7 +42,10 @@ const CalendarDay = ({
     selected,
     nextSelected,
     prevSelected,
-    onTouchEnd
+    onTouchEnd,
+    startDate,
+    endDate,
+    allowedDates
 }: CalendarDayProps) => {
     // console.log("day rerender")
     const UNSELECTABLE_TEXT_COLOR = useColorModeValue(
@@ -51,6 +57,8 @@ const CalendarDay = ({
         DARK__SELECTED_DATE_COLOR
     );
     const CURRENT_DATE_COLOR = useColorModeValue("gray.200", "gray.600");
+
+    const isSelectable = isAfter(dateParser(dataKey), subDays(startDate, 1)) && isBefore(dateParser(dataKey), addDays(endDate, 1)) && (allowedDates?.includes(dataKey) || !allowedDates);
 
     /**
      * Calculates the color of the circle around the date, depending on whether
@@ -74,11 +82,11 @@ const CalendarDay = ({
      * @returns the class name for the day
      */
     const getClassName = () => {
-        let className = "";
+        let className = "date ";
         if (selected) {
             className += "selected ";
         }
-        if (isAfter(dateParser(dataKey), subDays(new Date(), 1))) {
+        if (isSelectable) {
             className += "selectable ";
         }
         return className;
@@ -89,7 +97,7 @@ const CalendarDay = ({
      * @returns the color the text should be
      */
     const getTextColor = () => {
-        if (isBefore(dateParser(dataKey), subDays(new Date(), 1))) {
+        if (!isSelectable) {
             return UNSELECTABLE_TEXT_COLOR;
         } else {
             return "unset";
@@ -131,7 +139,7 @@ const CalendarDay = ({
 
     return (
         <Box data-key={dataKey} className={getClassName()} width="100%">
-            <Square bg={getBgColor()} size="36px" mx="auto" borderRadius={getRadius()} minW={getWidth()}  onTouchEnd={(e) => onTouchEnd(e, dataKey)}>
+            <Square bg={getBgColor()} size="36px" mx="auto" borderRadius={getRadius()} minW={getWidth()}  >
                 <Text {...BODY_STYLES} color={getTextColor()}>
                     {children}{" "}
                 </Text>

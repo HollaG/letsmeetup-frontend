@@ -22,15 +22,26 @@ import {
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns/esm";
 import React, { useCallback, useEffect, useState } from "react";
+import useStateRef from "react-usestateref";
 import { ENCODER_SEPARATOR } from "../../lib/std";
+import { removeDate } from "../../routes/meetup";
 import { TimeSelection } from "../../types/types";
 import { dateParser } from "../Calendar/CalendarContainer";
 import TimeRangeSelector from "./TimeRangeSelector";
+import TimeSelector from "./TimeSelector";
 
 type TimeContainerProps = {
     datesSelected: string[];
     timesSelected: TimeSelection;
     setTimesSelected: React.Dispatch<React.SetStateAction<TimeSelection>>;
+    setPristine: React.Dispatch<React.SetStateAction<boolean>>;
+    pristine: boolean;
+
+    startMin: number;
+    endMin: number;
+    setTime: React.Dispatch<React.SetStateAction<[number, number]>>;
+    // @ts-ignore: this isn't exposed
+    timeRef: ReadOnlyRefObject<[number, number]>
 };
 
 /**
@@ -82,7 +93,7 @@ const CELL_WIDTH = "48px";
 const CELL_HEIGHT = "24px";
 const COL_HEADER_CELL_WIDTH = "64px";
 
-type CellData = {
+export type CellData = {
     row: number;
     col: number;
     value: string; // either the time value OR the current date string (yyyy-MM-dd)
@@ -90,7 +101,22 @@ type CellData = {
     isHeader: boolean;
     align?: "left" | "center" | "right";
 };
-
+/**
+ * Creates an array that holds the 30 minute increments between start and end.
+ *
+ * @param start the start time
+ * @param end the end time
+ *
+ * @returns an array of 30 minute increments in numbers [start, ..., end]
+ */
+export const create30MinuteIncrements = (
+    start: number = 9 * 60,
+    end: number = 17 * 60
+) => {
+    return Array.from(Array(Math.round((end - start) / 30)).keys()).map(
+        (i) => start + i * 30
+    );
+};
 /**
  * Contains all selections related to Time picking.
  *
@@ -101,32 +127,23 @@ const TimeContainer = ({
     datesSelected,
     timesSelected,
     setTimesSelected,
+    setPristine,
+    pristine,
+    endMin,
+    setTime,
+    startMin,
+    timeRef
 }: TimeContainerProps) => {
-    const [[startMin, endMin], setTime] = useState([9 * 60, 17 * 60]); // in minutes
-
-    /**
-     * Creates an array that holds the 30 minute increments between start and end.
-     *
-     * @param start the start time
-     * @param end the end time
-     *
-     * @returns an array of 30 minute increments in numbers [start, ..., end]
-     */
-    const create30MinuteIncrements = (start: number = 0, end: number = 0) => {
-        return Array.from(Array(Math.round((end - start) / 30)).keys()).map(
-            (i) => start + i * 30
-        );
-    };
-
+    
     /**
      *
      */
     const toggleIndividualTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPristine(false)
         if (e.target.checked) {
-            selectAll()
-            
+            selectAll();
+
             setTouched(false);
-           
         } else {
             // setTimesSelected([]);
         }
@@ -141,6 +158,7 @@ const TimeContainer = ({
      * Works because we have set unmountOnExit={true} for the Collapse.
      */
     const updateSelectionArea = (e: [number, number]) => {
+        console.log({ e });
         setTime(e);
         // setTimesSelected([]);
         setTouched(false);
@@ -149,26 +167,38 @@ const TimeContainer = ({
         // newStart < currentStart
         // newEnd > currentEnd
         let newTimes: TimeSelection = [];
-        if (e[0] < startMin) {
-            datesSelected.forEach((date) => {
-                newTimes.push(
-                    ...create30MinuteIncrements(e[0], startMin).map(
-                        (e) => `${e}${ENCODER_SEPARATOR}${date}`
-                    )
-                );
-            });
+        // if (e[0] < startMin) {
+        //     datesSelected.forEach((date) => {
+        //         newTimes.push(
+        //             ...create30MinuteIncrements(e[0], startMin).map(
+        //                 (e) => `${e}${ENCODER_SEPARATOR}${date}`
+        //             )
+        //         );
+        //     });
+        // }
+
+        // if (e[1] > endMin) {
+        //     datesSelected.forEach((date) => {
+        //         newTimes.push(
+        //             ...create30MinuteIncrements(endMin - 30, e[1]).map(
+        //                 (e) => `${e}${ENCODER_SEPARATOR}${date}`
+        //             )
+        //         );
+        //     });
+        // }
+
+        if (pristine) {                  
+            const flat = create30MinuteIncrements(timeRef.current[0], timeRef.current[1])
+            setTimesSelected(flat.flatMap(time => datesSelected.map(date => `${time}::${date}`)));
+        } else { 
+            // remove the ones that are no longer in the range
+            setTimesSelected((prev) =>
+                prev.filter((timeStr) => timeRef.current[0] <= Number(removeDate(timeStr)) && Number(removeDate(timeStr)) < timeRef.current[1])
+            )
         }
 
-        if (e[1] > endMin) {
-            datesSelected.forEach((date) => {
-                newTimes.push(
-                    ...create30MinuteIncrements(endMin - 30, e[1]).map(
-                        (e) => `${e}${ENCODER_SEPARATOR}${date}`
-                    )
-                );
-            });
-        }
-        setTimesSelected((prev) => [...prev, ...newTimes]);
+        // remove dupes
+        // setTimesSelected((prev) => [...new Set([...prev, ...newTimes])]);
 
         // if (showIndividualTimes) {
         //     setTempShow(false)
@@ -182,42 +212,9 @@ const TimeContainer = ({
     // e.g. [540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840] for startMin = 530, endMin = 840
     const thirtyMinuteIncrements = create30MinuteIncrements(startMin, endMin);
 
+    const [showIndividualTimes, setShowIndividualTimes] = useState(false);
     const convertRowNumberToMinutes = (startMin: number, row: number) =>
         startMin + row * 30;
-
-    // Calculate the number of 'divisions'
-    const divisions = Math.round((endMin - startMin) / 30); // can be zero
-    const arrayDiv = Array.from(Array(divisions).keys());
-
-    const [showIndividualTimes, setShowIndividualTimes] = useState(false);
-
-    const arrayToGenerate: CellData[][] = arrayDiv.map((r) => [
-        {
-            row: r,
-            col: -1,
-            value: convertMinutesToAmPm(convertRowNumberToMinutes(startMin, r)),
-            isClickable: false,
-            isHeader: true,
-        },
-        ...datesSelected.map((d, i) => ({
-            row: r,
-            col: i,
-            value: `${convertRowNumberToMinutes(
-                startMin,
-                r
-            )}${ENCODER_SEPARATOR}${d}`,
-            isClickable: true,
-            isHeader: false,
-        })),
-        {
-            row: r,
-            col: -1,
-            value: convertMinutesToAmPm(convertRowNumberToMinutes(startMin, r)),
-            isClickable: false,
-            isHeader: true,
-            align: "left",
-        },
-    ]);
 
     const cellOutlineColor = useColorModeValue("gray.200", "gray.800");
     const cellSelectedColor = useColorModeValue("blue.200", "blue.800");
@@ -253,20 +250,17 @@ const TimeContainer = ({
             .filter(Boolean)
             .map(String);
 
-    const onBeforeStart = useCallback(
-        ({ event, selection }: SelectionEvent) => {
-            // selection.
-            selection.clearSelection(true, true);
-            selection.select(".selectable.selected.time", true);
-            if ((event?.target as HTMLElement)?.className.includes("blocked")) {
-                return false;
-            } else {
-                // selection.select(".selectable.selected");
-                return true;
-            }
-        },
-        [touched]
-    );
+    const onBeforeStart = ({ event, selection }: SelectionEvent) => {
+        // selection.
+        selection.clearSelection(true, true);
+        selection.select(".selectable.selected.time", true);
+        if ((event?.target as HTMLElement)?.className.includes("blocked")) {
+            return false;
+        } else {
+            // selection.select(".selectable.selected");
+            return true;
+        }
+    };
 
     const onStart = ({ event, selection, store }: SelectionEvent) => {
         if (!event?.ctrlKey && !event?.metaKey) {
@@ -340,153 +334,24 @@ const TimeContainer = ({
                     onChange={toggleIndividualTime}
                 />
             </Flex>
-           
-                <Collapse in={showIndividualTimes} unmountOnExit>
-                    <Stack>
-                        <Flex justifyContent="end">
-                            <Button size="xs" colorScheme="blue" onClick={selectAll}>
-                                {" "}
-                                Select all{" "}
-                            </Button>
-                            <Button size="xs" colorScheme="red" ml={2} onClick={deselectAll}>
-                                {" "}
-                                Deselect all{" "}
-                            </Button>
-                        </Flex>
-                        <Box
-                            as={SelectionArea}
-                            className="select-container"
-                            onBeforeStart={onBeforeStart}
-                            onStart={onStart}
-                            onMove={onMove}
-                            onStop={onStop}
-                            selectables=".selectable"
-                            display="grid"
-                            gridTemplateColumns={`repeat(${
-                                datesSelected.length + 2
-                            }, 1fr)`}
-                            width="100%"
-                            maxHeight="480px"
-                            userSelect="none"
-                            overflow="auto"
-                            behaviour={{
-                                overlap: "invert",
-                                intersect: "touch",
-                                startThreshold: 10,
-                                scrolling: {
-                                    speedDivider: 10,
-                                    manualSpeed: 750,
-                                    startScrollMargins: {
-                                        x: 64,
-                                        y: 64,
-                                    },
-                                },
-                            }}
-                        >
-                            {/* This box is for the unused cell at top left. */}
-                            <Box
-                                width={COL_HEADER_CELL_WIDTH}
-                                bgColor="unset"
-                                pr={1}
-                            />
-                            {datesSelected.map((d, i) => (
-                                <Box
-                                    minWidth={CELL_WIDTH}
-                                    fontSize={"xs"}
-                                    textAlign={"center"}
-                                    fontWeight="normal"
-                                    // mx={CELL_PADDING_LR}
-                                    // my={CELL_PADDING_TB}
-                                    textTransform="unset"
-                                    p={0}
-                                    key={i}
-                                    className="blocked"
-                                >
-                                    {convertDateToDayAndMonth(d)[0]}
-                                    <br />
-                                    {convertDateToDayAndMonth(d)[1]}
-                                </Box>
-                            ))}
-                            <Box
-                                width={COL_HEADER_CELL_WIDTH}
-                                bgColor="unset"
-                                pr={1}
-                            />
 
-                            {arrayToGenerate.map((rows, r) =>
-                                rows.map((data, c) => (
-                                    <TableCell
-                                        key={`${data.value}-${r}-${c}`}
-                                        cellColor={
-                                            isSelectedCell(data)
-                                                ? cellSelectedColor
-                                                : cellUnselectedColor
-                                        }
-                                        data={data}
-                                        className={classNameGenerator(data)}
-                                        cellOutlineColor={cellOutlineColor}
-                                        // renderText={r % 2 == 0}
-                                    />
-                                ))
-                            )}
-                            {/* This cell provides the last timing. */}
-                            <TableCell
-                                cellColor={cellUnselectedColor}
-                                className="blocked"
-                                cellOutlineColor="unset"
-                                data={{
-                                    value: convertMinutesToAmPm(
-                                        convertRowNumberToMinutes(
-                                            startMin,
-                                            arrayToGenerate.length
-                                        )
-                                    ),
-                                    col: -1,
-                                    row: arrayToGenerate.length,
-                                    isClickable: false,
-                                    isHeader: true,
-                                }}
-                            />
-                            {datesSelected.map((d, i) => (
-                                <Box
-                                    minWidth={CELL_WIDTH}
-                                    fontSize={"xs"}
-                                    textAlign={"center"}
-                                    fontWeight="normal"
-                                    // mx={CELL_PADDING_LR}
-                                    // my={CELL_PADDING_TB}
-                                    textTransform="unset"
-                                    p={0}
-                                    key={i + datesSelected.length}
-                                    className="blocked"
-                                >
-                                    {convertDateToDayAndMonth(d)[0]}
-                                    <br />
-                                    {convertDateToDayAndMonth(d)[1]}
-                                </Box>
-                            ))}
-                            <TableCell
-                                cellColor={cellUnselectedColor}
-                                className="blocked"
-                                cellOutlineColor="unset"
-                                data={{
-                                    value: convertMinutesToAmPm(
-                                        convertRowNumberToMinutes(
-                                            startMin,
-                                            arrayToGenerate.length
-                                        )
-                                    ),
-                                    col: -1,
-                                    row: arrayToGenerate.length,
-                                    isClickable: false,
-                                    isHeader: true,
-                                    align: "left",
-                                }}
-                            />
-                        </Box>
-                    </Stack>
-                </Collapse>
-           
+            <Collapse in={showIndividualTimes} unmountOnExit>
+                <TimeSelector
+                    // arrayToGenerate={arrayToGenerate}
+                    classNameGenerator={classNameGenerator}
+                    datesSelected={datesSelected}
+                    deselectAll={deselectAll}
+                    endMin={endMin}
+                    startMin={startMin}
+                    isSelectedCell={isSelectedCell}
+                    selectAll={selectAll}
+                    timesSelected={timesSelected}
+                    onBeforeStart={onBeforeStart}
+                    onMove={onMove}
+                    onStart={onStart}
+                    onStop={onStop}
+                />
+            </Collapse>
         </Stack>
     );
 };

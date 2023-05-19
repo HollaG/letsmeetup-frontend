@@ -11,8 +11,11 @@ import {
     useColorMode,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
+import useStateRef from "react-usestateref";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
-import TimeContainer from "../components/Time/TimeContainer";
+import TimeContainer, {
+    create30MinuteIncrements,
+} from "../components/Time/TimeContainer";
 import TimeRangeSelector from "../components/Time/TimeRangeSelector";
 import { useTelegram } from "../context/TelegramProvider";
 import { create, Meetup } from "../db/repositories/meetups";
@@ -24,15 +27,25 @@ const Create = () => {
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
 
-    const [datesSelected, setDatesSelected] = useState<string[]>([]);
+    const [datesSelected, setDatesSelected, datesRef] = useStateRef<string[]>(
+        []
+    );
 
-    const [timesSelected, setTimesSelected] = useState<TimeSelection>([]);
+    const [timesSelected, setTimesSelected, timesRef] =
+        useStateRef<TimeSelection>([]);
 
     const [isFullDay, setIsFullDay] = useState<boolean>(false);
 
     const { user, webApp } = useTelegram();
 
     const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
+
+    const [[startMin, endMin], setTime, timeRef] = useStateRef([
+        9 * 60,
+        17 * 60,
+    ]); // in minutes
+
+    // handle the form state TODO: replace with useStateRef
     useEffect(() => {
         if (datesSelected.length !== 0 && title !== "") {
             // at least one date must be selected
@@ -65,13 +78,12 @@ const Create = () => {
      *
      * Note: Runs twice for some reason.
      *
-     * 
+     *
      */
     const onSubmit = () => {
         // setIsSubmitting(true);
         console.log("submitting data or smt");
         // webApp?.MainButton.showProgress(false);
-        console.log({ userCanSubmit });
 
         // Validate data
         if (!userCanSubmit) {
@@ -83,20 +95,22 @@ const Create = () => {
             description,
             date_created: new Date(),
             creator: {
-                user_ID: user!.id,
+                id: user!.id,
                 first_name: user!.first_name,
                 username: user!.username,
                 photo_url: user!.photo_url || "",
             },
             isFullDay,
-            timeslots: isFullDay ? [] : timesSelected,
-            dates: datesSelected,
+            timeslots: isFullDay ? [] : timesRef.current,
+            dates: datesRef.current,
             users: [],
             notified: false,
+            selectionMap: {},
         };
 
         console.log({ MeetupData });
 
+        
         create(MeetupData)
             .then((res) => {
                 // console.log(res);
@@ -104,12 +118,19 @@ const Create = () => {
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                webApp?.switchInlineQuery(`share_${newDocId}`, ['users', 'groups', 'channels', 'bots'] )
+                webApp?.switchInlineQuery(`share_${newDocId}`, [
+                    "users",
+                    "groups",
+                    "channels",
+                    "bots",
+                ]);
             })
             .catch((e) => {
                 alert("somme error!!");
             });
     };
+
+   
 
     /**
      * Initialize button at bottom of screen
@@ -133,7 +154,7 @@ const Create = () => {
             } else {
                 webApp.MainButton.disable();
             }
-            console.log("updating onSubmit");
+            // console.log("updating onSubmit");
             webApp.MainButton.onClick(onSubmit);
         }
 
@@ -149,6 +170,20 @@ const Create = () => {
         timesSelected,
         isFullDay,
     ]);
+
+    /**
+     * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
+     *
+     * Pristine refers to whether the 'set individual date times' switch has been touched.
+     */
+    const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
+    const onStop = () => {
+        if (pristineRef.current) {                  
+            console.log("hello very much");
+            const flat = create30MinuteIncrements(timeRef.current[0], timeRef.current[1])
+            setTimesSelected(flat.flatMap(time => datesRef.current.map(date => `${time}::${date}`)));
+        }
+    };
 
     return (
         <Stack spacing={4}>
@@ -175,6 +210,7 @@ const Create = () => {
             <CalendarContainer
                 datesSelected={datesSelected}
                 setDatesSelected={setDatesSelected}
+                onStop={onStop}
             />
             <Heading fontSize={"xl"} pt={6}>
                 {" "}
@@ -184,7 +220,9 @@ const Create = () => {
                 <Text> Set as full day </Text>
                 <Switch
                     isChecked={isFullDay}
-                    onChange={(e) => setIsFullDay(e.target.checked)}
+                    onChange={(e) => {
+                        setIsFullDay(e.target.checked);
+                    }}
                 />
             </Flex>
             <Collapse in={!isFullDay}>
@@ -192,6 +230,12 @@ const Create = () => {
                     datesSelected={datesSelected}
                     setTimesSelected={setTimesSelected}
                     timesSelected={timesSelected}
+                    setPristine={setPristine}
+                    pristine={pristine}
+                    endMin={endMin}
+                    setTime={setTime}
+                    timeRef={timeRef}
+                    startMin={startMin}
                 />
             </Collapse>
         </Stack>
