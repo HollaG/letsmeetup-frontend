@@ -36,12 +36,14 @@ export const all = async (): Promise<Array<ITelegramUser>> => {
 };
 
 // create a user
-export const createIfNotExists = async (user: ITelegramUser): Promise<ITelegramUser> | never => {
+export const createIfNotExists = async (
+    user: ITelegramUser
+): Promise<ITelegramUser> | never => {
     const dbRef = doc(db, COLLECTION_NAME);
     try {
         const docRef = await setDoc(dbRef, user);
-        
-        return {       
+
+        return {
             ...user,
         } as ITelegramUser;
     } catch (e) {
@@ -55,7 +57,7 @@ export const createIfNotExists = async (user: ITelegramUser): Promise<ITelegramU
 //     const docRef = doc(db, COLLECTION_NAME);
 //     try {
 //         const updated = await updateDoc(docRef, user);
-//         return {           
+//         return {
 //             ...user
 //         } as ITelegramUser;
 //     } catch (e) {

@@ -41,7 +41,7 @@ type TimeContainerProps = {
     endMin: number;
     setTime: React.Dispatch<React.SetStateAction<[number, number]>>;
     // @ts-ignore: this isn't exposed
-    timeRef: ReadOnlyRefObject<[number, number]>
+    timeRef: ReadOnlyRefObject<[number, number]>;
 };
 
 /**
@@ -132,14 +132,13 @@ const TimeContainer = ({
     endMin,
     setTime,
     startMin,
-    timeRef
+    timeRef,
 }: TimeContainerProps) => {
-    
     /**
      *
      */
     const toggleIndividualTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPristine(false)
+        setPristine(false);
         if (e.target.checked) {
             selectAll();
 
@@ -187,14 +186,25 @@ const TimeContainer = ({
         //     });
         // }
 
-        if (pristine) {                  
-            const flat = create30MinuteIncrements(timeRef.current[0], timeRef.current[1])
-            setTimesSelected(flat.flatMap(time => datesSelected.map(date => `${time}::${date}`)));
-        } else { 
+        if (pristine) {
+            const flat = create30MinuteIncrements(
+                timeRef.current[0],
+                timeRef.current[1]
+            );
+            setTimesSelected(
+                flat.flatMap((time) =>
+                    datesSelected.map((date) => `${time}::${date}`)
+                )
+            );
+        } else {
             // remove the ones that are no longer in the range
             setTimesSelected((prev) =>
-                prev.filter((timeStr) => timeRef.current[0] <= Number(removeDate(timeStr)) && Number(removeDate(timeStr)) < timeRef.current[1])
-            )
+                prev.filter(
+                    (timeStr) =>
+                        timeRef.current[0] <= Number(removeDate(timeStr)) &&
+                        Number(removeDate(timeStr)) < timeRef.current[1]
+                )
+            );
         }
 
         // remove dupes

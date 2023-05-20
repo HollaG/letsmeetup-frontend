@@ -16,7 +16,10 @@ import {
     RANGE_FULL_LIGHT,
     RANGE_FULL_DARK,
 } from "../../../lib/std";
-import { assignColor, RangeColors } from "../../../utils/availabilityList.utils";
+import {
+    assignColor,
+    RangeColors,
+} from "../../../utils/availabilityList.utils";
 
 const ColorExplainer = ({ numTotal }: { numTotal: number }) => {
     const range_empty = useColorModeValue(RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK);

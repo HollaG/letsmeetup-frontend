@@ -37,7 +37,7 @@ type TimeRangeSelectorProps = {
     startMin: number;
     endMin: number;
     setTime: React.Dispatch<React.SetStateAction<[number, number]>>;
-    updateSelectionArea: (e: [number, number]) => void
+    updateSelectionArea: (e: [number, number]) => void;
 };
 
 /**
@@ -49,11 +49,11 @@ const TimeRangeSelector = ({
     startMin,
     endMin,
     setTime,
-    updateSelectionArea
+    updateSelectionArea,
 }: TimeRangeSelectorProps) => {
     const start = 0;
     const end = 24 * 60 - 1;
-    
+
     const [[localStart, localEnd], setLocals] = useState([9 * 60, 17 * 60]);
 
     return (

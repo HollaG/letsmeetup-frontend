@@ -63,14 +63,14 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     // only draw for
     // temporary array of length meetup.timeslots
 
-    const times = [...new Set(meetup.timeslots.map(removeDate))].sort((a, b) => a - b);
+    const times = [...new Set(meetup.timeslots.map(removeDate))].sort(
+        (a, b) => a - b
+    );
 
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
-
-
 
     const numberOfUsers = meetup.users.length;
 
@@ -94,8 +94,6 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     const bgColor = useColorModeValue("gray.100", "gray.900");
     const pageBackgroundColor = useColorModeValue("white", "gray.800");
     const lineColor = useColorModeValue("blackAlpha.600", "whiteAlpha.600");
-
-
 
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter((date) => {
@@ -239,7 +237,6 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             }px`}
                                                         ></Box>
                                                     </Flex>
-                                                    
                                                 </Stack>
                                                 <Box
                                                     w="100%"
@@ -565,6 +562,5 @@ const CELL_WIDTH_NUM = 36;
 const FILLER_WIDTH = 6;
 const CELL_HEIGHT = "24px";
 const CELL_HEIGHT_NUM = 24;
-
 
 export default ByTimeList;

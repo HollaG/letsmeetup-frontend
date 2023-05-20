@@ -130,7 +130,7 @@ const TimeSelector = ({
         },
     ]);
 
-    console.log({arrayToGenerate, arrayDiv, startMin, endMin})
+    console.log({ arrayToGenerate, arrayDiv, startMin, endMin });
 
     return (
         <Stack>
@@ -306,10 +306,7 @@ const TableCell =
         renderText = true,
         isAllowed = true,
     }: SelectableCellProps) => {
-        const notAllowedStripeColor1 = useColorModeValue(
-            "gray.200",
-            "#2D3748"
-        );
+        const notAllowedStripeColor1 = useColorModeValue("gray.200", "#2D3748");
         const notAllowedStripeColor2 = useColorModeValue(
             "purple.200",
             "purple.900"

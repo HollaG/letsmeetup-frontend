@@ -217,7 +217,7 @@ const CalendarContainer = ({
 
     // TODO: Check if this is really necessary
     const _onStop = (store: SelectionEvent) => {
-        console.log("onstop")
+        console.log("onstop");
         onStop && onStop(store);
         setIsDragging(false);
     };
