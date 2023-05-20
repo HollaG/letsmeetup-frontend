@@ -1,8 +1,14 @@
 import {
     Button,
+    Center,
     Divider,
     Heading,
     Stack,
+    Tab,
+    TabList,
+    TabPanel,
+    TabPanels,
+    Tabs,
     Text,
     useColorMode,
     useColorModeValue,
@@ -13,6 +19,8 @@ import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../components/AvailabilityList/ByDateList";
 import ByTimeList from "../components/AvailabilityList/ByTimeList";
+import CalendarDisplay from "../components/AvailabilityList/CalendarDisplay";
+import ColorExplainer from "../components/AvailabilityList/common/ColorExplainer";
 import CalendarContainer, {
     dateParser,
 } from "../components/Calendar/CalendarContainer";
@@ -57,7 +65,7 @@ export const swapDateTimeStr = (time: string) => {
  * @param time the string to clean
  * @returns The date string
  */
-const removeTime = (time: string) => {
+export const removeTime = (time: string) => {
     if (time.includes("::")) {
         return time.split("::")[1];
     } else {
@@ -464,42 +472,73 @@ const MeetupPage = () => {
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
-            <Heading fontSize={"lg"}> Select your available dates </Heading>
-            <CalendarContainer
-                datesSelected={datesSelected}
-                setDatesSelected={setDatesSelected}
-                startDate={startDate}
-                endDate={endDate}
-                allowedDates={meetup.dates}
-                onStop={onStopDate}
-                onBeforeStart={onBeforeStartDate}
-            />
-            {!meetup.isFullDay && (
-                <>
-                    <Heading fontSize={"lg"}>
-                        {" "}
-                        Select your available times{" "}
-                    </Heading>
-                    <TimeSelector
-                        classNameGenerator={classNameGenerator}
-                        datesSelected={datesRef.current}
-                        deselectAll={deselectAllTimes}
-                        endMin={endMin}
-                        startMin={startMin}
-                        isSelectedCell={isSelectedCell}
-                        selectAll={selectAllTimes}
-                        timesSelected={timesRef.current}
-                        onBeforeStart={onBeforeStartTime}
-                        onMove={onMoveTime}
-                        allowedTimes={meetup.timeslots}
-                        onStop={onStopTime}
-                    />
-                </>
-            )}
 
-            <Heading fontSize="lg"> Others' availability </Heading>
-            {!meetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
-            {meetup.isFullDay && <ByDateList meetup={liveMeetup} />}
+            <Tabs isFitted>
+                <TabList>
+                    <Tab> Select your availability </Tab>
+                    <Tab> View others' availability </Tab>
+                </TabList>
+                <TabPanels>
+                    <TabPanel>
+                        <Stack spacing={4} justifyContent="left">
+                            <Heading fontSize={"lg"}>
+                                Select your available dates{" "}
+                            </Heading>
+                            <CalendarContainer
+                                datesSelected={datesSelected}
+                                setDatesSelected={setDatesSelected}
+                                startDate={startDate}
+                                endDate={endDate}
+                                allowedDates={meetup.dates}
+                                onStop={onStopDate}
+                                onBeforeStart={onBeforeStartDate}
+                            />
+                            {!meetup.isFullDay && (
+                                <>
+                                    <Heading fontSize={"lg"}>
+                                        {" "}
+                                        Select your available times{" "}
+                                    </Heading>
+                                    <TimeSelector
+                                        classNameGenerator={classNameGenerator}
+                                        datesSelected={datesRef.current}
+                                        deselectAll={deselectAllTimes}
+                                        endMin={endMin}
+                                        startMin={startMin}
+                                        isSelectedCell={isSelectedCell}
+                                        selectAll={selectAllTimes}
+                                        timesSelected={timesRef.current}
+                                        onBeforeStart={onBeforeStartTime}
+                                        onMove={onMoveTime}
+                                        allowedTimes={meetup.timeslots}
+                                        onStop={onStopTime}
+                                    />
+                                </>
+                            )}
+                        </Stack>
+                    </TabPanel>
+                    <TabPanel>
+                        <Stack spacing={4} justifyContent="left">
+                            <Heading fontSize="lg">
+                                {" "}
+                                Others' availability{" "}
+                            </Heading>
+                            <Center>
+                                <ColorExplainer
+                                    numTotal={meetup.users.length}
+                                />
+                            </Center>
+                            <CalendarDisplay meetup={liveMeetup} />
+                            {!meetup.isFullDay && (
+                                <ByTimeList meetup={liveMeetup} />
+                            )}
+                            {meetup.isFullDay && (
+                                <ByDateList meetup={liveMeetup} />
+                            )}
+                        </Stack>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </Stack>
     );
 };

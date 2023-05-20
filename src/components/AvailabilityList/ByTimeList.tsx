@@ -122,14 +122,12 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                 justifyContent={"center"}
                 alignItems="center"
                 mb={3}
-            >
-                <ColorExplainer numTotal={meetup.users.length} />
-            </GridItem>
+            ></GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={3} key={date} mb={2} display="flex">
                     <Stack width="100%">
                         <Divider borderWidth={"2px"} />
-                        <Heading fontSize="lg">
+                        <Heading fontSize="lg" id={date}>
                             {" "}
                             {format(dateParser(date), "EEEE, d MMMM yyyy")}{" "}
                         </Heading>
