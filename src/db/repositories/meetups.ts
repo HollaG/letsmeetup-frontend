@@ -43,7 +43,7 @@ export type Meetup = {
         message_thread_id?: number;
         chat_id: number;
         inline_message_id?: string;
-    }[]
+    }[];
 };
 
 export type UserAvailabilityData = {
@@ -137,6 +137,7 @@ export const updateAvailability = async (
 
     let newAvailabilityData: UserAvailabilityData[] = [];
     if (!previousUserData) {
+        // this user has not selected anything yet
         newAvailabilityData = [
             ...oldUsers,
             {
@@ -146,16 +147,25 @@ export const updateAvailability = async (
             },
         ];
     } else {
-        newAvailabilityData = oldUsers.map((u) => {
-            if (u.user.id === user.id) {
-                return {
-                    ...u,
-                    selected: isFullDay ? datesSelected : timesSelected,
-                };
-            } else {
-                return u;
-            }
-        });
+        // this user has already selected something
+        if (
+            (isFullDay && !datesSelected.length) ||
+            (!isFullDay && !timesSelected.length)
+        ) {
+            // this user has unselected everything
+            newAvailabilityData = oldUsers.filter((u) => u.user.id !== user.id);
+        } else {
+            newAvailabilityData = oldUsers.map((u) => {
+                if (u.user.id === user.id) {
+                    return {
+                        ...u,
+                        selected: isFullDay ? datesSelected : timesSelected,
+                    };
+                } else {
+                    return u;
+                }
+            });
+        }
     }
 
     // update the selectionMap
@@ -166,22 +176,22 @@ export const updateAvailability = async (
         const res = oldMeetup.selectionMap[dateTimeStr].filter(
             (u) => u.id !== user.id
         );
-        res.length && (newMap[(dateTimeStr)] = res);
+        res.length && (newMap[dateTimeStr] = res);
     }
     if (isFullDay) {
         datesSelected.forEach((date) => {
-            if (!newMap[(date)]) {
-                newMap[(date)] = [user];
+            if (!newMap[date]) {
+                newMap[date] = [user];
             } else {
-                newMap[(date)].push(user);
+                newMap[date].push(user);
             }
         });
     } else {
         timesSelected.forEach((time) => {
-            if (!newMap[(time)]) {
-                newMap[(time)] = [user];
+            if (!newMap[time]) {
+                newMap[time] = [user];
             } else {
-                newMap[(time)].push(user);
+                newMap[time].push(user);
             }
         });
     }
