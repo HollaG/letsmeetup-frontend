@@ -3,12 +3,15 @@ import {
     Collapse,
     Container,
     Flex,
+    FormHelperText,
     Heading,
     Input,
     Stack,
     Switch,
     Text,
+    Textarea,
     useColorMode,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import useStateRef from "react-usestateref";
@@ -24,8 +27,9 @@ import { TimeSelection } from "../types/types";
 const Create = () => {
     const { colorMode, toggleColorMode } = useColorMode();
 
-    const [title, setTitle] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
+    const [title, setTitle, titleRef] = useStateRef<string>("");
+    const [description, setDescription, descriptionRef] =
+        useStateRef<string>("");
 
     const [datesSelected, setDatesSelected, datesRef] = useStateRef<string[]>(
         []
@@ -34,7 +38,7 @@ const Create = () => {
     const [timesSelected, setTimesSelected, timesRef] =
         useStateRef<TimeSelection>([]);
 
-    const [isFullDay, setIsFullDay] = useState<boolean>(false);
+    const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
 
     const { user, webApp } = useTelegram();
 
@@ -91,8 +95,8 @@ const Create = () => {
         }
 
         const MeetupData: Meetup = {
-            title,
-            description,
+            title: titleRef.current,
+            description: descriptionRef.current,
             date_created: new Date(),
             creator: {
                 id: user!.id,
@@ -101,7 +105,7 @@ const Create = () => {
                 photo_url: user!.photo_url || "",
             },
             isFullDay,
-            timeslots: isFullDay ? [] : timesRef.current,
+            timeslots: isFullDayRef.current ? [] : timesRef.current,
             dates: datesRef.current,
             users: [],
             notified: false,
@@ -111,7 +115,6 @@ const Create = () => {
 
         console.log({ MeetupData });
 
-        
         create(MeetupData)
             .then((res) => {
                 // console.log(res);
@@ -131,8 +134,6 @@ const Create = () => {
             });
     };
 
-   
-
     /**
      * Initialize button at bottom of screen
      */
@@ -148,29 +149,40 @@ const Create = () => {
     /**
      * Handle dynamic updates
      */
+    // useEffect(() => {
+    //     if (webApp) {
+    //         if (userCanSubmit) {
+    //             webApp.MainButton.enable();
+    //         } else {
+    //             webApp.MainButton.disable();
+    //         }
+    //         // console.log("updating onSubmit");
+    //         webApp.MainButton.onClick(onSubmit);
+    //     }
+
+    //     return () => {
+    //         webApp && webApp.MainButton.offClick(onSubmit);
+    //     };
+    // }, [
+    //     webApp,
+    //     userCanSubmit,
+    //     title,
+    //     description,
+    //     datesSelected,
+    //     timesSelected,
+    //     isFullDay,
+    // ]);
     useEffect(() => {
         if (webApp) {
             if (userCanSubmit) {
-                webApp.MainButton.enable();
+                enableButton();
             } else {
-                webApp.MainButton.disable();
+                disableButton();
             }
             // console.log("updating onSubmit");
             webApp.MainButton.onClick(onSubmit);
         }
-
-        return () => {
-            webApp && webApp.MainButton.offClick(onSubmit);
-        };
-    }, [
-        webApp,
-        userCanSubmit,
-        title,
-        description,
-        datesSelected,
-        timesSelected,
-        isFullDay,
-    ]);
+    }, [webApp, userCanSubmit]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
@@ -179,25 +191,77 @@ const Create = () => {
      */
     const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
     const onStop = () => {
-        if (pristineRef.current) {                  
+        if (pristineRef.current) {
             console.log("hello very much");
-            const flat = create30MinuteIncrements(timeRef.current[0], timeRef.current[1])
-            setTimesSelected(flat.flatMap(time => datesRef.current.map(date => `${time}::${date}`)));
+            const flat = create30MinuteIncrements(
+                timeRef.current[0],
+                timeRef.current[1]
+            );
+            setTimesSelected(
+                flat.flatMap((time) =>
+                    datesRef.current.map((date) => `${time}::${date}`)
+                )
+            );
         }
     };
 
+    const btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const textColor = useColorModeValue("#000000", "#ffffff");
+    /**
+     * Disables the button, along with setting the color
+     */
+    const disableButton = () => {
+        console.log("disabling button");
+        if (webApp) {
+            // webApp.MainButton.isVisible = false;
+            webApp.MainButton.color = disabledBtnColor;
+            webApp.MainButton.disable();
+            webApp.MainButton.setText("Please fill in all required fields");
+            webApp.isClosingConfirmationEnabled = false;
+        }
+    };
+
+    /**
+     * Enables the button, along with setting the color
+     */
+    const enableButton = () => {
+        console.log("enabling button");
+
+        if (webApp) {
+            // webApp.MainButton.isVisible = true;
+            webApp.MainButton.color = btnColor;
+            webApp.MainButton.enable();
+            webApp.MainButton.setText("Create meetup");
+            webApp.isClosingConfirmationEnabled = true;
+            // webApp.MainButton.textColor = textColor
+        }
+    };
+
+    // Listen to when the selected data changes and update the button accordingly
+    // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
+    // TODO: maybe synchronise this to Telegram's theme?
+    useEffect(() => {
+        if (webApp) {
+            if (!userCanSubmit) {
+                disableButton();
+            } else {
+                enableButton();
+            }
+        }
+    }, [colorMode, userCanSubmit]);
+
     return (
         <Stack spacing={4}>
-            <Button onClick={toggleColorMode}> toggle mode </Button>
             <Heading fontSize={"xl"}> Create a new event </Heading>
             <Input
                 id="title"
-                placeholder="Event title"
+                placeholder="Event title (required)"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
             />
-            <Input
+            <Textarea
                 id="description"
                 placeholder="Event description (optional)"
                 value={description}
@@ -213,6 +277,7 @@ const Create = () => {
                 setDatesSelected={setDatesSelected}
                 onStop={onStop}
             />
+
             <Heading fontSize={"xl"} pt={6}>
                 {" "}
                 Select the possible event timings{" "}

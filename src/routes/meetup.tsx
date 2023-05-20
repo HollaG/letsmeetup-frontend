@@ -238,6 +238,8 @@ const MeetupPage = () => {
 
     };
 
+
+
     /**
      * Runs before Date selection to reset the store because the library doesn't handle pre-selected items well
      *
@@ -266,7 +268,8 @@ const MeetupPage = () => {
             datesRef.current.includes(removeTime(slot))
         );
         setTimesSelected(slotsToPickFrom);
-        onSubmit()
+        // onSubmit()
+        setHasDataChanged(true);
 
     };
 
@@ -281,7 +284,9 @@ const MeetupPage = () => {
         //     datesSelected: datesRef.current,
         //     timesSelected: timesRef.current,
         // });
-        onSubmit()
+        // onSubmit()
+        setHasDataChanged(true);
+
     };
 
     /**
@@ -368,10 +373,7 @@ const MeetupPage = () => {
 
     return (
         <Stack spacing={4}>
-            <Button colorScheme={'blue'}>asd </Button>
-            <Button colorScheme={'blue'} isDisabled>asd </Button>
-            <Button onClick={toggleColorMode}> toggle mode </Button>
-
+            
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
