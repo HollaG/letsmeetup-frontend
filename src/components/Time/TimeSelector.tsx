@@ -46,7 +46,7 @@ const convertRowNumberToMinutes = (startMin: number, row: number) =>
     startMin + row * 30;
 
 /**
- * Converts the minutes since 0000 into a string in the format of HH:MM am/pm.
+ * Converts the minutes since 0000 into a string in the format of h:mm am/pm.
  *
  * @param minutes the number of minutes since 00:00
  * @returns nice string
