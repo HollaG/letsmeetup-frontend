@@ -273,7 +273,7 @@ const Create = () => {
             </Heading>
 
             <CalendarContainer
-                datesSelected={datesSelected}
+                datesSelected={datesRef.current}
                 setDatesSelected={setDatesSelected}
                 onStop={onStop}
             />

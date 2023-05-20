@@ -130,8 +130,6 @@ const TimeSelector = ({
         },
     ]);
 
-    console.log({ arrayToGenerate, arrayDiv, startMin, endMin });
-
     return (
         <Stack>
             <Flex justifyContent="end">

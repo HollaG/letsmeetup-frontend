@@ -180,6 +180,11 @@ const CalendarContainer = ({
 
     const [isDragging, setIsDragging] = useState(false);
 
+    const [
+        clickedOnAlreadySelected,
+        setClickedOnAlreadySelected,
+        clickedOnAlreadySelectedRef,
+    ] = useStateRef(0);
     /**
      * Extracts the IDs from an array of elements.
      *
@@ -205,8 +210,45 @@ const CalendarContainer = ({
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        // if (added.length) console.log({added: extractIds(added)})
-        // if (removed.length) console.log({removed: extractIds(removed)})
+        console.log("------- on move start --------");
+        if (added.length) {
+            console.log({ added: extractIds(added) });
+            // if something was added and it's the first item, set the mode to "select" mode.
+            // in this case, do not deselect anything
+            if (tempRef.current == 0) {
+                setTemp(1);
+
+                // const initialDatesSelected = [...datesSelected]
+            }
+        }
+        if (removed.length) {
+            // we are in remove mode
+            console.log({ removed: extractIds(removed) });
+            if (tempRef.current == 0) {
+                setTemp(2);
+            }
+        }
+
+        console.log(tempRef.current);
+
+        if (tempRef.current == 1) {
+            console.log("IN ADD MODE");
+
+            // setDatesSelected((prev) => {
+            //     const next = new Set(prev);
+            //     extractIds(added).forEach((id) => next.add(id));
+            //     extractIds(removed).forEach((id) => next.delete(id));
+            //     return [...next].sort();
+            // });
+        } else if (tempRef.current == 2) {
+            console.log("IN DELETEMODE");
+            // setDatesSelected((prev) => {
+            //     const next = new Set(prev);
+            //     extractIds(added).forEach((id) => next.delete(id));
+            //     // extractIds(removed).forEach((id) => next.add(id));
+            //     return [...next].sort();
+            // });
+        }
 
         setDatesSelected((prev) => {
             const next = new Set(prev);
@@ -214,13 +256,15 @@ const CalendarContainer = ({
             extractIds(removed).forEach((id) => next.delete(id));
             return [...next].sort();
         });
+        console.log("------- on move end --------");
     };
 
     // TODO: Check if this is really necessary
     const _onStop = (store: SelectionEvent) => {
-        console.log("onstop");
+        // console.log("onstop");
         onStop && onStop(store);
         setIsDragging(false);
+        setTemp(0);
     };
 
     /**
@@ -246,11 +290,18 @@ const CalendarContainer = ({
         [isDragging]
     );
 
-    const [temp, setTemp, tempRef] = useStateRef(false);
+    const [temp, setTemp, tempRef] = useStateRef(0);
 
     const tempBefStart = (e: SelectionEvent) => {
-        setTemp((prev) => !prev);
-
+        // console.log("setting temp", tempRef.current);
+        // setTemp((prev) => !prev);
+        // // console.log(e.store.changed);
+        // // return false;
+        // if (e.store.changed.added) {
+        // }
+        // console.log(e.selection.getSelection(), "<--");
+        e.selection.clearSelection(true, true);
+        e.selection.select(".selectable.selected.date", true);
         onBeforeStart && onBeforeStart(e);
     };
 
@@ -299,7 +350,7 @@ const CalendarContainer = ({
                     range: true,
                 }}
                 behaviour={{
-                    overlap: temp ? "drop" : "keep",
+                    overlap: "keep",
                     intersect: "touch",
                     startThreshold: 10,
                     scrolling: {
