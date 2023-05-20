@@ -10,7 +10,6 @@ import {
     theme,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { Logo } from "./Logo";
 
 import * as meetups from "./db/repositories/meetups";
 import { useEffect } from "react";
