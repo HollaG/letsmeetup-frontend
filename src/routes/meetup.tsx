@@ -5,6 +5,7 @@ import {
     Stack,
     Text,
     useColorMode,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import { useEffect, useState } from "react";
@@ -87,7 +88,9 @@ const MeetupPage = () => {
     const firestore = useFirestore();
     const [document, setDocument] = useState();
 
-    const { meetupId } = useParams();
+    let { meetupId } = useParams<{
+        meetupId: string;
+    }>() as { meetupId: string };
     const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
 
     const [meetup, setMeetup] = useState<Meetup>(loadedMeetup);
@@ -134,20 +137,17 @@ const MeetupPage = () => {
             meetup.users.find((u) => u.user.id === user?.id)?.selected || []
         );
 
-    if (!meetupId) return <> No meetup ID specified </>;
 
     const startDate = dateParser(meetup.dates.sort()[0]);
     const endDate = dateParser(meetup.dates.sort()[meetup.dates.length - 1]);
 
     const times = [...new Set(meetup.timeslots.map(removeDate))].sort((a, b) => a - b);
 
-    console.log("----------");
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
-    console.log({meetuptime: meetup.timeslots, startMin, endMin, times})
-    console.log("----------");
+
 
     /**
      * Checks if a cell has been selected
@@ -228,13 +228,17 @@ const MeetupPage = () => {
      */
     const onStop = () => {
         // TODO: there needs to be a user here
-        updateAvailability(meetupId, user || tempUser, {
-            datesSelected: datesRef.current,
-            timesSelected: timesRef.current.filter((t) =>
-                datesRef.current.includes(removeTime(t))
-            ),
-        });
+        // updateAvailability(meetupId, user || tempUser, {
+        //     datesSelected: datesRef.current,
+        //     timesSelected: timesRef.current.filter((t) =>
+        //         datesRef.current.includes(removeTime(t))
+        //     ),
+        // });
+        setHasDataChanged(true)
+
     };
+
+
 
     /**
      * Runs before Date selection to reset the store because the library doesn't handle pre-selected items well
@@ -264,10 +268,9 @@ const MeetupPage = () => {
             datesRef.current.includes(removeTime(slot))
         );
         setTimesSelected(slotsToPickFrom);
-        updateAvailability(meetupId, user || tempUser, {
-            datesSelected: datesRef.current,
-            timesSelected: timesRef.current,
-        });
+        // onSubmit()
+        setHasDataChanged(true);
+
     };
 
     /**
@@ -277,20 +280,100 @@ const MeetupPage = () => {
      */
     const deselectAllTimes = () => {
         setTimesSelected([]);
-        updateAvailability(meetupId, user || tempUser, {
-            datesSelected: datesRef.current,
-            timesSelected: timesRef.current,
-        });
+        // updateAvailability(meetupId, user || tempUser, {
+        //     datesSelected: datesRef.current,
+        //     timesSelected: timesRef.current,
+        // });
+        // onSubmit()
+        setHasDataChanged(true);
+
     };
 
-    // Preprocess
-    // for
+    /**
+     * Submits the availability data to the server.
+     */
+    const onSubmit = async () => {
+        console.log("onsubmit")
+        await updateAvailability(meetupId, user || tempUser, {
+            datesSelected: datesRef.current,
+            timesSelected: timesRef.current.filter((t) =>
+                datesRef.current.includes(removeTime(t))
+            ),
+        });
+        setHasDataChanged(false)
+    }
 
-    // console.log({ startMin, endMin });
+    // Whether the user has modified any data
+    const [hasDataChanged, setHasDataChanged, dataChangedRef] = useStateRef(false);
+    
+    const btnColor = useColorModeValue("#90CDF4", "#2C5282")
+    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C")
+    const textColor = useColorModeValue("#000000", "#ffffff")
+    /**
+     * Disables the button, along with setting the color
+     */
+    const disableButton = () => {
+        console.log("disabling button")
+        if (webApp) {
+            // webApp.MainButton.isVisible = false;
+            webApp.MainButton.color = disabledBtnColor;
+            webApp.MainButton.disable()
+            webApp.MainButton.setText("No changes since last save.")
+            webApp.isClosingConfirmationEnabled = false
+
+           
+        }
+    }
+
+    /**
+     * Enables the button, along with setting the color
+     */
+    const enableButton = () => {
+        console.log("enabling button")
+
+        if (webApp) {
+            // webApp.MainButton.isVisible = true;
+            webApp.MainButton.color = btnColor;
+            webApp.MainButton.enable()
+            webApp.MainButton.setText("Save your availability")
+            webApp.isClosingConfirmationEnabled = true
+            // webApp.MainButton.textColor = textColor
+
+
+        }
+    }
+   
+
+    // Add the submit handler and initialize the MainButton
+    useEffect(() => {
+        if (webApp) {
+            disableButton()
+            webApp.MainButton.onClick(onSubmit)     
+            webApp.MainButton.isVisible = true;      
+        }
+
+        return () => webApp?.MainButton.offClick(onSubmit)
+        
+    }, [webApp])
+
+    // Listen to when the selected data changes and update the button accordingly
+    // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
+    // TODO: maybe synchronise this to Telegram's theme?
+    useEffect(() => {
+        if (webApp) {
+            if (!hasDataChanged) {
+                disableButton()
+            } else {
+                enableButton()
+            }
+            webApp.MainButton.textColor = textColor
+        }
+    }, [hasDataChanged, colorMode])
+
+
     return (
         <Stack spacing={4}>
-            <Button onClick={toggleColorMode}> toggle mode </Button>
-
+            
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
