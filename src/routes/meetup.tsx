@@ -137,17 +137,17 @@ const MeetupPage = () => {
             meetup.users.find((u) => u.user.id === user?.id)?.selected || []
         );
 
-
     const startDate = dateParser(meetup.dates.sort()[0]);
     const endDate = dateParser(meetup.dates.sort()[meetup.dates.length - 1]);
 
-    const times = [...new Set(meetup.timeslots.map(removeDate))].sort((a, b) => a - b);
+    const times = [...new Set(meetup.timeslots.map(removeDate))].sort(
+        (a, b) => a - b
+    );
 
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
         : 24 * 60;
-
 
     /**
      * Checks if a cell has been selected
@@ -234,12 +234,9 @@ const MeetupPage = () => {
         //         datesRef.current.includes(removeTime(t))
         //     ),
         // });
-        setHasDataChanged(true)
+        setHasDataChanged(true);
         // onSubmit()
-
     };
-
-
 
     /**
      * Runs before Date selection to reset the store because the library doesn't handle pre-selected items well
@@ -271,7 +268,6 @@ const MeetupPage = () => {
         setTimesSelected(slotsToPickFrom);
         // onSubmit()
         setHasDataChanged(true);
-
     };
 
     /**
@@ -287,94 +283,99 @@ const MeetupPage = () => {
         // });
         // onSubmit()
         setHasDataChanged(true);
-
     };
 
     /**
      * Submits the availability data to the server.
      */
     const onSubmit = async () => {
-        console.log("onsubmit")
+        console.log("onsubmit");
         await updateAvailability(meetupId, user || tempUser, {
             datesSelected: datesRef.current,
             timesSelected: timesRef.current.filter((t) =>
                 datesRef.current.includes(removeTime(t))
             ),
         });
-        setHasDataChanged(false)
-    }
+        setHasDataChanged(false);
+    };
 
     // Whether the user has modified any data
-    const [hasDataChanged, setHasDataChanged, dataChangedRef] = useStateRef(false);
-    
-    const btnColor = useColorModeValue("#90CDF4", "#2C5282")
-    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C")
-    const textColor = useColorModeValue("#000000", "#ffffff")
+    const [hasDataChanged, setHasDataChanged, dataChangedRef] =
+        useStateRef(false);
+
+    const btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const textColor = useColorModeValue("#000000", "#ffffff");
     /**
      * Disables the button, along with setting the color
      */
     const disableButton = () => {
-        console.log("disabling button")
-        if (webApp) {
+        console.log("disabling button");
+        if (webApp?.initData) {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
-            webApp.MainButton.disable()
-            webApp.MainButton.setText("No changes since last save.")
-            webApp.isClosingConfirmationEnabled = false
-
-           
+            webApp.MainButton.disable();
+            webApp.MainButton.setText("No changes since last save.");
+            webApp.isClosingConfirmationEnabled = false;
         }
-    }
+    };
 
     /**
      * Enables the button, along with setting the color
      */
     const enableButton = () => {
-        console.log("enabling button")
+        console.log("enabling button");
 
-        if (webApp) {
+        if (webApp?.initData) {
             // webApp.MainButton.isVisible = true;
             webApp.MainButton.color = btnColor;
-            webApp.MainButton.enable()
-            webApp.MainButton.setText("Save your availability")
-            webApp.isClosingConfirmationEnabled = true
+            webApp.MainButton.enable();
+            webApp.MainButton.setText("Save your availability");
+            webApp.isClosingConfirmationEnabled = true;
             // webApp.MainButton.textColor = textColor
-
-
         }
-    }
-   
+    };
 
     // Add the submit handler and initialize the MainButton
     useEffect(() => {
-        if (webApp) {
-            disableButton()
-            webApp.MainButton.onClick(onSubmit)     
-            webApp.MainButton.isVisible = true;      
+        if (webApp?.initData) {
+            disableButton();
+            webApp.MainButton.onClick(onSubmit);
+            webApp.MainButton.isVisible = true;
         }
 
-        return () => webApp?.MainButton.offClick(onSubmit)
-        
-    }, [webApp])
+        return () => webApp?.MainButton.offClick(onSubmit);
+    }, [webApp]);
 
     // Listen to when the selected data changes and update the button accordingly
     // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
     // TODO: maybe synchronise this to Telegram's theme?
     useEffect(() => {
-        if (webApp) {
+        if (webApp?.initData) {
             if (!hasDataChanged) {
-                disableButton()
+                disableButton();
             } else {
-                enableButton()
+                enableButton();
             }
-            webApp.MainButton.textColor = textColor
+            webApp.MainButton.textColor = textColor;
         }
-    }, [hasDataChanged, colorMode])
+    }, [hasDataChanged, colorMode]);
 
+    if (!webApp?.initData) {
+        return (
+            <Stack spacing={4}>
+                <Heading fontSize={"xl"}> {meetup.title} </Heading>
+                <Text> {meetup.description} </Text>
+                <Divider />
+                <Heading fontSize="lg"> Others' availability </Heading>
+                {!meetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
+                {meetup.isFullDay && <ByDateList meetup={liveMeetup} />}
+            </Stack>
+        );
+    }
 
     return (
         <Stack spacing={4}>
-            
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
