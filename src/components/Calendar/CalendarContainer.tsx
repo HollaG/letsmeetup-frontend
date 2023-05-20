@@ -180,11 +180,6 @@ const CalendarContainer = ({
 
     const [isDragging, setIsDragging] = useState(false);
 
-    const [
-        clickedOnAlreadySelected,
-        setClickedOnAlreadySelected,
-        clickedOnAlreadySelectedRef,
-    ] = useStateRef(0);
     /**
      * Extracts the IDs from an array of elements.
      *
@@ -205,58 +200,57 @@ const CalendarContainer = ({
         setIsDragging(true);
     };
 
+    const [
+        previousDatesSelected,
+        setPreviousDatesSelected,
+        previousDatesSelectedRef,
+    ] = useStateRef<string[]>([...datesSelected]);
+
     const onMove = ({
         store: {
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        console.log("------- on move start --------");
-        if (added.length) {
-            console.log({ added: extractIds(added) });
+        if (removed.length) {
+            // we are in remove mode
+            if (tempRef.current == 0) {
+                setTemp(2);
+            }
+        } else if (added.length) {
             // if something was added and it's the first item, set the mode to "select" mode.
             // in this case, do not deselect anything
             if (tempRef.current == 0) {
                 setTemp(1);
-
-                // const initialDatesSelected = [...datesSelected]
             }
         }
-        if (removed.length) {
-            // we are in remove mode
-            console.log({ removed: extractIds(removed) });
-            if (tempRef.current == 0) {
-                setTemp(2);
-            }
-        }
-
-        console.log(tempRef.current);
 
         if (tempRef.current == 1) {
             console.log("IN ADD MODE");
 
-            // setDatesSelected((prev) => {
-            //     const next = new Set(prev);
-            //     extractIds(added).forEach((id) => next.add(id));
-            //     extractIds(removed).forEach((id) => next.delete(id));
-            //     return [...next].sort();
-            // });
+            setDatesSelected((prev) => {
+                const next = new Set(prev);
+                extractIds(added).forEach((id) => next.add(id));
+
+                // only de-select if it was not present in previousDatesSelected
+                extractIds(removed)
+                    .filter(
+                        (i) => !previousDatesSelectedRef.current.includes(i)
+                    )
+                    .forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
         } else if (tempRef.current == 2) {
             console.log("IN DELETEMODE");
-            // setDatesSelected((prev) => {
-            //     const next = new Set(prev);
-            //     extractIds(added).forEach((id) => next.delete(id));
-            //     // extractIds(removed).forEach((id) => next.add(id));
-            //     return [...next].sort();
-            // });
+            setDatesSelected((prev) => {
+                const next = new Set(prev);
+                // only re-select if it was present in previousDatesSelected
+                extractIds(added)
+                    .filter((i) => previousDatesSelectedRef.current.includes(i))
+                    .forEach((id) => next.add(id));
+                extractIds(removed).forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
         }
-
-        setDatesSelected((prev) => {
-            const next = new Set(prev);
-            extractIds(added).forEach((id) => next.add(id));
-            extractIds(removed).forEach((id) => next.delete(id));
-            return [...next].sort();
-        });
-        console.log("------- on move end --------");
     };
 
     // TODO: Check if this is really necessary
@@ -265,6 +259,8 @@ const CalendarContainer = ({
         onStop && onStop(store);
         setIsDragging(false);
         setTemp(0);
+
+        setPreviousDatesSelected(extractIds(store.selection.getSelection()));
     };
 
     /**
@@ -350,7 +346,7 @@ const CalendarContainer = ({
                     range: true,
                 }}
                 behaviour={{
-                    overlap: "keep",
+                    overlap: "invert",
                     intersect: "touch",
                     startThreshold: 10,
                     scrolling: {
