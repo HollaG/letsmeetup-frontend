@@ -305,9 +305,6 @@ const TimeContainer = ({
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        // if (added.length) console.log({ added: extractIds(added) });
-        // if (removed.length) console.log({ removed: extractIds(removed) });
-        // console.log("onmove");
         if (removed.length) {
             // we are in remove mode
             if (dragTypeRef.current == 0) {
@@ -381,6 +378,7 @@ const TimeContainer = ({
         });
 
         setTimesSelected(newTimeSelection);
+        setPreviousTimesSelected(newTimeSelection);
     };
 
     /**
@@ -388,6 +386,7 @@ const TimeContainer = ({
      */
     const deselectAll = () => {
         setTimesSelected([]);
+        setPreviousTimesSelected([]);
     };
 
     return (
