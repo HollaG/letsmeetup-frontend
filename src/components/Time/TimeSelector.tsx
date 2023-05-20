@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns";
+import useStateRef from "react-usestateref";
 import { ENCODER_SEPARATOR } from "../../lib/std";
 import { dateParser } from "../Calendar/CalendarContainer";
 
@@ -130,7 +131,39 @@ const TimeSelector = ({
         },
     ]);
 
-    console.log({ arrayToGenerate, arrayDiv, startMin, endMin });
+    /**
+     * Tracks the previous times selected for comparison against when we
+     * add / remove items by dragging
+     *
+     * Note: remember to update it with the new datesSelected when onStop() is called.
+     */
+    const [
+        previousTimesSelected,
+        setPreviousTimesSelected,
+        previousTimesSelectedRef,
+    ] = useStateRef<string[]>([...timesSelected]);
+    /**
+     * The type of drag selection.
+     * 0: none
+     * 1: adding
+     * 2: remove
+     *
+     * Note: remember to reset it when onStop().
+     */
+    const [dragType, setDragType, dragTypeRef] = useStateRef(0);
+
+    const _onBeforeStart = (e: SelectionEvent) => {
+        return onBeforeStart ? onBeforeStart(e) : true;
+    };
+    const _onStart = (e: SelectionEvent) => {
+        onStart && onStart(e);
+    };
+    const _onMove = (e: SelectionEvent) => {
+        onMove && onMove(e);
+    };
+    const _onStop = (e: SelectionEvent) => {
+        onStop && onStop(e);
+    };
 
     return (
         <Stack>
@@ -152,10 +185,10 @@ const TimeSelector = ({
             <Box
                 as={SelectionArea}
                 className="select-container"
-                onBeforeStart={onBeforeStart}
-                onStart={onStart}
-                onMove={onMove}
-                onStop={onStop}
+                onBeforeStart={_onBeforeStart}
+                onStart={_onStart}
+                onMove={_onMove}
+                onStop={_onStop}
                 selectables=".selectable"
                 display="grid"
                 gridTemplateColumns={`repeat(${datesSelected.length + 2}, 1fr)`}

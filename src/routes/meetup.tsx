@@ -184,12 +184,33 @@ const MeetupPage = () => {
             .map(String);
 
     /**
+     * Tracks the previous times selected for comparison against when we
+     * add / remove items by dragging
+     *
+     * Note: remember to update it with the new datesSelected when onStop() is called.
+     */
+    const [
+        previousTimesSelected,
+        setPreviousTimesSelected,
+        previousTimesSelectedRef,
+    ] = useStateRef<string[]>([...timesSelected]);
+    /**
+     * The type of drag selection.
+     * 0: none
+     * 1: adding
+     * 2: remove
+     *
+     * Note: remember to reset it when onStop().
+     */
+    const [dragType, setDragType, dragTypeRef] = useStateRef(0);
+
+    /**
      * Runs before Time selection to reset the store because the library doesn't handle pre-selected items well
      *
      * @param store The store of the selection event
      * @returns
      */
-    const onBeforeStart = ({ event, selection }: SelectionEvent) => {
+    const onBeforeStartTime = ({ event, selection }: SelectionEvent) => {
         // selection.
         selection.clearSelection(true, true);
         selection.select(".selectable.selected.time", true);
@@ -199,24 +220,83 @@ const MeetupPage = () => {
             // selection.select(".selectable.selected");
             return true;
         }
+        // return true;
     };
 
+    /**
+     * Runs before Date selection to reset the store because the library doesn't handle pre-selected items well
+     *
+     * @param store The store of the selection event
+     * @returns
+     */
+    const onBeforeStartDate = ({ event, selection }: SelectionEvent) => {
+        selection.clearSelection(true, true);
+        selection.select(".selectable.selected.date", true);
+        // if ((event?.target as HTMLElement)?.className.includes("blocked")) {
+        //     return false;
+        // } else {
+        //     // selection.select(".selectable.selected");
+        //     return true;
+        // }
+        return true;
+    };
     /**
      * Fired everytime the mouse is moved
      *
      * @param param0 The store of the selection event
      */
-    const onMove = ({
+    const onMoveTime = ({
         store: {
             changed: { added, removed },
         },
     }: SelectionEvent) => {
-        setTimesSelected((prev) => {
-            const next = new Set(prev);
-            extractIds(added).forEach((id) => next.add(id));
-            extractIds(removed).forEach((id) => next.delete(id));
-            return [...next];
-        });
+        // setTimesSelected((prev) => {
+        //     const next = new Set(prev);
+        //     extractIds(added).forEach((id) => next.add(id));
+        //     extractIds(removed).forEach((id) => next.delete(id));
+        //     return [...next];
+        // });
+        if (removed.length) {
+            // we are in remove mode
+            if (dragTypeRef.current == 0) {
+                setDragType(2);
+            }
+        } else if (added.length) {
+            // if something was added and it's the first item, set the mode to "select" mode.
+            // in this case, do not deselect anything
+            if (dragTypeRef.current == 0) {
+                setDragType(1);
+            }
+        }
+
+        // console.log(previousTimesSelectedRef.current);
+        if (dragTypeRef.current == 1) {
+            // console.log("IN ADD MODE");
+
+            setTimesSelected((prev) => {
+                const next = new Set(prev);
+                extractIds(added).forEach((id) => next.add(id));
+
+                // only de-select if it was not present in previousDatesSelected
+                extractIds(removed)
+                    .filter(
+                        (i) => !previousTimesSelectedRef.current.includes(i)
+                    )
+                    .forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
+        } else if (dragTypeRef.current == 2) {
+            // console.log("IN DELETEMODE");
+            setTimesSelected((prev) => {
+                const next = new Set(prev);
+                // only re-select if it was present in previousDatesSelected
+                extractIds(added)
+                    .filter((i) => previousTimesSelectedRef.current.includes(i))
+                    .forEach((id) => next.add(id));
+                extractIds(removed).forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
+        }
     };
 
     /**
@@ -226,7 +306,7 @@ const MeetupPage = () => {
      * @see https://stackoverflow.com/a/63039797
      * @see https://www.npmjs.com/package/react-usestateref
      */
-    const onStop = () => {
+    const onStopDate = () => {
         // TODO: there needs to be a user here
         // updateAvailability(meetupId, user || tempUser, {
         //     datesSelected: datesRef.current,
@@ -239,21 +319,24 @@ const MeetupPage = () => {
     };
 
     /**
-     * Runs before Date selection to reset the store because the library doesn't handle pre-selected items well
+     * Called when the user stops entering time and date data.
      *
-     * @param store The store of the selection event
-     * @returns
+     * Note: the state is stale when doing callbacks.
+     * @see https://stackoverflow.com/a/63039797
+     * @see https://www.npmjs.com/package/react-usestateref
      */
-    const onBeforeDatesStart = ({ event, selection }: SelectionEvent) => {
-        selection.clearSelection(true, true);
-        selection.select(".selectable.selected.date", true);
-        // if ((event?.target as HTMLElement)?.className.includes("blocked")) {
-        //     return false;
-        // } else {
-        //     // selection.select(".selectable.selected");
-        //     return true;
-        // }
-        return true;
+    const onStopTime = ({ event, selection }: SelectionEvent) => {
+        // TODO: there needs to be a user here
+        // updateAvailability(meetupId, user || tempUser, {
+        //     datesSelected: datesRef.current,
+        //     timesSelected: timesRef.current.filter((t) =>
+        //         datesRef.current.includes(removeTime(t))
+        //     ),
+        // });
+        setPreviousTimesSelected(extractIds(selection.getSelection()));
+        setDragType(0);
+        setHasDataChanged(true);
+        // onSubmit()
     };
 
     /**
@@ -268,6 +351,7 @@ const MeetupPage = () => {
         setTimesSelected(slotsToPickFrom);
         // onSubmit()
         setHasDataChanged(true);
+        setPreviousTimesSelected(slotsToPickFrom);
     };
 
     /**
@@ -283,6 +367,7 @@ const MeetupPage = () => {
         // });
         // onSubmit()
         setHasDataChanged(true);
+        setPreviousTimesSelected([]);
     };
 
     /**
@@ -310,7 +395,7 @@ const MeetupPage = () => {
      * Disables the button, along with setting the color
      */
     const disableButton = () => {
-        console.log("disabling button");
+        // console.log("disabling button");
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
@@ -324,7 +409,7 @@ const MeetupPage = () => {
      * Enables the button, along with setting the color
      */
     const enableButton = () => {
-        console.log("enabling button");
+        // console.log("enabling button");
 
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = true;
@@ -386,8 +471,8 @@ const MeetupPage = () => {
                 startDate={startDate}
                 endDate={endDate}
                 allowedDates={meetup.dates}
-                onStop={onStop}
-                onBeforeStart={onBeforeDatesStart}
+                onStop={onStopDate}
+                onBeforeStart={onBeforeStartDate}
             />
             {!meetup.isFullDay && (
                 <>
@@ -397,17 +482,17 @@ const MeetupPage = () => {
                     </Heading>
                     <TimeSelector
                         classNameGenerator={classNameGenerator}
-                        datesSelected={datesSelected}
+                        datesSelected={datesRef.current}
                         deselectAll={deselectAllTimes}
                         endMin={endMin}
                         startMin={startMin}
                         isSelectedCell={isSelectedCell}
                         selectAll={selectAllTimes}
-                        timesSelected={timesSelected}
-                        onBeforeStart={onBeforeStart}
-                        onMove={onMove}
+                        timesSelected={timesRef.current}
+                        onBeforeStart={onBeforeStartTime}
+                        onMove={onMoveTime}
                         allowedTimes={meetup.timeslots}
-                        onStop={onStop}
+                        onStop={onStopTime}
                     />
                 </>
             )}
