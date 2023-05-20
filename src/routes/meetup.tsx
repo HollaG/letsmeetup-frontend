@@ -310,7 +310,7 @@ const MeetupPage = () => {
      * Disables the button, along with setting the color
      */
     const disableButton = () => {
-        console.log("disabling button");
+        // console.log("disabling button");
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
@@ -324,7 +324,7 @@ const MeetupPage = () => {
      * Enables the button, along with setting the color
      */
     const enableButton = () => {
-        console.log("enabling button");
+        // console.log("enabling button");
 
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = true;

@@ -67,7 +67,7 @@ const Create = () => {
         } else {
             setUserCanSubmit(false);
         }
-        console.log(userCanSubmit);
+        // console.log(userCanSubmit);
     }, [
         datesSelected.length,
         timesSelected.length,
@@ -192,7 +192,6 @@ const Create = () => {
     const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
     const onStop = () => {
         if (pristineRef.current) {
-            console.log("hello very much");
             const flat = create30MinuteIncrements(
                 timeRef.current[0],
                 timeRef.current[1]
@@ -212,7 +211,7 @@ const Create = () => {
      * Disables the button, along with setting the color
      */
     const disableButton = () => {
-        console.log("disabling button");
+        // console.log("disabling button");
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
@@ -226,7 +225,7 @@ const Create = () => {
      * Enables the button, along with setting the color
      */
     const enableButton = () => {
-        console.log("enabling button");
+        // console.log("enabling button");
 
         if (webApp?.initData) {
             // webApp.MainButton.isVisible = true;
@@ -293,9 +292,9 @@ const Create = () => {
             </Flex>
             <Collapse in={!isFullDay}>
                 <TimeContainer
-                    datesSelected={datesSelected}
+                    datesSelected={datesRef.current}
                     setTimesSelected={setTimesSelected}
-                    timesSelected={timesSelected}
+                    timesSelected={timesRef.current}
                     setPristine={setPristine}
                     pristine={pristine}
                     endMin={endMin}

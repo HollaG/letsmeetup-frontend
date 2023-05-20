@@ -147,6 +147,7 @@ const TimeContainer = ({
             // setTimesSelected([]);
         }
         setShowIndividualTimes(e.target.checked);
+        setPreviousTimesSelected(timesSelected);
     };
 
     /**
@@ -157,7 +158,7 @@ const TimeContainer = ({
      * Works because we have set unmountOnExit={true} for the Collapse.
      */
     const updateSelectionArea = (e: [number, number]) => {
-        console.log({ e });
+        // console.log({ e });
         setTime(e);
         // setTimesSelected([]);
         setTouched(false);
@@ -278,6 +279,27 @@ const TimeContainer = ({
             // setSelected(() => new Set());
         }
     };
+
+    /**
+     * Tracks the previous times selected for comparison against when we
+     * add / remove items by dragging
+     *
+     * Note: remember to update it with the new datesSelected when onStop() is called.
+     */
+    const [
+        previousTimesSelected,
+        setPreviousTimesSelected,
+        previousTimesSelectedRef,
+    ] = useStateRef<string[]>([...timesSelected]);
+    /**
+     * The type of drag selection.
+     * 0: none
+     * 1: adding
+     * 2: remove
+     *
+     * Note: remember to reset it when onStop().
+     */
+    const [dragType, setDragType, dragTypeRef] = useStateRef(0);
     const onMove = ({
         store: {
             changed: { added, removed },
@@ -285,24 +307,64 @@ const TimeContainer = ({
     }: SelectionEvent) => {
         // if (added.length) console.log({ added: extractIds(added) });
         // if (removed.length) console.log({ removed: extractIds(removed) });
+        // console.log("onmove");
+        if (removed.length) {
+            // we are in remove mode
+            if (dragTypeRef.current == 0) {
+                setDragType(2);
+            }
+        } else if (added.length) {
+            // if something was added and it's the first item, set the mode to "select" mode.
+            // in this case, do not deselect anything
+            if (dragTypeRef.current == 0) {
+                setDragType(1);
+            }
+        }
 
-        setTimesSelected((prev) => {
-            const next = new Set(prev);
-            // if (!touched) {
-            //     extractIds(added).forEach((id) => next.delete(id));
-            //     extractIds(removed).forEach((id) => next.add(id));
-            // } else {
-            extractIds(added).forEach((id) => next.add(id));
-            extractIds(removed).forEach((id) => next.delete(id));
-            // }
+        // console.log(previousTimesSelectedRef.current);
+        if (dragTypeRef.current == 1) {
+            // console.log("IN ADD MODE");
 
-            // console.log({ next });
-            return [...next];
-        });
+            setTimesSelected((prev) => {
+                const next = new Set(prev);
+                extractIds(added).forEach((id) => next.add(id));
+
+                // only de-select if it was not present in previousDatesSelected
+                extractIds(removed)
+                    .filter(
+                        (i) => !previousTimesSelectedRef.current.includes(i)
+                    )
+                    .forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
+        } else if (dragTypeRef.current == 2) {
+            // console.log("IN DELETEMODE");
+            setTimesSelected((prev) => {
+                const next = new Set(prev);
+                // only re-select if it was present in previousDatesSelected
+                extractIds(added)
+                    .filter((i) => previousTimesSelectedRef.current.includes(i))
+                    .forEach((id) => next.add(id));
+                extractIds(removed).forEach((id) => next.delete(id));
+                return [...next].sort();
+            });
+        }
+
+        // setTimesSelected((prev) => {
+        //     const next = new Set(prev);
+
+        //     extractIds(added).forEach((id) => next.add(id));
+        //     extractIds(removed).forEach((id) => next.delete(id));
+
+        //     return [...next];
+        // });
         setTouched(true);
     };
 
-    const onStop = ({ event, selection }: SelectionEvent) => {};
+    const onStop = ({ event, selection }: SelectionEvent) => {
+        setPreviousTimesSelected(extractIds(selection.getSelection()));
+        setDragType(0);
+    };
     // console.log({ timesSelected });
 
     /**

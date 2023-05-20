@@ -200,12 +200,27 @@ const CalendarContainer = ({
         setIsDragging(true);
     };
 
+    /**
+     * Tracks the previous dates selected for comparison against when we
+     * add / remove items by dragging
+     *
+     * Note: remember to update it with the new datesSelected when onStop() is called.
+     */
     const [
         previousDatesSelected,
         setPreviousDatesSelected,
         previousDatesSelectedRef,
     ] = useStateRef<string[]>([...datesSelected]);
 
+    /**
+     * The type of drag selection.
+     * 0: none
+     * 1: adding
+     * 2: remove
+     *
+     * Note: remember to reset it when onStop().
+     */
+    const [dragType, setDragType, dragTypeRef] = useStateRef(0);
     const onMove = ({
         store: {
             changed: { added, removed },
@@ -213,19 +228,19 @@ const CalendarContainer = ({
     }: SelectionEvent) => {
         if (removed.length) {
             // we are in remove mode
-            if (tempRef.current == 0) {
-                setTemp(2);
+            if (dragTypeRef.current == 0) {
+                setDragType(2);
             }
         } else if (added.length) {
             // if something was added and it's the first item, set the mode to "select" mode.
             // in this case, do not deselect anything
-            if (tempRef.current == 0) {
-                setTemp(1);
+            if (dragTypeRef.current == 0) {
+                setDragType(1);
             }
         }
 
-        if (tempRef.current == 1) {
-            console.log("IN ADD MODE");
+        if (dragTypeRef.current == 1) {
+            // console.log("IN ADD MODE");
 
             setDatesSelected((prev) => {
                 const next = new Set(prev);
@@ -239,8 +254,8 @@ const CalendarContainer = ({
                     .forEach((id) => next.delete(id));
                 return [...next].sort();
             });
-        } else if (tempRef.current == 2) {
-            console.log("IN DELETEMODE");
+        } else if (dragTypeRef.current == 2) {
+            // console.log("IN DELETEMODE");
             setDatesSelected((prev) => {
                 const next = new Set(prev);
                 // only re-select if it was present in previousDatesSelected
@@ -258,7 +273,7 @@ const CalendarContainer = ({
         // console.log("onstop");
         onStop && onStop(store);
         setIsDragging(false);
-        setTemp(0);
+        setDragType(0);
 
         setPreviousDatesSelected(extractIds(store.selection.getSelection()));
     };
@@ -285,8 +300,6 @@ const CalendarContainer = ({
         },
         [isDragging]
     );
-
-    const [temp, setTemp, tempRef] = useStateRef(0);
 
     const tempBefStart = (e: SelectionEvent) => {
         // console.log("setting temp", tempRef.current);
