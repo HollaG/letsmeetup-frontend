@@ -271,6 +271,7 @@ const TimeContainer = ({
             // selection.select(".selectable.selected");
             return true;
         }
+        // return true;
     };
 
     const onStart = ({ event, selection, store }: SelectionEvent) => {

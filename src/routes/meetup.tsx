@@ -220,6 +220,7 @@ const MeetupPage = () => {
             // selection.select(".selectable.selected");
             return true;
         }
+        // return true;
     };
 
     /**
@@ -481,13 +482,13 @@ const MeetupPage = () => {
                     </Heading>
                     <TimeSelector
                         classNameGenerator={classNameGenerator}
-                        datesSelected={datesSelected}
+                        datesSelected={datesRef.current}
                         deselectAll={deselectAllTimes}
                         endMin={endMin}
                         startMin={startMin}
                         isSelectedCell={isSelectedCell}
                         selectAll={selectAllTimes}
-                        timesSelected={timesSelected}
+                        timesSelected={timesRef.current}
                         onBeforeStart={onBeforeStartTime}
                         onMove={onMoveTime}
                         allowedTimes={meetup.timeslots}
