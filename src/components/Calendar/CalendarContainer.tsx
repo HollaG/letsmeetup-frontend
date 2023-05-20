@@ -22,6 +22,7 @@ import {
 import { addDays, addMonths, isAfter, subDays } from "date-fns/esm";
 import React, { useCallback } from "react";
 import { useEffect, useMemo, useState } from "react";
+import useStateRef from "react-usestateref";
 import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
 
@@ -245,6 +246,14 @@ const CalendarContainer = ({
         [isDragging]
     );
 
+    const [temp, setTemp, tempRef] = useStateRef(false);
+
+    const tempBefStart = (e: SelectionEvent) => {
+        setTemp((prev) => !prev);
+
+        onBeforeStart && onBeforeStart(e);
+    };
+
     return (
         <Stack data-testid="calendar-component">
             <Flex justifyContent={"center"}>
@@ -276,7 +285,7 @@ const CalendarContainer = ({
                 onStart={onStart}
                 onMove={onMove}
                 onStop={_onStop}
-                onBeforeStart={onBeforeStart}
+                onBeforeStart={tempBefStart}
                 selectables=".selectable"
                 features={{
                     singleTap: {
@@ -290,7 +299,7 @@ const CalendarContainer = ({
                     range: true,
                 }}
                 behaviour={{
-                    overlap: "invert",
+                    overlap: temp ? "drop" : "keep",
                     intersect: "touch",
                     startThreshold: 10,
                     scrolling: {
