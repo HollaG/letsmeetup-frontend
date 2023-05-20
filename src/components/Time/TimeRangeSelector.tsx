@@ -13,7 +13,7 @@ import { useState } from "react";
 
 /**
  * Converts a numerical value from 0 to 24*60 into a human-readable time string of the format
- * "hh:mm am/pm".
+ * "h:mm am/pm".
  *
  * @param time The time in minutes
  * @returns a nicely formatted string

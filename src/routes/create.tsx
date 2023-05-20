@@ -138,7 +138,7 @@ const Create = () => {
      * Initialize button at bottom of screen
      */
     useEffect(() => {
-        if (webApp) {
+        if (webApp?.initData) {
             webApp.MainButton.isVisible = true;
             webApp.MainButton.text = "Create";
 
@@ -150,7 +150,7 @@ const Create = () => {
      * Handle dynamic updates
      */
     // useEffect(() => {
-    //     if (webApp) {
+    //     if (webApp?.initData) {
     //         if (userCanSubmit) {
     //             webApp.MainButton.enable();
     //         } else {
@@ -173,7 +173,7 @@ const Create = () => {
     //     isFullDay,
     // ]);
     useEffect(() => {
-        if (webApp) {
+        if (webApp?.initData) {
             if (userCanSubmit) {
                 enableButton();
             } else {
@@ -213,7 +213,7 @@ const Create = () => {
      */
     const disableButton = () => {
         console.log("disabling button");
-        if (webApp) {
+        if (webApp?.initData) {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
             webApp.MainButton.disable();
@@ -228,7 +228,7 @@ const Create = () => {
     const enableButton = () => {
         console.log("enabling button");
 
-        if (webApp) {
+        if (webApp?.initData) {
             // webApp.MainButton.isVisible = true;
             webApp.MainButton.color = btnColor;
             webApp.MainButton.enable();
@@ -242,7 +242,7 @@ const Create = () => {
     // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
     // TODO: maybe synchronise this to Telegram's theme?
     useEffect(() => {
-        if (webApp) {
+        if (webApp?.initData) {
             if (!userCanSubmit) {
                 disableButton();
             } else {
