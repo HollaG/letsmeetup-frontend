@@ -95,7 +95,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                 <GridItem colSpan={2} key={`${date}-1`} mb={2} display="flex">
                     <Stack width="100%">
                         <Divider borderWidth={"2px"} />
-                        <Heading fontSize="lg">
+                        <Heading fontSize="lg" id={date}>
                             {" "}
                             {format(dateParser(date), "EEEE, d MMMM yyyy")}{" "}
                         </Heading>
