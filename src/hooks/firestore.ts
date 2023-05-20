@@ -27,7 +27,7 @@ const useFirestore = () => {
             complete?: (() => void) | undefined;
         }
     ) => {
-        const d = doc(fire, COLLECTION_NAME, documentPath)
+        const d = doc(fire, COLLECTION_NAME, documentPath);
         return onSnapshot(d, onUpdate);
         // doc(documentPath).onSnapshot(onUpdate);
     };

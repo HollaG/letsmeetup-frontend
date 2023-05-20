@@ -33,7 +33,7 @@ export type CalendarBodyProps = {
     startDate: Date; // the start date of the calendar. Defaults to today
     endDate: Date; // the end date of the calendar. Defaults to 1 year from today
     selectedDate: Date;
-    allowedDates?: string[]
+    allowedDates?: string[];
 };
 
 // Color values
@@ -49,7 +49,7 @@ const CalendarBody = ({
     startDate,
     endDate,
     selectedDate,
-    allowedDates
+    allowedDates,
 }: CalendarBodyProps) => {
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
     return (
@@ -93,7 +93,6 @@ export default React.memo(CalendarBody, (prevProps, nextProps) => {
             nextProps.selectedDate.toString() &&
         prevProps.drawnDays[0].date.toString() ===
             nextProps.drawnDays[0].date.toString();
-
 
     return res;
 });

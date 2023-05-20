@@ -26,4 +26,3 @@ class CustomEnvironment extends JsDomEnv {
 }
 
 module.exports = CustomEnvironment;
-

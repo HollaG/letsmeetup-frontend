@@ -23,10 +23,6 @@ import {
 import { useState } from "react";
 import { useTelegram } from "./context/TelegramProvider";
 
-
-
-
-
 export const App = () => {
     useEffect(() => {
         fetchMeetups();
@@ -42,13 +38,10 @@ export const App = () => {
         // setTodos(_todos);
     };
 
-
     const { user, webApp } = useTelegram();
-    console.log({user, webApp});
+    console.log({ user, webApp });
 
-
-    useEffect(() => {}, [])
-    
+    useEffect(() => {}, []);
 
     return (
         <ChakraProvider theme={theme}>
@@ -58,7 +51,9 @@ export const App = () => {
                     <VStack spacing={8}>
                         <Logo h="40vmin" pointerEvents="none" />
                         <Text>
-                            {user ? "Hello user " + user.first_name : "Use Telegram" }
+                            {user
+                                ? "Hello user " + user.first_name
+                                : "Use Telegram"}
                         </Text>
                         <Link
                             color="teal.500"

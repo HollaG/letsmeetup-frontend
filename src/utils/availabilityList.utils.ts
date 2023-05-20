@@ -1,6 +1,14 @@
 import { Meetup } from "../db/repositories/meetups";
 
-export type RangeColors = [string, string, string, string, string, string, string]
+export type RangeColors = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
+];
 /**
  * Gets the correct intensity of the color, based on the % of people who can attend
  *
@@ -8,7 +16,11 @@ export type RangeColors = [string, string, string, string, string, string, strin
  * @param amount The number of people who have selected this time slot
  * @returns the correct color in the scale
  */
-export const assignColor = (totalNum: number, amount: number, colors: RangeColors) => {
+export const assignColor = (
+    totalNum: number,
+    amount: number,
+    colors: RangeColors
+) => {
     const percent = amount / totalNum;
     if (percent === 0) {
         return colors[0];
@@ -67,7 +79,10 @@ export const hasPeopleInNextTimeSlot = (
  * @returns true if the previous time slot has the same people and the same # of people    *
  *
  */
-export const isSameAsPreviousTimeSlot = (dateTimeStr: string, meetup: Meetup) => {
+export const isSameAsPreviousTimeSlot = (
+    dateTimeStr: string,
+    meetup: Meetup
+) => {
     const [time, date] = dateTimeStr.split("::");
     const prevTime = parseInt(time) - 30;
     if (parseInt(time) < 0) {

@@ -28,9 +28,14 @@ afterEach(() => {
 });
 
 test("calendar displays properly", () => {
-    const datesSelected: string[] = []
-    const setDatesSelectedMock = jest.fn()
-    render(<CalendarContainer datesSelected={datesSelected} setDatesSelected={setDatesSelectedMock}/>);
+    const datesSelected: string[] = [];
+    const setDatesSelectedMock = jest.fn();
+    render(
+        <CalendarContainer
+            datesSelected={datesSelected}
+            setDatesSelected={setDatesSelectedMock}
+        />
+    );
     // check if the month display displays the correct moment
     const monthDisplay = format(new Date(), "MMM yyyy");
     expect(screen.getByTestId("month-display")).toHaveTextContent(monthDisplay);
@@ -42,20 +47,23 @@ test("calendar displays properly", () => {
     expect(screen.getByLabelText("Next month")).toBeEnabled();
 
     // ensure the select container is there
-    expect(screen.getByTestId("select-container-calendar")).toBeInTheDocument()
-    
-    const lastDay = screen.getByTestId("last-day")
-    expect(lastDay.lastElementChild?.lastElementChild?.lastElementChild).toHaveStyle({
-        color: 'unset'
-    })
+    expect(screen.getByTestId("select-container-calendar")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Next month"))
-    expect(screen.getByTestId("month-display")).toHaveTextContent(format(addMonths(new Date(), 1), "MMM yyyy"));
+    const lastDay = screen.getByTestId("last-day");
+    expect(
+        lastDay.lastElementChild?.lastElementChild?.lastElementChild
+    ).toHaveStyle({
+        color: "unset",
+    });
+
+    fireEvent.click(screen.getByLabelText("Next month"));
+    expect(screen.getByTestId("month-display")).toHaveTextContent(
+        format(addMonths(new Date(), 1), "MMM yyyy")
+    );
 
     // click 11 more times, should be disabled.
     for (let i = 0; i < 11; i++) {
-        fireEvent.click(screen.getByLabelText("Next month"))
+        fireEvent.click(screen.getByLabelText("Next month"));
     }
     expect(screen.getByLabelText("Next month")).toBeDisabled();
-
-})
+});

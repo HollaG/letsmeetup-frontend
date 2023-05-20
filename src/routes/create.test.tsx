@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 test("renders the create page", () => {
-    const { container }= render(<Create />);
+    const { container } = render(<Create />);
 
     expect(container.querySelector("#title")).toBeInTheDocument();
     expect(container.querySelector("#title")).toBeRequired();
@@ -38,4 +38,3 @@ test("renders the create page", () => {
 
     expect(screen.getByTestId("timerange-component")).toBeInTheDocument();
 });
-

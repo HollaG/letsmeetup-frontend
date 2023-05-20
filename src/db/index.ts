@@ -13,7 +13,7 @@ const config = {
     storageBucket: "meetup-8903c.appspot.com",
     messagingSenderId: "316721016041",
     appId: process.env.REACT_APP_FIREBASE_APPID,
-    measurementId: "G-41KSDTV1L5"
+    measurementId: "G-41KSDTV1L5",
 };
 
 // init app
@@ -22,4 +22,3 @@ export const db = getFirestore(fire);
 
 // export default firestore
 export default fire;
-
