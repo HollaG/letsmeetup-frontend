@@ -125,7 +125,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                 alignItems="center"
                 mb={3}
             >
-                <ColorExplainer />
+                <ColorExplainer numTotal={meetup.users.length} />
             </GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={3} key={date} mb={2} display="flex">

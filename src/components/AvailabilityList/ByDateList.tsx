@@ -89,7 +89,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                 alignItems="center"
                 mb={3}
             >
-                <ColorExplainer />
+                <ColorExplainer numTotal={meetup.users.length}/>
             </GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={2} key={`${date}-1`} mb={2} display="flex">
