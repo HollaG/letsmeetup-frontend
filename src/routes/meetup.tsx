@@ -129,6 +129,7 @@ const MeetupPage = () => {
             next: (doc) => {
                 console.log(doc.data(), "---doc changed---");
                 setLiveMeetup(doc.data() as Meetup);
+                _setRerender((prev) => !prev);
             },
         });
         return () => {
@@ -505,6 +506,9 @@ const MeetupPage = () => {
         setHasDataChanged(true);
     };
 
+    // Force calendar to re-render
+    const [_rerender, _setRerender] = useState(false);
+
     return (
         <Stack spacing={4}>
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
@@ -582,10 +586,13 @@ const MeetupPage = () => {
                             </Heading>
                             <Center>
                                 <ColorExplainer
-                                    numTotal={meetup.users.length}
+                                    numTotal={liveMeetup.users.length}
                                 />
                             </Center>
-                            <CalendarDisplay meetup={liveMeetup} />
+                            <CalendarDisplay
+                                meetup={liveMeetup}
+                                _rerender={_rerender}
+                            />
                             {!meetup.isFullDay && (
                                 <ByTimeList meetup={liveMeetup} />
                             )}

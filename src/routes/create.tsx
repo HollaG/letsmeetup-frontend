@@ -131,6 +131,7 @@ const Create = () => {
                     "channels",
                     "bots",
                 ]);
+                webApp?.close();
             })
             .catch((e) => {
                 alert("somme error!!");
