@@ -10,8 +10,10 @@ import {
     Stack,
     Text,
     useColorModeValue,
+    Link,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
+
 import { Meetup } from "../../db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
@@ -32,6 +34,7 @@ import {
 import { assignColor, RangeColors } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import ColorExplainer from "./common/ColorExplainer";
+import CommentsDisplay from "./common/CommentsDisplay";
 import DisplayBox from "./common/DisplayBox";
 
 const CELL_WIDTH = "36px";
@@ -82,15 +85,6 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
             width="100%"
             gap={0}
         >
-            <GridItem
-                colSpan={2}
-                display="flex"
-                justifyContent={"center"}
-                alignItems="center"
-                mb={3}
-            >
-                <ColorExplainer numTotal={meetup.users.length} />
-            </GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={2} key={`${date}-1`} mb={2} display="flex">
                     <Stack width="100%">
@@ -164,7 +158,12 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                     <SimpleGrid columns={2} spacing={3} p={3}>
                         {meetup.selectionMap[date] &&
                             meetup.selectionMap[date].map((user, i) => (
-                                <Box key={i}>
+                                <Link
+                                    href={`https://t.me/${user.username}`}
+                                    textDecor="none"
+                                    isExternal
+                                    key={i}
+                                >
                                     <Flex alignItems="center">
                                         <Avatar
                                             name={`${user.first_name} ${user.last_name}`}
@@ -173,11 +172,21 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                         />
                                         <Text ml={2}>{user.first_name}</Text>
                                     </Flex>
-                                </Box>
+                                </Link>
                             ))}
                     </SimpleGrid>
                 </GridItem>,
             ])}
+
+            <GridItem
+                colSpan={2}
+                // display="flex"
+                // justifyContent={"center"}
+                // alignItems="center"
+                mb={3}
+            >
+                <CommentsDisplay meetup={meetup} />
+            </GridItem>
         </Grid>
     );
 };

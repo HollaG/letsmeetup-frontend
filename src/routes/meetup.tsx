@@ -3,6 +3,7 @@ import {
     Center,
     Divider,
     Heading,
+    Input,
     Stack,
     Tab,
     TabList,
@@ -14,7 +15,7 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../components/AvailabilityList/ByDateList";
@@ -383,12 +384,17 @@ const MeetupPage = () => {
      */
     const onSubmit = async () => {
         console.log("onsubmit");
-        await updateAvailability(meetupId, user || tempUser, {
-            datesSelected: datesRef.current,
-            timesSelected: timesRef.current.filter((t) =>
-                datesRef.current.includes(removeTime(t))
-            ),
-        });
+        await updateAvailability(
+            meetupId,
+            user || tempUser,
+            {
+                datesSelected: datesRef.current,
+                timesSelected: timesRef.current.filter((t) =>
+                    datesRef.current.includes(removeTime(t))
+                ),
+            },
+            commentsRef.current
+        );
         setHasDataChanged(false);
     };
 
@@ -454,18 +460,18 @@ const MeetupPage = () => {
         }
     }, [hasDataChanged, colorMode]);
 
-    if (!webApp?.initData) {
-        return (
-            <Stack spacing={4}>
-                <Heading fontSize={"xl"}> {meetup.title} </Heading>
-                <Text> {meetup.description} </Text>
-                <Divider />
-                <Heading fontSize="lg"> Others' availability </Heading>
-                {!meetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
-                {meetup.isFullDay && <ByDateList meetup={liveMeetup} />}
-            </Stack>
-        );
-    }
+    const [comments, setComments, commentsRef] = useStateRef<string>(
+        meetup.users.find((u) => u.user.id === user?.id)?.comments || ""
+    );
+    /**
+     * Controlled component for the comments input
+     *
+     * @param e the change event from the input
+     */
+    const commentsOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setComments(e.target.value);
+        setHasDataChanged(true);
+    };
 
     return (
         <Stack spacing={4}>
@@ -475,48 +481,57 @@ const MeetupPage = () => {
 
             <Tabs isFitted>
                 <TabList>
-                    <Tab> Select your availability </Tab>
+                    {webApp?.initData && <Tab> Select your availability </Tab>}
                     <Tab> View others' availability </Tab>
                 </TabList>
                 <TabPanels>
-                    <TabPanel>
-                        <Stack spacing={4} justifyContent="left">
-                            <Heading fontSize={"lg"}>
-                                Select your available dates{" "}
-                            </Heading>
-                            <CalendarContainer
-                                datesSelected={datesSelected}
-                                setDatesSelected={setDatesSelected}
-                                startDate={startDate}
-                                endDate={endDate}
-                                allowedDates={meetup.dates}
-                                onStop={onStopDate}
-                                onBeforeStart={onBeforeStartDate}
-                            />
-                            {!meetup.isFullDay && (
-                                <>
-                                    <Heading fontSize={"lg"}>
-                                        {" "}
-                                        Select your available times{" "}
-                                    </Heading>
-                                    <TimeSelector
-                                        classNameGenerator={classNameGenerator}
-                                        datesSelected={datesRef.current}
-                                        deselectAll={deselectAllTimes}
-                                        endMin={endMin}
-                                        startMin={startMin}
-                                        isSelectedCell={isSelectedCell}
-                                        selectAll={selectAllTimes}
-                                        timesSelected={timesRef.current}
-                                        onBeforeStart={onBeforeStartTime}
-                                        onMove={onMoveTime}
-                                        allowedTimes={meetup.timeslots}
-                                        onStop={onStopTime}
-                                    />
-                                </>
-                            )}
-                        </Stack>
-                    </TabPanel>
+                    {webApp?.initData && (
+                        <TabPanel>
+                            <Stack spacing={4} justifyContent="left">
+                                <Heading fontSize={"lg"}>
+                                    Select your available dates{" "}
+                                </Heading>
+                                <CalendarContainer
+                                    datesSelected={datesSelected}
+                                    setDatesSelected={setDatesSelected}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    allowedDates={meetup.dates}
+                                    onStop={onStopDate}
+                                    onBeforeStart={onBeforeStartDate}
+                                />
+                                {!meetup.isFullDay && (
+                                    <>
+                                        <Heading fontSize={"lg"}>
+                                            {" "}
+                                            Select your available times{" "}
+                                        </Heading>
+                                        <TimeSelector
+                                            classNameGenerator={
+                                                classNameGenerator
+                                            }
+                                            datesSelected={datesRef.current}
+                                            deselectAll={deselectAllTimes}
+                                            endMin={endMin}
+                                            startMin={startMin}
+                                            isSelectedCell={isSelectedCell}
+                                            selectAll={selectAllTimes}
+                                            timesSelected={timesRef.current}
+                                            onBeforeStart={onBeforeStartTime}
+                                            onMove={onMoveTime}
+                                            allowedTimes={meetup.timeslots}
+                                            onStop={onStopTime}
+                                        />
+                                    </>
+                                )}
+                                <Input
+                                    placeholder="Add your comments (optional)"
+                                    value={comments}
+                                    onChange={commentsOnChange}
+                                />
+                            </Stack>
+                        </TabPanel>
+                    )}
                     <TabPanel>
                         <Stack spacing={4} justifyContent="left">
                             <Heading fontSize="lg">

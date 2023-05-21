@@ -114,6 +114,7 @@ export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
 export const updateAvailability = async (
     id: string,
     user: ITelegramUser,
+
     {
         datesSelected,
         timesSelected,
@@ -122,7 +123,8 @@ export const updateAvailability = async (
         datesSelected: string[];
         timesSelected: string[];
         // isFullDay: boolean;
-    }
+    },
+    comments: string = ""
 ): Promise<Meetup> => {
     const docRef = doc(db, COLLECTION_NAME, id);
     const oldMeetup = (await getDoc(docRef)).data() as Meetup;
@@ -141,7 +143,7 @@ export const updateAvailability = async (
         newAvailabilityData = [
             ...oldUsers,
             {
-                comments: "", // TODO
+                comments, // TODO
                 selected: isFullDay ? datesSelected : timesSelected,
                 user,
             },
@@ -159,6 +161,7 @@ export const updateAvailability = async (
                 if (u.user.id === user.id) {
                     return {
                         ...u,
+                        comments,
                         selected: isFullDay ? datesSelected : timesSelected,
                     };
                 } else {
@@ -167,6 +170,9 @@ export const updateAvailability = async (
             });
         }
     }
+
+    // remove all users who have not selected anything
+    newAvailabilityData = newAvailabilityData.filter((u) => u.selected.length);
 
     // update the selectionMap
     let newMap: { [key: string]: ITelegramUser[] } = {};

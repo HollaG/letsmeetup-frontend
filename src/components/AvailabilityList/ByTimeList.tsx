@@ -8,6 +8,7 @@ import {
     GridItem,
     Heading,
     HStack,
+    Link,
     SimpleGrid,
     Stack,
     Text,
@@ -47,6 +48,7 @@ import { dateParser } from "../Calendar/CalendarContainer";
 import { create30MinuteIncrements } from "../Time/TimeContainer";
 import { convertMinutesToAmPm } from "../Time/TimeSelector";
 import ColorExplainer from "./common/ColorExplainer";
+import CommentsDisplay from "./common/CommentsDisplay";
 import DisplayBox from "./common/DisplayBox";
 
 type ByTimeListProps = {
@@ -116,18 +118,11 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
             width="100%"
             gap={0}
         >
-            <GridItem
-                colSpan={3}
-                display="flex"
-                justifyContent={"center"}
-                alignItems="center"
-                mb={3}
-            ></GridItem>
             {dates.flatMap((date) => [
                 <GridItem colSpan={3} key={date} mb={2} display="flex">
                     <Stack width="100%">
                         <Divider borderWidth={"2px"} />
-                        <Heading fontSize="lg" id={date}>
+                        <Heading fontSize="md" id={date}>
                             {" "}
                             {format(dateParser(date), "EEEE, d MMMM yyyy")}{" "}
                         </Heading>
@@ -274,7 +269,12 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                     meetup.selectionMap[
                                                         `${minute}::${date}`
                                                     ].map((user, i) => (
-                                                        <Box key={i}>
+                                                        <Link
+                                                            href={`https://t.me/${user.username}`}
+                                                            textDecor="none"
+                                                            isExternal
+                                                            key={i}
+                                                        >
                                                             <Flex alignItems="center">
                                                                 <Avatar
                                                                     name={`${user.first_name} ${user.last_name}`}
@@ -289,7 +289,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                     }
                                                                 </Text>
                                                             </Flex>
-                                                        </Box>
+                                                        </Link>
                                                     ))}
                                             </SimpleGrid>
                                         </GridItem>,
@@ -339,218 +339,11 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                           ]
                         : []),
                 ]),
-
-                // times.flatMap((minute, i) => [
-                //     ...(meetup.selectionMap[`${minute}::${date}`] &&
-                //     meetup.selectionMap[`${minute}::${date}`].length
-                //         ? [
-                //               <GridItem
-                //                   key={`${minute}::${date}-1`}
-                //                   display="flex"
-                //                   mb={2}
-                //                   alignItems="center"
-                //                   height={"100%"}
-                //               >
-                //                   <Stack
-                //                       height="100%"
-                //                       spacing={0}
-                //                       justifyContent="center"
-                //                       alignItems={"center"}
-                //                       width="100%"
-                //                   >
-                //                       <Center>
-                //                           {convertMinutesToAmPm(minute)}
-                //                       </Center>
-                //                       <Box
-                //                           height="100%"
-                //                           width="2px"
-                //                           bgColor={lineColor}
-                //                       ></Box>
-                //                   </Stack>
-                //               </GridItem>,
-                //               <GridItem
-                //                   key={`${minute}::${date}-2`}
-                //                   display="flex"
-                //                   height="100%"
-                //                   // alignItems={"center"}
-                //                   pb={2}
-                //                   // flexWrap="wrap"
-                //               >
-                //                   <Stack spacing={0} height="100%">
-                //                       <Stack spacing={1} flexDir="column">
-                //                           <Flex>
-                //                               <DisplayBox
-                //                                   bgColor={assignColor(
-                //                                       numberOfUsers,
-                //                                       meetup.selectionMap[
-                //                                           `${minute}::${date}`
-                //                                       ]
-                //                                           ? meetup.selectionMap[
-                //                                                 `${minute}::${date}`
-                //                                             ].length
-                //                                           : 0
-                //                                   )}
-                //                               >
-                //                                   {Math.round(
-                //                                       ((meetup.selectionMap[
-                //                                           `${minute}::${date}`
-                //                                       ]
-                //                                           ? meetup.selectionMap[
-                //                                                 `${minute}::${date}`
-                //                                             ].length
-                //                                           : 0) /
-                //                                           numberOfUsers) *
-                //                                           100
-                //                                   )}
-                //                                   %
-                //                               </DisplayBox>
-
-                //                               <Box
-                //                                   w={`${FILLER_WIDTH}px`}
-                //                                   bgColor={bgColor}
-                //                                   height={CELL_HEIGHT}
-                //                               ></Box>
-                //                           </Flex>
-                //                           {/* {getNumberOfConsectiveSelectedTimeSlots(
-                //                                         `${minute}::${date}`
-                //                                     ).map((num) => (
-                //                                         <Flex>
-                //                                             <DisplayBox
-                //                                                 key={num}
-                //                                                 bgColor={assignColor(
-                //                                                     numberOfUsers,
-                //                                                     meetup
-                //                                                         .selectionMap[
-                //                                                         `${minute}::${date}`
-                //                                                     ]
-                //                                                         ? meetup
-                //                                                               .selectionMap[
-                //                                                               `${minute}::${date}`
-                //                                                           ]
-                //                                                               .length
-                //                                                         : 0
-                //                                                 )}
-
-                //                                             >
-                //                                                 </DisplayBox>
-
-                //                                             <Box
-                //                                                 w={`${FILLER_WIDTH}px`}
-                //                                                 bgColor={
-                //                                                     bgColor
-                //                                                 }
-                //                                                 height={
-                //                                                     CELL_HEIGHT
-                //                                                 }
-                //                                             ></Box>
-                //                                         </Flex>
-                //                                     ))} */}
-                //                       </Stack>
-                //                       <Box
-                //                           w="100%"
-                //                           height="45%"
-                //                           bgColor={bgColor}
-                //                           position="relative"
-                //                       >
-                //                           <Box
-                //                               w="100%"
-                //                               height="100%"
-                //                               bgColor={pageBackgroundColor}
-                //                               position="absolute"
-                //                               borderRadius="0 4px 0 0"
-                //                           ></Box>
-                //                       </Box>
-                //                   </Stack>
-                //               </GridItem>,
-                //               <GridItem
-                //                   key={`${minute}::${date}-3`}
-                //                   //   display="unset"
-
-                //                   bgColor={bgColor}
-                //                   mb={
-                //                     isNextTimeSlotSame(
-                //                           `${minute}::${date}`
-                //                       )
-                //                           ? 0
-                //                           : 2
-                //                   } // TODO: change mb to pb if combining
-                //                   pb={
-                //                     isNextTimeSlotSame(
-                //                           `${minute}::${date}`
-                //                       )
-                //                           ? 2
-                //                           : 2
-                //                   } // TODO: change mb to pb if combining
-                //                   // TODO: see the lower one, #styling
-                //                   borderRadius="0 4px 4px 0"
-                //               >
-                //                   {!isPreviousTimeSlotSame(`${minute}::${date}`) && <SimpleGrid columns={2} spacing={3} p={3}>
-                //                       {meetup.selectionMap[
-                //                           `${minute}::${date}`
-                //                       ] &&
-                //                           meetup.selectionMap[
-                //                               `${minute}::${date}`
-                //                           ].map((user, i) => (
-                //                               <Box key={i}>
-                //                                   <Flex alignItems="center">
-                //                                       <Avatar
-                //                                           name={`${user.first_name} ${user.last_name}`}
-                //                                           src={user.photo_url}
-                //                                           size="xs"
-                //                                       />
-                //                                       <Text ml={2}>
-                //                                           {user.first_name}
-                //                                       </Text>
-                //                                   </Flex>
-                //                               </Box>
-                //                           ))}
-                //                   </SimpleGrid>}
-                //               </GridItem>,
-
-                //               ...(!checkIfNextTimeSlotHasPeople(
-                //                   `${minute}::${date}`
-                //               )
-                //                   ? [
-                //                         <GridItem
-                //                             key={`${minute}::${date}-4`}
-                //                             display="flex"
-                //                             mb={2}
-                //                             alignItems="center"
-                //                             height={"100%"}
-                //                         >
-                //                             <Stack
-                //                                 height="100%"
-                //                                 spacing={0}
-                //                                 justifyContent="center"
-                //                                 alignItems={"center"}
-                //                                 width="100%"
-                //                             >
-                //                                 <Center>
-                //                                     {convertMinutesToAmPm(
-                //                                         minute + 30
-                //                                     )}
-                //                                 </Center>
-                //                                 <Box
-                //                                     height="100%"
-                //                                     width="2px"
-                //                                     bgColor={lineColor}
-                //                                 ></Box>
-                //                             </Stack>
-                //                         </GridItem>,
-                //                         <GridItem
-                //                             key={`${minute}::${date}-5`}
-                //                             pb={2}
-                //                         ></GridItem>,
-                //                         <GridItem
-                //                             key={`${minute}::${date}-6`}
-                //                             pb={2}
-                //                         ></GridItem>,
-                //                     ]
-                //                   : []),
-                //           ]
-                //         : []),
-                // ]),
             ])}
+            <GridItem colSpan={3} mb={3}>
+                <Divider borderWidth={"2px"} mb={3} />
+                <CommentsDisplay meetup={meetup} />
+            </GridItem>
         </Grid>
     );
 };
