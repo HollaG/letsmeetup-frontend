@@ -23,6 +23,7 @@ import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns/esm";
 import React, { useCallback, useEffect, useState } from "react";
 import useStateRef from "react-usestateref";
+import { useTelegram } from "../../context/TelegramProvider";
 import { ENCODER_SEPARATOR } from "../../lib/std";
 import { removeDate } from "../../routes/meetup";
 import { TimeSelection } from "../../types/types";
@@ -135,7 +136,7 @@ const TimeContainer = ({
     timeRef,
 }: TimeContainerProps) => {
     /**
-     *
+     * Changes whether the times can be set for each individual date.
      */
     const toggleIndividualTime = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPristine(false);
@@ -149,6 +150,13 @@ const TimeContainer = ({
         setShowIndividualTimes(e.target.checked);
         setPreviousTimesSelected(timesSelected);
     };
+
+    const { user, webApp } = useTelegram();
+    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
+
+    useEffect(() => {
+        setWebAppRef(webApp);
+    }, [webApp]);
 
     /**
      * There are bugs when dynamically adding new elements to the SelectionArea.
@@ -319,11 +327,11 @@ const TimeContainer = ({
             }
         }
 
-        // console.log(previousTimesSelectedRef.current);
         if (dragTypeRef.current == 1) {
             // console.log("IN ADD MODE");
 
             setTimesSelected((prev) => {
+                const startNum = prev.length;
                 const next = new Set(prev);
                 extractIds(added).forEach((id) => next.add(id));
 
@@ -333,17 +341,32 @@ const TimeContainer = ({
                         (i) => !previousTimesSelectedRef.current.includes(i)
                     )
                     .forEach((id) => next.delete(id));
+
+                const endNum = next.size;
+
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         } else if (dragTypeRef.current == 2) {
             // console.log("IN DELETEMODE");
             setTimesSelected((prev) => {
+                const startNum = prev.length;
                 const next = new Set(prev);
                 // only re-select if it was present in previousDatesSelected
                 extractIds(added)
                     .filter((i) => previousTimesSelectedRef.current.includes(i))
                     .forEach((id) => next.add(id));
                 extractIds(removed).forEach((id) => next.delete(id));
+                const endNum = next.size;
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         }

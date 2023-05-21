@@ -53,7 +53,13 @@ export interface IWebApp {
         disable: () => void;
         enable: () => void;
     };
-    HapticFeedback: any;
+    HapticFeedback: {
+        impactOccured: (
+            style: "light" | "medium" | "heavy" | "rigid" | "soft"
+        ) => void;
+        notificationOccured: (type: "error" | "success" | "warning") => void;
+        selectionChanged: () => void;
+    };
     close: () => void;
     switchInlineQuery: (query: string, choose_chat_types: string[]) => void;
 }

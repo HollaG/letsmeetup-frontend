@@ -106,6 +106,13 @@ const MeetupPage = () => {
     const [liveMeetup, setLiveMeetup] = useState<Meetup>(loadedMeetup);
     // TEMPORARY: OVERRIDE USER ID
     let { user, webApp } = useTelegram();
+
+    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
+
+    useEffect(() => {
+        setWebAppRef(webApp);
+    }, [webApp]);
+
     if (!user) user = tempUser;
 
     /**
@@ -283,6 +290,7 @@ const MeetupPage = () => {
             // console.log("IN ADD MODE");
 
             setTimesSelected((prev) => {
+                const startNum = prev.length;
                 const next = new Set(prev);
                 extractIds(added).forEach((id) => next.add(id));
 
@@ -292,17 +300,33 @@ const MeetupPage = () => {
                         (i) => !previousTimesSelectedRef.current.includes(i)
                     )
                     .forEach((id) => next.delete(id));
+
+                const endNum = next.size;
+
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         } else if (dragTypeRef.current == 2) {
             // console.log("IN DELETEMODE");
             setTimesSelected((prev) => {
+                const startNum = prev.length;
                 const next = new Set(prev);
                 // only re-select if it was present in previousDatesSelected
                 extractIds(added)
                     .filter((i) => previousTimesSelectedRef.current.includes(i))
                     .forEach((id) => next.add(id));
                 extractIds(removed).forEach((id) => next.delete(id));
+                const endNum = next.size;
+
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         }

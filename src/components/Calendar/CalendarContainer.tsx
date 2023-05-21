@@ -23,6 +23,7 @@ import { addDays, addMonths, isAfter, subDays } from "date-fns/esm";
 import React, { useCallback } from "react";
 import { useEffect, useMemo, useState } from "react";
 import useStateRef from "react-usestateref";
+import { useTelegram } from "../../context/TelegramProvider";
 import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
 
@@ -97,6 +98,12 @@ const CalendarContainer = ({
 }: CalendarContainerProps) => {
     const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
+    const { user, webApp } = useTelegram();
+    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
+
+    useEffect(() => {
+        setWebAppRef(webApp);
+    }, [webApp]);
 
     const firstDateInMonth = parse(
         `${1}-${currentMonthNum + 1}-${new Date().getFullYear()}`,
@@ -236,6 +243,13 @@ const CalendarContainer = ({
             // in this case, do not deselect anything
             if (dragTypeRef.current == 0) {
                 setDragType(1);
+            }
+        }
+
+        // Vibrate when selection changed
+        if (removed.length || added.length) {
+            if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                webAppRef.current.HapticFeedback.selectionChanged();
             }
         }
 
