@@ -246,17 +246,11 @@ const CalendarContainer = ({
             }
         }
 
-        // Vibrate when selection changed
-        if (removed.length || added.length) {
-            if (webAppRef.current?.HapticFeedback.selectionChanged) {
-                webAppRef.current.HapticFeedback.selectionChanged();
-            }
-        }
-
         if (dragTypeRef.current == 1) {
             // console.log("IN ADD MODE");
 
             setDatesSelected((prev) => {
+                const startNum = prev.length;
                 const next = new Set(prev);
                 extractIds(added).forEach((id) => next.add(id));
 
@@ -266,17 +260,30 @@ const CalendarContainer = ({
                         (i) => !previousDatesSelectedRef.current.includes(i)
                     )
                     .forEach((id) => next.delete(id));
+                const endNum = next.size;
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         } else if (dragTypeRef.current == 2) {
             // console.log("IN DELETEMODE");
             setDatesSelected((prev) => {
                 const next = new Set(prev);
+                const startNum = prev.length;
                 // only re-select if it was present in previousDatesSelected
                 extractIds(added)
                     .filter((i) => previousDatesSelectedRef.current.includes(i))
                     .forEach((id) => next.add(id));
                 extractIds(removed).forEach((id) => next.delete(id));
+                const endNum = next.size;
+                if (startNum != endNum) {
+                    if (webAppRef.current?.HapticFeedback.selectionChanged) {
+                        webAppRef.current.HapticFeedback.selectionChanged();
+                    }
+                }
                 return [...next].sort();
             });
         }
