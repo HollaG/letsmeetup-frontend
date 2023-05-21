@@ -147,31 +147,30 @@ const Create = () => {
     }, [webApp, webApp?.MainButton]);
 
     /**
-     * Handle dynamic updates
+     * Handle the title change
+     * Limit to 256 characters
      */
-    // useEffect(() => {
-    //     if (webApp?.initData) {
-    //         if (userCanSubmit) {
-    //             webApp.MainButton.enable();
-    //         } else {
-    //             webApp.MainButton.disable();
-    //         }
-    //         // console.log("updating onSubmit");
-    //         webApp.MainButton.onClick(onSubmit);
-    //     }
+    const onTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.trim().length > 256) {
+            return;
+        }
+        setTitle(value);
+    };
 
-    //     return () => {
-    //         webApp && webApp.MainButton.offClick(onSubmit);
-    //     };
-    // }, [
-    //     webApp,
-    //     userCanSubmit,
-    //     title,
-    //     description,
-    //     datesSelected,
-    //     timesSelected,
-    //     isFullDay,
-    // ]);
+    /**
+     * Handle the description change
+     * Limit to 1024 characters
+     *
+     */
+    const onDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const value = e.target.value;
+        if (value.trim().length > 1024) {
+            return;
+        }
+        setDescription(value);
+    };
+
     useEffect(() => {
         if (webApp?.initData) {
             if (userCanSubmit) {
@@ -258,13 +257,13 @@ const Create = () => {
                 placeholder="Event title (required)"
                 required
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={onTitleChange}
             />
             <Textarea
                 id="description"
                 placeholder="Event description (optional)"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={onDescriptionChange}
             />
             <Heading fontSize={"xl"} pt={6}>
                 {" "}

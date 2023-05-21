@@ -490,9 +490,14 @@ const MeetupPage = () => {
     /**
      * Controlled component for the comments input
      *
+     * Limit to 512 characters
+     *
      * @param e the change event from the input
      */
     const commentsOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value.trim().length > 512) {
+            return;
+        }
         setComments(e.target.value);
         setHasDataChanged(true);
     };
