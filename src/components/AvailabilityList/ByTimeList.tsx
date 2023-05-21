@@ -43,6 +43,7 @@ import {
     getNumberOfConsectiveSelectedTimeSlots,
     isSameAsPreviousTimeSlot,
     RangeColors,
+    getSlotLength,
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import { create30MinuteIncrements } from "../Time/TimeContainer";
@@ -193,14 +194,15 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                     : 0,
                                                                 colors
                                                             )}
-                                                            height={
+                                                            height={Math.min(
+                                                                24 * 2,
                                                                 CELL_HEIGHT_NUM *
-                                                                (getNumberOfConsectiveSelectedTimeSlots(
-                                                                    `${minute}::${date}`,
-                                                                    meetup
-                                                                ).length +
-                                                                    1)
-                                                            }
+                                                                    (getNumberOfConsectiveSelectedTimeSlots(
+                                                                        `${minute}::${date}`,
+                                                                        meetup
+                                                                    ).length +
+                                                                        1)
+                                                            )}
                                                         >
                                                             {Math.round(
                                                                 ((meetup
@@ -221,14 +223,15 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                         <Box
                                                             w={`${FILLER_WIDTH}px`}
                                                             bgColor={bgColor}
-                                                            height={`${
+                                                            height={`${Math.min(
+                                                                24 * 2,
                                                                 CELL_HEIGHT_NUM *
-                                                                (getNumberOfConsectiveSelectedTimeSlots(
-                                                                    `${minute}::${date}`,
-                                                                    meetup
-                                                                ).length +
-                                                                    1)
-                                                            }px`}
+                                                                    (getNumberOfConsectiveSelectedTimeSlots(
+                                                                        `${minute}::${date}`,
+                                                                        meetup
+                                                                    ).length +
+                                                                        1)
+                                                            )}px`}
                                                         ></Box>
                                                     </Flex>
                                                 </Stack>
@@ -258,7 +261,29 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                             mb={2} // TODO: change mb to pb if combining
                                             // TODO: see the lower one, #styling
                                             borderRadius="0 4px 4px 0"
+                                            position="relative"
                                         >
+                                            <Box
+                                                position="absolute"
+                                                right="6px"
+                                                top="-12px"
+                                                bgColor={"gray.700"}
+                                                p={1}
+                                                borderRadius="4px"
+                                                width="46px" // the max width of the longest word (23 hr 30 min)
+                                                textAlign="center"
+                                            >
+                                                <Text
+                                                    fontSize={"2xs"}
+                                                    fontWeight="light"
+                                                    color="gray.300"
+                                                >
+                                                    {getSlotLength(
+                                                        `${minute}::${date}`,
+                                                        meetup
+                                                    )}
+                                                </Text>
+                                            </Box>
                                             <SimpleGrid
                                                 columns={2}
                                                 spacing={3}
@@ -275,6 +300,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             textDecor="none"
                                                             isExternal
                                                             key={i}
+                                                            fontSize="sm"
                                                         >
                                                             <Flex alignItems="center">
                                                                 <Avatar
