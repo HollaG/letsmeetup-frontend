@@ -174,4 +174,4 @@ const GeneralCalendarDay = ({
     );
 };
 
-export default React.memo(GeneralCalendarDay);
+export default GeneralCalendarDay;

@@ -80,12 +80,4 @@ const GeneralCalendarBody = ({
     );
 };
 
-export default React.memo(GeneralCalendarBody, (prevProps, nextProps) => {
-    // only update the body if the dates selected or the drawn days have changed
-    const res =
-        prevProps.drawnDays.length === nextProps.drawnDays.length &&
-        prevProps.drawnDays[0].date.toString() ===
-            nextProps.drawnDays[0].date.toString();
-
-    return res;
-});
+export default GeneralCalendarBody;

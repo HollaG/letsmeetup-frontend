@@ -234,7 +234,7 @@ const Create = () => {
             // webApp.MainButton.isVisible = true;
             webApp.MainButton.color = btnColor;
             webApp.MainButton.enable();
-            webApp.MainButton.setText("Create meetup");
+            webApp.MainButton.setText("Create and share meetup");
             webApp.isClosingConfirmationEnabled = true;
             // webApp.MainButton.textColor = textColor
         }
