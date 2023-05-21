@@ -161,6 +161,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                     height="100%"
                                                     width="2px"
                                                     bgColor={lineColor}
+                                                    borderRadius="1px"
                                                 ></Box>
                                             </Stack>
                                         </GridItem>,
@@ -323,6 +324,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                     height="100%"
                                                     width="2px"
                                                     bgColor={lineColor}
+                                                    borderRadius="1px"
                                                 ></Box>
                                             </Stack>
                                         </GridItem>,
