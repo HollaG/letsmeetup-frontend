@@ -149,6 +149,8 @@ export const isSameAsNextTimeSlot = (dateTimeStr: string, meetup: Meetup) => {
  *
  * Stops counting at midnight.
  *
+ * Does not include the current slot. e.g. 9:00 - 10:00 is ONE (1) consectuive slot.
+ *
  * @param dateTimeStr the current date and time to check
  * @returns An array [0, 1, ..., n-1] where n and
  * length is equal to the number of consecutive time slots that have the same # of people and the same people in it.
@@ -173,4 +175,34 @@ export const getNumberOfConsectiveSelectedTimeSlots = (
         }
     }
     return Array.from(Array(count).keys());
+};
+
+/**
+ * Calculates the length of a slot.
+ *
+ * @param dateTimeStr the current date and time to check
+ */
+export const getSlotLength = (dateTimeStr: string, meetup: Meetup) => {
+    const [time, date] = dateTimeStr.split("::");
+    const numConsec = getNumberOfConsectiveSelectedTimeSlots(
+        dateTimeStr,
+        meetup
+    );
+
+    const numMinutes = 30 + numConsec.length * 30;
+    // convert numMinutes into hours and minutes
+    const hours = Math.floor(numMinutes / 60);
+    const minutes = numMinutes % 60;
+
+    let resString = "";
+    // if (hours > 0) {
+    //     resString += `${hours} hr`;
+    // }
+    // if (minutes > 0) {
+    //     resString += ` ${minutes} min`;
+    // }
+
+    // return resString;
+
+    return `${numMinutes / 60} hrs`;
 };

@@ -10,9 +10,11 @@ import {
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns";
+import { isMobile } from "react-device-detect";
 import useStateRef from "react-usestateref";
 import { ENCODER_SEPARATOR } from "../../lib/std";
 import { dateParser } from "../Calendar/CalendarContainer";
+import HelperText from "../Display/HelperText";
 
 const CELL_PADDING_LR = 1;
 const CELL_PADDING_TB = 0;
@@ -167,6 +169,19 @@ const TimeSelector = ({
 
     return (
         <Stack>
+            <Box>
+                <HelperText>
+                    {" "}
+                    {isMobile ? "Touch / Touch" : "Click / click"} and drag to
+                    select.
+                </HelperText>
+
+                {isMobile && (
+                    <HelperText>
+                        Scroll by dragging along the labels.
+                    </HelperText>
+                )}
+            </Box>
             <Flex justifyContent="end">
                 <Button size="xs" colorScheme="blue" onClick={selectAll}>
                     {" "}

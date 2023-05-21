@@ -1,4 +1,5 @@
 import {
+    Box,
     Button,
     Collapse,
     Container,
@@ -14,8 +15,10 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import useStateRef from "react-usestateref";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
+import HelperText from "../components/Display/HelperText";
 import TimeContainer, {
     create30MinuteIncrements,
 } from "../components/Time/TimeContainer";
@@ -265,10 +268,18 @@ const Create = () => {
                 value={description}
                 onChange={onDescriptionChange}
             />
-            <Heading fontSize={"xl"} pt={6}>
-                {" "}
-                Select the possible event dates{" "}
-            </Heading>
+            <Box>
+                <Heading fontSize={"xl"} pt={6}>
+                    {" "}
+                    Select the possible event dates{" "}
+                </Heading>
+
+                <HelperText>
+                    {" "}
+                    {isMobile ? "Touch / Touch" : "Click / click"} and drag to
+                    select.
+                </HelperText>
+            </Box>
 
             <CalendarContainer
                 datesSelected={datesRef.current}

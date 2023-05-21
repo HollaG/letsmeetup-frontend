@@ -1,4 +1,5 @@
 import {
+    Box,
     Button,
     Center,
     Divider,
@@ -16,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../components/AvailabilityList/ByDateList";
@@ -25,6 +27,7 @@ import ColorExplainer from "../components/AvailabilityList/common/ColorExplainer
 import CalendarContainer, {
     dateParser,
 } from "../components/Calendar/CalendarContainer";
+import HelperText from "../components/Display/HelperText";
 import { CellData } from "../components/Time/TimeContainer";
 import TimeSelector from "../components/Time/TimeSelector";
 import { useTelegram } from "../context/TelegramProvider";
@@ -517,9 +520,18 @@ const MeetupPage = () => {
                     {webApp?.initData && (
                         <TabPanel>
                             <Stack spacing={4} justifyContent="left">
-                                <Heading fontSize={"lg"}>
-                                    Select your available dates{" "}
-                                </Heading>
+                                <Box>
+                                    <Heading fontSize={"lg"}>
+                                        Select your available dates{" "}
+                                    </Heading>
+                                    <HelperText>
+                                        {" "}
+                                        {isMobile
+                                            ? "Touch / Touch"
+                                            : "Click / click"}{" "}
+                                        and drag to select.
+                                    </HelperText>
+                                </Box>
                                 <CalendarContainer
                                     datesSelected={datesSelected}
                                     setDatesSelected={setDatesSelected}
@@ -535,6 +547,7 @@ const MeetupPage = () => {
                                             {" "}
                                             Select your available times{" "}
                                         </Heading>
+
                                         <TimeSelector
                                             classNameGenerator={
                                                 classNameGenerator

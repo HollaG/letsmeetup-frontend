@@ -8,6 +8,7 @@ import {
     Text,
     Grid,
     Box,
+    Flex,
 } from "@chakra-ui/react";
 import { useState } from "react";
 
@@ -57,7 +58,11 @@ const TimeRangeSelector = ({
     const [[localStart, localEnd], setLocals] = useState([9 * 60, 17 * 60]);
 
     return (
-        <Stack data-testid="timerange-component">
+        <Stack data-testid="timerange-component" px={2} py={3}>
+            <Flex width="100%" justifyContent="space-between" fontSize={"sm"}>
+                <Text ml="-2"> 12:00 am </Text>
+                <Text mr="-2"> 11:59 pm </Text>
+            </Flex>
             <RangeSlider
                 defaultValue={[9 * 60, 17 * 60]}
                 min={start}
@@ -72,7 +77,7 @@ const TimeRangeSelector = ({
                 <RangeSliderTrack>
                     <RangeSliderFilledTrack />
                 </RangeSliderTrack>
-                <RangeSliderMark
+                {/* <RangeSliderMark
                     value={localStart}
                     textAlign="center"
                     bg="blue.800"
@@ -80,6 +85,7 @@ const TimeRangeSelector = ({
                     m="15px 0 0 -50px"
                     w="100px"
                     borderRadius={4}
+                    zIndex={1}
                 >
                     {convertTimeIntoAMPM(localStart)}
                 </RangeSliderMark>
@@ -91,14 +97,24 @@ const TimeRangeSelector = ({
                     m="15px 0 0 -50px"
                     w="100px"
                     borderRadius={4}
+                    zIndex={1}
                 >
                     {convertTimeIntoAMPM(localEnd)}
-                </RangeSliderMark>
+                </RangeSliderMark> */}
                 <RangeSliderThumb boxSize={4} index={0} />
                 <RangeSliderThumb boxSize={4} index={1} />
             </RangeSlider>
-            {/* <Text> Start: {convertTimeIntoAMPM(startMin)}</Text>
-            <Text> End: {convertTimeIntoAMPM(endMin)}</Text> */}
+            <Text
+                width="100%"
+                textAlign="center"
+                fontSize="xl"
+                fontWeight="semibold"
+            >
+                {" "}
+                Selected: {convertTimeIntoAMPM(localStart)} -{" "}
+                {convertTimeIntoAMPM(localEnd)}
+            </Text>
+
             <Box height={12} />
         </Stack>
     );
