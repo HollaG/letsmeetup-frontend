@@ -106,7 +106,8 @@ const MeetupPage = () => {
     const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
 
     const [meetup, setMeetup] = useState<Meetup>(loadedMeetup);
-    const [liveMeetup, setLiveMeetup] = useState<Meetup>(loadedMeetup);
+    const [liveMeetup, setLiveMeetup, liveMeetupRef] =
+        useStateRef<Meetup>(loadedMeetup);
     // TEMPORARY: OVERRIDE USER ID
     let { user, webApp } = useTelegram();
 
@@ -586,18 +587,20 @@ const MeetupPage = () => {
                             </Heading>
                             <Center>
                                 <ColorExplainer
-                                    numTotal={liveMeetup.users.length}
+                                    numTotal={
+                                        liveMeetupRef.current.users.length
+                                    }
                                 />
                             </Center>
                             <CalendarDisplay
-                                meetup={liveMeetup}
+                                meetup={liveMeetupRef.current}
                                 _rerender={_rerender}
                             />
                             {!meetup.isFullDay && (
-                                <ByTimeList meetup={liveMeetup} />
+                                <ByTimeList meetup={liveMeetupRef.current} />
                             )}
                             {meetup.isFullDay && (
-                                <ByDateList meetup={liveMeetup} />
+                                <ByDateList meetup={liveMeetupRef.current} />
                             )}
                         </Stack>
                     </TabPanel>
