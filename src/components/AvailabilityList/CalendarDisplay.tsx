@@ -34,7 +34,12 @@ const LIGHT__SELECTED_DATE_COLOR = "blue.200";
  * @param param0
  * @returns
  */
-const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
+const CalendarDisplay = ({
+    meetup,
+}: {
+    meetup: Meetup;
+    _rerender?: boolean;
+}) => {
     const UNSELECTABLE_TEXT_COLOR = useColorModeValue(
         LIGHT__UNSELECTABLE_TEXT_COLOR,
         DARK__UNSELECTABLE_TEXT_COLOR
