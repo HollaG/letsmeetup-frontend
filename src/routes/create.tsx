@@ -118,6 +118,7 @@ const Create = () => {
             notified: false,
             selectionMap: {},
             messages: [],
+            isEnded: false,
         };
 
         console.log({ MeetupData });
@@ -277,8 +278,6 @@ const Create = () => {
             webApp.MainButton.textColor = enabledTextColor;
         }
     };
-
-
 
     return (
         <Stack spacing={4}>

@@ -520,7 +520,7 @@ const MeetupPage = () => {
 
             <Tabs isFitted variant="unstyled">
                 <TabList>
-                    {webApp?.initData && (
+                    {webApp?.initData && !meetup.isEnded && (
                         <Tab
                             _selected={{
                                 bg: disabledBtnColor,
@@ -546,7 +546,7 @@ const MeetupPage = () => {
                     borderRadius="1px"
                 />
                 <TabPanels>
-                    {webApp?.initData && (
+                    {webApp?.initData && !meetup.isEnded && (
                         <TabPanel>
                             <Stack spacing={4} justifyContent="left">
                                 <Box>
