@@ -121,7 +121,7 @@ const Create = () => {
         console.log("-------------------------");
         create(MeetupData)
             .then((res) => {
-                // console.log(res);
+                console.log(res);
                 // send the ID back to Telegram
                 // webApp?.sendData(res.id)
                 // webApp?.close()
