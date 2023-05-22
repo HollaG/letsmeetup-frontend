@@ -121,7 +121,7 @@ const TimeRangeSelector = ({
                 {convertTimeIntoAMPM(localEnd)}
             </Text>
 
-            <Box height={12} />
+            {/* <Box height={12} /> */}
         </Stack>
     );
 };
