@@ -145,6 +145,7 @@ const Create = () => {
         if (webApp?.initData) {
             webApp.MainButton.isVisible = true;
             webApp.MainButton.text = "Create";
+            webApp.MainButton.color = btnColor;
 
             webApp.MainButton.disable();
         }
@@ -243,15 +244,15 @@ const Create = () => {
     // Listen to when the selected data changes and update the button accordingly
     // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
     // TODO: maybe synchronise this to Telegram's theme?
-    useEffect(() => {
-        if (webApp?.initData) {
-            if (!userCanSubmit) {
-                disableButton();
-            } else {
-                enableButton();
-            }
-        }
-    }, [colorMode, userCanSubmit]);
+    // useEffect(() => {
+    //     if (webApp?.initData) {
+    //         if (!userCanSubmit) {
+    //             disableButton();
+    //         } else {
+    //             enableButton();
+    //         }
+    //     }
+    // }, [colorMode, userCanSubmit]);
 
     return (
         <Stack spacing={4}>
