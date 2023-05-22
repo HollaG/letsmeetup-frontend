@@ -129,7 +129,6 @@ export const TelegramProvider = ({
                         const [name, style] = item.split(":");
                         if (name) newObj[name as keyof ThemeParams] = style;
                     });
-                    console.log({ newObj });
 
                     setStyle(newObj);
                     // console.log({ colorMode });
@@ -142,20 +141,8 @@ export const TelegramProvider = ({
                         return;
                     } else if (newObj["tg-color-scheme"]) {
                         setColorMode(newObj["tg-color-scheme"]);
-                        // console.log({
-                        //     text: "COLOR SCHEMS DIFF",
-                        //     cs: newObj["color-scheme"],
-                        //     tcs: newObj["tg-color-scheme"],
-                        //     colorMode,
-                        // });
+
                         observer.disconnect();
-                        // toggleColorMode();
-                        // console.log({
-                        //     text: "COLOR SCHEMS DIFF",
-                        //     cs: newObj["color-scheme"],
-                        //     tcs: newObj["tg-color-scheme"],
-                        //     colorMode,
-                        // });
                     }
                 }
             });
@@ -165,11 +152,6 @@ export const TelegramProvider = ({
 
         return () => observer.disconnect();
     }, [colorMode]);
-
-    // useEffect(() => {
-    //     toggleColorMode();
-    //     // toggleColorMode();
-    // }, []);
 
     const value = useMemo(() => {
         return webApp

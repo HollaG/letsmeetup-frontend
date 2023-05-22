@@ -118,24 +118,25 @@ const Create = () => {
 
         console.log({ MeetupData });
 
-        create(MeetupData)
-            .then((res) => {
-                // console.log(res);
-                // send the ID back to Telegram
-                // webApp?.sendData(res.id)
-                // webApp?.close()
-                const newDocId = res.id;
-                webApp?.switchInlineQuery(title, [
-                    "users",
-                    "groups",
-                    "channels",
-                    "bots",
-                ]);
-                webApp?.close();
-            })
-            .catch((e) => {
-                alert("somme error!!");
-            });
+        console.log("-------------------------");
+        // create(MeetupData)
+        //     .then((res) => {
+        //         // console.log(res);
+        //         // send the ID back to Telegram
+        //         // webApp?.sendData(res.id)
+        //         // webApp?.close()
+        //         const newDocId = res.id;
+        //         webApp?.switchInlineQuery(title, [
+        //             "users",
+        //             "groups",
+        //             "channels",
+        //             "bots",
+        //         ]);
+        //         webApp?.close();
+        //     })
+        //     .catch((e) => {
+        //         alert("somme error!!");
+        //     });
     };
 
     /**
@@ -183,7 +184,7 @@ const Create = () => {
             } else {
                 disableButton();
             }
-            // console.log("updating onSubmit");
+            console.log("updating onSubmit");
             webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, userCanSubmit, style]);
