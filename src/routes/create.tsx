@@ -185,9 +185,15 @@ const Create = () => {
                 disableButton();
             }
             // console.log("updating onSubmit");
-            webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, userCanSubmit, style]);
+
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.offClick(onSubmit);
+            webApp.MainButton.onClick(onSubmit);
+        }
+    }, [webApp?.initData]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day

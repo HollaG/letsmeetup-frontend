@@ -485,9 +485,14 @@ const MeetupPage = () => {
                 disableButton();
             }
             // console.log("updating onSubmit");
-            webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, hasDataChanged, style]);
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.offClick(onSubmit);
+            webApp.MainButton.onClick(onSubmit);
+        }
+    }, [webApp?.initData]);
 
     const [comments, setComments, commentsRef] = useStateRef<string>(
         meetup.users.find((u) => u.user.id === user?.id)?.comments || ""
