@@ -9,8 +9,10 @@ import {
     Grid,
     Box,
     Flex,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useTelegram } from "../../context/TelegramProvider";
 
 /**
  * Converts a numerical value from 0 to 24*60 into a human-readable time string of the format
@@ -57,6 +59,8 @@ const TimeRangeSelector = ({
 
     const [[localStart, localEnd], setLocals] = useState([9 * 60, 17 * 60]);
 
+    const { style } = useTelegram();
+
     return (
         <Stack data-testid="timerange-component" px={2} py={3}>
             <Flex width="100%" justifyContent="space-between" fontSize={"sm"}>
@@ -75,7 +79,9 @@ const TimeRangeSelector = ({
                 onChangeEnd={(e) => updateSelectionArea(e as [number, number])}
             >
                 <RangeSliderTrack>
-                    <RangeSliderFilledTrack />
+                    <RangeSliderFilledTrack
+                        backgroundColor={style?.button_color}
+                    />
                 </RangeSliderTrack>
                 {/* <RangeSliderMark
                     value={localStart}
@@ -115,7 +121,7 @@ const TimeRangeSelector = ({
                 {convertTimeIntoAMPM(localEnd)}
             </Text>
 
-            <Box height={12} />
+            {/* <Box height={12} /> */}
         </Stack>
     );
 };

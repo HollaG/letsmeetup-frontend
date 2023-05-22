@@ -7,11 +7,13 @@ import {
     Text,
     Progress,
     Center,
+    Heading,
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns";
 import { isMobile } from "react-device-detect";
 import useStateRef from "react-usestateref";
+import { useTelegram } from "../../context/TelegramProvider";
 import { ENCODER_SEPARATOR } from "../../lib/std";
 import { dateParser } from "../Calendar/CalendarContainer";
 import HelperText from "../Display/HelperText";
@@ -99,8 +101,19 @@ const TimeSelector = ({
     allowedTimes,
 }: TimeSelectorProps) => {
     const cellOutlineColor = useColorModeValue("gray.200", "gray.800");
-    const cellSelectedColor = useColorModeValue("blue.200", "blue.800");
+    const _cellSelectedColor = useColorModeValue("blue.200", "blue.800");
     const cellUnselectedColor = useColorModeValue("gray.100", "gray.900");
+
+    const { style } = useTelegram();
+
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const cellSelectedColor = style?.button_color || _cellSelectedColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
 
     const divisions = Math.round((endMin - startMin) / 30); // can be zero
     const arrayDiv = Array.from(Array(divisions).keys());
@@ -170,6 +183,7 @@ const TimeSelector = ({
     return (
         <Stack>
             <Box>
+                <Heading fontSize={"lg"}> Select your available times </Heading>
                 <HelperText>
                     {" "}
                     {isMobile ? "Touch / Touch" : "Click / click"} and drag to
@@ -183,7 +197,17 @@ const TimeSelector = ({
                 )}
             </Box>
             <Flex justifyContent="end">
-                <Button size="xs" colorScheme="blue" onClick={selectAll}>
+                <Button
+                    size="xs"
+                    colorScheme="telegram"
+                    // backgroundColor={style?.button_color}
+                    // sx={{
+                    //     ":hover": {
+                    //         backgroundColor: style?.button_color
+                    //     }
+                    // }}
+                    onClick={selectAll}
+                >
                     {" "}
                     Select all{" "}
                 </Button>

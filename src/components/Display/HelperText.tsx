@@ -1,5 +1,6 @@
 import { Text, useColorModeValue } from "@chakra-ui/react";
 import { ReactNode } from "react";
+import { useTelegram } from "../../context/TelegramProvider";
 
 /**
  * Renders a helper text.
@@ -8,7 +9,10 @@ import { ReactNode } from "react";
  * @returns
  */
 const HelperText = ({ children }: { children: ReactNode }) => {
-    const color = useColorModeValue("gray.700", "gray.300");
+    const _color = useColorModeValue("gray.700", "gray.300");
+    const { style } = useTelegram();
+
+    const color = style?.hint_color || _color;
     return (
         <Text fontSize="xs" color={color} fontWeight="light">
             {children}

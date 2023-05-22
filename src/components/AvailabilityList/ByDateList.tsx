@@ -13,6 +13,7 @@ import {
     Link,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
+import { useTelegram } from "../../context/TelegramProvider";
 
 import { Meetup } from "../../db/repositories/meetups";
 import {
@@ -70,8 +71,13 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
         range_4,
         range_full,
     ];
-    const bgColor = useColorModeValue("gray.100", "gray.900");
-    const pageBackgroundColor = useColorModeValue("white", "gray.800");
+
+    const { style } = useTelegram();
+    const _dataBgColor = useColorModeValue("gray.100", "gray.900");
+    const _pageBackgroundColor = useColorModeValue("white", "gray.800");
+
+    const dataBgColor = style?.secondary_bg_color || _dataBgColor;
+    const pageBackgroundColor = style?.bg_color || _pageBackgroundColor;
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter(
         (date) =>
@@ -127,7 +133,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
 
                                 <Box
                                     w={`${FILLER_WIDTH}px`}
-                                    bgColor={bgColor}
+                                    bgColor={dataBgColor}
                                     height={`${CELL_HEIGHT_NUM}px`}
                                 ></Box>
                             </Flex>
@@ -135,7 +141,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                         <Box
                             w="100%"
                             height="45%"
-                            bgColor={bgColor}
+                            bgColor={dataBgColor}
                             position="relative"
                         >
                             <Box
@@ -150,7 +156,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                 </GridItem>,
                 <GridItem
                     key={`${date}-3`}
-                    bgColor={bgColor}
+                    bgColor={dataBgColor}
                     mb={2} // TODO: change mb to pb if combining
                     // TODO: see the lower one, #styling
                     borderRadius="0 4px 4px 0"

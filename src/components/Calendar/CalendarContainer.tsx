@@ -343,6 +343,7 @@ const CalendarContainer = ({
                     isDisabled={!canGoLeft}
                     onClick={goLeft}
                     aria-label="Previous month"
+                    // className="override-button-color"
                 >
                     {" "}
                     &lt;{" "}
@@ -356,6 +357,7 @@ const CalendarContainer = ({
                     onClick={goRight}
                     isDisabled={!canGoRight}
                     aria-label="Next month"
+                    // className="override-button-color"
                 >
                     {" "}
                     &gt;{" "}

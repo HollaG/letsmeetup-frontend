@@ -1,9 +1,12 @@
+import { useColorMode } from "@chakra-ui/react";
+import { ThemeProvider } from "@emotion/react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { ITelegramUser, IWebApp } from "../types/telegram";
+import type { ITelegramUser, IWebApp, ThemeParams } from "../types/telegram";
 
 export interface ITelegramContext {
     webApp?: IWebApp;
     user?: ITelegramUser;
+    style?: ThemeParams;
 }
 
 export const TelegramContext = createContext<ITelegramContext>({});
@@ -61,11 +64,43 @@ export const TelegramProvider = ({
 }) => {
     const [webApp, setWebApp] = useState<IWebApp | null>(null);
 
+    const { colorMode, toggleColorMode, setColorMode } = useColorMode();
+
+    const [themeParams, setThemeParams] = useState<ThemeParams | null>(null);
+    const updateColorMode = () => {
+        const newStyle = ((window as any).Telegram.WebApp as IWebApp)
+            .themeParams;
+
+        // check if it's dark or light mode
+        const htmlElement = document.getElementsByTagName("html")[0];
+
+        // @ts-ignore
+        const attr = htmlElement.attributes.style.textContent;
+
+        const newAttrArr: string[] = attr
+            .replaceAll("--", "")
+            .replaceAll(" ", "")
+            .trim()
+            .split(";");
+
+        const isDarkMode = newAttrArr.some((attr) =>
+            attr.includes("tg-color-scheme:dark")
+        );
+
+        if (isDarkMode) {
+            setColorMode("dark");
+        } else {
+            setColorMode("light");
+        }
+
+        setThemeParams({ ...newStyle });
+        document.body.style.background = newStyle.bg_color;
+    };
+
     useEffect(() => {
         const app = (window as any).Telegram?.WebApp;
 
-        console.log(app, "---");
-        if (app) {
+        if (app as IWebApp) {
             const initData = app.initData;
 
             if (initData) {
@@ -74,6 +109,8 @@ export const TelegramProvider = ({
                     app.ready();
                     setWebApp(app);
                 });
+                app.onEvent("themeChanged", updateColorMode);
+                updateColorMode();
             }
         }
     }, [(window as any).Telegram?.WebApp]);
@@ -84,9 +121,10 @@ export const TelegramProvider = ({
                   webApp,
                   unsafeData: webApp.initDataUnsafe,
                   user: webApp.initDataUnsafe.user,
+                  style: themeParams || undefined,
               }
             : {};
-    }, [webApp]);
+    }, [webApp, themeParams]);
 
     return (
         <TelegramContext.Provider value={value}>

@@ -151,7 +151,7 @@ const TimeContainer = ({
         setPreviousTimesSelected(timesSelected);
     };
 
-    const { user, webApp } = useTelegram();
+    const { user, webApp, style } = useTelegram();
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
 
     useEffect(() => {
@@ -413,6 +413,16 @@ const TimeContainer = ({
         setPreviousTimesSelected([]);
     };
 
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.button_color || _btnColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
+
     return (
         <Stack>
             <TimeRangeSelector
@@ -427,6 +437,16 @@ const TimeContainer = ({
                 <Switch
                     isChecked={showIndividualTimes}
                     onChange={toggleIndividualTime}
+                    // https://github.com/chakra-ui/chakra-ui/discussions/6140
+                    sx={{
+                        "span.chakra-switch__track[data-checked]": {
+                            backgroundColor: btnColor,
+                        },
+                        // "span.chakra-switch__track:not([data-checked])": {
+                        //     backgroundColor:
+                        //         style?.secondary_bg_color,
+                        // },
+                    }}
                 />
             </Flex>
 
@@ -458,60 +478,5 @@ type SelectableCellProps = {
     cellOutlineColor: string;
     renderText?: boolean;
 };
-
-const TableCell =
-    // React.memo
-    // (
-    ({
-        cellColor,
-        data,
-        className,
-        cellOutlineColor,
-        renderText = true,
-    }: SelectableCellProps) => {
-        if (data.isHeader) {
-            return (
-                <Box
-                    minWidth={COL_HEADER_CELL_WIDTH}
-                    height={CELL_HEIGHT}
-                    bgColor="unset"
-                    px={1}
-                    display="flex"
-                    justifyContent={data.align || "right"}
-                    alignItems="center"
-                    className="blocked"
-                >
-                    <Text
-                        fontSize={"xs"}
-                        marginTop={`-${CELL_HEIGHT}`}
-                        className="blocked"
-                    >
-                        {renderText && data.value}
-                    </Text>
-                </Box>
-            );
-        }
-        return (
-            <Box
-                minWidth={CELL_WIDTH}
-                height={CELL_HEIGHT}
-                bgColor={cellColor}
-                className={className}
-                data-key={data.value}
-                outline="1px dashed"
-                outlineColor={cellOutlineColor}
-            ></Box>
-        );
-    };
-// ,
-// (prevProps, nextProps) => {
-//     return (
-//         prevProps.cellColor == nextProps.cellColor &&
-//         prevProps.className == nextProps.className &&
-//         prevProps.cellOutlineColor == nextProps.cellOutlineColor &&
-//         prevProps.data.value == nextProps.data.value
-//     );
-// }
-// );
 
 export default React.memo(TimeContainer);

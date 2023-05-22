@@ -43,9 +43,10 @@ const Create = () => {
 
     const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
 
-    const { user, webApp } = useTelegram();
+    const { user, webApp, style } = useTelegram();
 
-    const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
+    const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
+        useStateRef<boolean>(false);
 
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
         9 * 60,
@@ -79,6 +80,8 @@ const Create = () => {
         isFullDay,
     ]);
 
+    const [_, setHasUserSubmitted, hasUserSubmittedRef] = useStateRef(false);
+
     /**
      *
      * The submit handler when a user clicks Telegram's MainButton.
@@ -87,16 +90,17 @@ const Create = () => {
      *
      *
      */
-    const onSubmit = () => {
+    const onSubmit = useCallback(() => {
         // setIsSubmitting(true);
-        console.log("submitting data or smt");
+        // console.log("submitting data or smt");
         // webApp?.MainButton.showProgress(false);
 
         // Validate data
-        if (!userCanSubmit) {
+        if (!userCanSubmitRef.current || hasUserSubmittedRef.current) {
             return console.log("can't submit!");
         }
 
+        setHasUserSubmitted(true);
         const MeetupData: Meetup = {
             title: titleRef.current,
             description: descriptionRef.current,
@@ -107,7 +111,7 @@ const Create = () => {
                 username: user!.username,
                 photo_url: user!.photo_url || "",
             },
-            isFullDay,
+            isFullDay: isFullDayRef.current,
             timeslots: isFullDayRef.current ? [] : timesRef.current,
             dates: datesRef.current,
             users: [],
@@ -120,12 +124,11 @@ const Create = () => {
 
         create(MeetupData)
             .then((res) => {
-                // console.log(res);
                 // send the ID back to Telegram
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                webApp?.switchInlineQuery(title, [
+                webApp?.switchInlineQuery(titleRef.current, [
                     "users",
                     "groups",
                     "channels",
@@ -136,7 +139,7 @@ const Create = () => {
             .catch((e) => {
                 alert("somme error!!");
             });
-    };
+    }, [webApp]);
 
     /**
      * Initialize button at bottom of screen
@@ -183,10 +186,28 @@ const Create = () => {
             } else {
                 disableButton();
             }
-            // console.log("updating onSubmit");
+            console.log("updating onSubmit");
+        }
+    }, [webApp, userCanSubmit, style]);
+
+    useEffect(() => {
+        if (webApp?.initData) {
+            console.log("Bound the submit!");
             webApp.MainButton.onClick(onSubmit);
         }
-    }, [webApp, userCanSubmit]);
+    }, [webApp?.initData]);
+
+    // useEffect(() => {
+    //     if (webApp?.initData) {
+    //         if (userCanSubmit) {
+    //             enableButton();
+    //         } else {
+    //             disableButton();
+    //         }
+    //         // console.log("updating onSubmit");
+    //         // webApp.MainButton.onClick(onSubmit);
+    //     }
+    // }, [webApp?.initData, style, userCanSubmit]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
@@ -208,9 +229,24 @@ const Create = () => {
         }
     };
 
-    const btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const textColor = useColorModeValue("#000000", "#ffffff");
+    // Handle the colors changing
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.button_color || _btnColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
+
+    console.log({
+        btnColor,
+        disabledBtnColor,
+        enabledTextColor,
+        disabledTextColor,
+    });
+
     /**
      * Disables the button, along with setting the color
      */
@@ -222,6 +258,7 @@ const Create = () => {
             webApp.MainButton.disable();
             webApp.MainButton.setText("Please fill in all required fields");
             webApp.isClosingConfirmationEnabled = false;
+            webApp.MainButton.textColor = disabledTextColor;
         }
     };
 
@@ -237,11 +274,11 @@ const Create = () => {
             webApp.MainButton.enable();
             webApp.MainButton.setText("Create and share meetup");
             webApp.isClosingConfirmationEnabled = true;
-            // webApp.MainButton.textColor = textColor
+            webApp.MainButton.textColor = enabledTextColor;
         }
     };
 
-    // TODO: maybe synchronise theme this to Telegram's theme?
+
 
     return (
         <Stack spacing={4}>
@@ -288,6 +325,16 @@ const Create = () => {
                     isChecked={isFullDay}
                     onChange={(e) => {
                         setIsFullDay(e.target.checked);
+                    }}
+                    // colorScheme={"#ffffff"}
+                    sx={{
+                        "span.chakra-switch__track[data-checked]": {
+                            backgroundColor: btnColor,
+                        },
+                        // "span.chakra-switch__track:not([data-checked])": {
+                        //     backgroundColor:
+                        //         style?.secondary_bg_color,
+                        // },
                     }}
                 />
             </Flex>
