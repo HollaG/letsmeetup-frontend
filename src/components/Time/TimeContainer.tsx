@@ -418,13 +418,10 @@ const TimeContainer = ({
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
 
-    const btnColor = style?.["tg-theme-button-color"] || _btnColor;
-    const disabledBtnColor =
-        style?.["tg-theme-secondary-bg-color"] || _disabledBtnColor;
-    const enabledTextColor =
-        style?.["tg-theme-button-text-color"] || _enabledTextColor;
-    const disabledTextColor =
-        style?.["tg-theme-text-color"] || _disabledTextColor;
+    const btnColor = style?.button_color || _btnColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
 
     return (
         <Stack>
@@ -447,7 +444,7 @@ const TimeContainer = ({
                         },
                         // "span.chakra-switch__track:not([data-checked])": {
                         //     backgroundColor:
-                        //         style?.["tg-theme-secondary-bg-color"],
+                        //         style?.secondary_bg_color,
                         // },
                     }}
                 />

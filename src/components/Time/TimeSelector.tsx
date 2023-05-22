@@ -110,14 +110,10 @@ const TimeSelector = ({
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
 
-    const cellSelectedColor =
-        style?.["tg-theme-button-color"] || _cellSelectedColor;
-    const disabledBtnColor =
-        style?.["tg-theme-secondary-bg-color"] || _disabledBtnColor;
-    const enabledTextColor =
-        style?.["tg-theme-button-text-color"] || _enabledTextColor;
-    const disabledTextColor =
-        style?.["tg-theme-text-color"] || _disabledTextColor;
+    const cellSelectedColor = style?.button_color || _cellSelectedColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
 
     const divisions = Math.round((endMin - startMin) / 30); // can be zero
     const arrayDiv = Array.from(Array(divisions).keys());
@@ -204,10 +200,10 @@ const TimeSelector = ({
                 <Button
                     size="xs"
                     colorScheme="telegram"
-                    // backgroundColor={style?.["tg-theme-button-color"]}
+                    // backgroundColor={style?.button_color}
                     // sx={{
                     //     ":hover": {
-                    //         backgroundColor: style?.["tg-theme-button-color"]
+                    //         backgroundColor: style?.button_color
                     //     }
                     // }}
                     onClick={selectAll}

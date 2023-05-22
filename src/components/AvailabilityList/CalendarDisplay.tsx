@@ -128,7 +128,8 @@ const CalendarDisplay = ({
     const getTextColor = (date: Date) => {
         if (
             isAfter(date, dateParser(endDateStr)) ||
-            isBefore(date, dateParser(startDateStr))
+            isBefore(date, dateParser(startDateStr)) ||
+            !meetup.dates.includes(dateEncoder(date))
         ) {
             return UNSELECTABLE_TEXT_COLOR;
         } else {
@@ -146,7 +147,11 @@ const CalendarDisplay = ({
 
     const getProperties = (date: Date) => {
         let cursor = "";
-        if (isBefore(date, startDate) || isAfter(date, endDate)) {
+        if (
+            isBefore(date, startDate) ||
+            isAfter(date, endDate) ||
+            !meetup.dates.includes(dateEncoder(date))
+        ) {
             cursor = "not-allowed";
         } else {
             cursor = "pointer";
