@@ -71,6 +71,12 @@ type ThemeParams = {
     "tg-viewport-stable-height"?: string;
 };
 
+const compareWithPrevious = (prev: ThemeParams, next: ThemeParams) => {
+    const prevStr = JSON.stringify(prev);
+    const nextStr = JSON.stringify(next);
+    return prevStr === nextStr;
+};
+
 export const TelegramProvider = ({
     children,
 }: {
@@ -110,6 +116,7 @@ export const TelegramProvider = ({
      * 8) We have another listener for the variable theme, that when it sees theme being updated, it basically runs step 3 again, so skipping the update to head that the ui library causes
      */
     const [style, setStyle] = useState<ThemeParams | null>(null);
+    const [prevAttrString, setPrevAttrString] = useState<string>("");
     useEffect(() => {
         const htmlElement = document.getElementsByTagName("html")[0];
         const observer = new MutationObserver((mutations) => {
@@ -127,9 +134,24 @@ export const TelegramProvider = ({
                         .split(";");
                     newAttrArr.forEach((item) => {
                         const [name, style] = item.split(":");
-                        if (name) newObj[name as keyof ThemeParams] = style;
+                        if (name) {
+                            // Ignore these two attributes, as they cause unnecessary updates when resizing.
+                            if (
+                                name === "tg-viewport-height" ||
+                                name === "tg-viewport-stable-height"
+                            ) {
+                            } else {
+                                newObj[name as keyof ThemeParams] = style;
+                            }
+                        }
                     });
 
+                    if (compareWithPrevious(style || {}, newObj)) {
+                        console.log(
+                            "Prevented updates as style was the same as previous."
+                        );
+                        return;
+                    }
                     setStyle(newObj);
                     // console.log({ colorMode });
                     if (newObj["tg-theme-bg-color"]) {
