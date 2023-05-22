@@ -44,6 +44,7 @@ export type Meetup = {
         chat_id: number;
         inline_message_id?: string;
     }[];
+    isEnded: boolean;
 };
 
 export type UserAvailabilityData = {
