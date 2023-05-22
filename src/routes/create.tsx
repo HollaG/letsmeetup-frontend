@@ -45,7 +45,6 @@ const Create = () => {
 
     const { user, webApp, style } = useTelegram();
 
-    console.log({ style }, "<------------------");
     const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
 
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
@@ -185,15 +184,21 @@ const Create = () => {
                 disableButton();
             }
             // console.log("updating onSubmit");
+            webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, userCanSubmit, style]);
 
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.offClick(onSubmit);
-            webApp.MainButton.onClick(onSubmit);
-        }
-    }, [webApp?.initData]);
+    // useEffect(() => {
+    //     if (webApp?.initData) {
+    //         if (userCanSubmit) {
+    //             enableButton();
+    //         } else {
+    //             disableButton();
+    //         }
+    //         // console.log("updating onSubmit");
+    //         // webApp.MainButton.onClick(onSubmit);
+    //     }
+    // }, [webApp?.initData, style, userCanSubmit]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
