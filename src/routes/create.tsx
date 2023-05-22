@@ -130,13 +130,13 @@ const Create = () => {
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                // webApp?.switchInlineQuery(title, [
-                //     "users",
-                //     "groups",
-                //     "channels",
-                //     "bots",
-                // ]);
-                // webApp?.close();
+                webApp?.switchInlineQuery(title, [
+                    "users",
+                    "groups",
+                    "channels",
+                    "bots",
+                ]);
+                webApp?.close();
             })
             .catch((e) => {
                 alert("somme error!!");
