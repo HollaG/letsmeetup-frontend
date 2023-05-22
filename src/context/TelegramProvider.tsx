@@ -127,7 +127,16 @@ export const TelegramProvider = ({
                         .split(";");
                     newAttrArr.forEach((item) => {
                         const [name, style] = item.split(":");
-                        if (name) newObj[name as keyof ThemeParams] = style;
+                        if (name) {
+                            // Ignore these two attributes, as they cause unnecessary updates when resizing.
+                            if (
+                                name === "tg-viewport-height" ||
+                                name === "tg-viewport-stable-height"
+                            ) {
+                            } else {
+                                newObj[name as keyof ThemeParams] = style;
+                            }
+                        }
                     });
 
                     setStyle(newObj);
