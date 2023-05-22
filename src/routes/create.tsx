@@ -189,11 +189,11 @@ const Create = () => {
     }, [webApp, userCanSubmit, style]);
 
     useEffect(() => {
-        if (webApp) {
+        if (webApp?.initData) {
             webApp.MainButton.offClick(onSubmit);
             webApp.MainButton.onClick(onSubmit);
         }
-    }, [webApp]);
+    }, [webApp?.initData]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
