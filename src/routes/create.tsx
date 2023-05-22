@@ -119,24 +119,24 @@ const Create = () => {
         console.log({ MeetupData });
 
         console.log("-------------------------");
-        // create(MeetupData)
-        //     .then((res) => {
-        //         // console.log(res);
-        //         // send the ID back to Telegram
-        //         // webApp?.sendData(res.id)
-        //         // webApp?.close()
-        //         const newDocId = res.id;
-        //         webApp?.switchInlineQuery(title, [
-        //             "users",
-        //             "groups",
-        //             "channels",
-        //             "bots",
-        //         ]);
-        //         webApp?.close();
-        //     })
-        //     .catch((e) => {
-        //         alert("somme error!!");
-        //     });
+        create(MeetupData)
+            .then((res) => {
+                // console.log(res);
+                // send the ID back to Telegram
+                // webApp?.sendData(res.id)
+                // webApp?.close()
+                const newDocId = res.id;
+                webApp?.switchInlineQuery(title, [
+                    "users",
+                    "groups",
+                    "channels",
+                    "bots",
+                ]);
+                webApp?.close();
+            })
+            .catch((e) => {
+                alert("somme error!!");
+            });
     };
 
     /**
