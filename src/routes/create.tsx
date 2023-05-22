@@ -43,8 +43,9 @@ const Create = () => {
 
     const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
 
-    const { user, webApp } = useTelegram();
+    const { user, webApp, style } = useTelegram();
 
+    console.log({ style }, "<------------------");
     const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
 
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
@@ -107,7 +108,7 @@ const Create = () => {
                 username: user!.username,
                 photo_url: user!.photo_url || "",
             },
-            isFullDay,
+            isFullDay: isFullDayRef.current,
             timeslots: isFullDayRef.current ? [] : timesRef.current,
             dates: datesRef.current,
             users: [],
@@ -186,7 +187,7 @@ const Create = () => {
             // console.log("updating onSubmit");
             webApp.MainButton.onClick(onSubmit);
         }
-    }, [webApp, userCanSubmit]);
+    }, [webApp, userCanSubmit, style]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
@@ -208,9 +209,20 @@ const Create = () => {
         }
     };
 
-    const btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const textColor = useColorModeValue("#000000", "#ffffff");
+    // Handle the colors changing
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.["tg-theme-button-color"] || _btnColor;
+    const disabledBtnColor =
+        style?.["tg-theme-secondary-bg-color"] || _disabledBtnColor;
+    const enabledTextColor =
+        style?.["tg-theme-button-text-color"] || _enabledTextColor;
+    const disabledTextColor =
+        style?.["tg-theme-text-color"] || _disabledTextColor;
+
     /**
      * Disables the button, along with setting the color
      */
@@ -222,6 +234,7 @@ const Create = () => {
             webApp.MainButton.disable();
             webApp.MainButton.setText("Please fill in all required fields");
             webApp.isClosingConfirmationEnabled = false;
+            webApp.MainButton.textColor = disabledTextColor;
         }
     };
 
@@ -237,22 +250,13 @@ const Create = () => {
             webApp.MainButton.enable();
             webApp.MainButton.setText("Create and share meetup");
             webApp.isClosingConfirmationEnabled = true;
-            // webApp.MainButton.textColor = textColor
+            webApp.MainButton.textColor = enabledTextColor;
         }
     };
 
     // Listen to when the selected data changes and update the button accordingly
     // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
     // TODO: maybe synchronise this to Telegram's theme?
-    // useEffect(() => {
-    //     if (webApp?.initData) {
-    //         if (!userCanSubmit) {
-    //             disableButton();
-    //         } else {
-    //             enableButton();
-    //         }
-    //     }
-    // }, [colorMode, userCanSubmit]);
 
     return (
         <Stack spacing={4}>
@@ -299,6 +303,16 @@ const Create = () => {
                     isChecked={isFullDay}
                     onChange={(e) => {
                         setIsFullDay(e.target.checked);
+                    }}
+                    // colorScheme={"#ffffff"}
+                    sx={{
+                        "span.chakra-switch__track[data-checked]": {
+                            backgroundColor: btnColor,
+                        },
+                        // "span.chakra-switch__track:not([data-checked])": {
+                        //     backgroundColor:
+                        //         style?.["tg-theme-secondary-bg-color"],
+                        // },
                     }}
                 />
             </Flex>

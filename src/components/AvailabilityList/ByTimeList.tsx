@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import React from "react";
+import { useTelegram } from "../../context/TelegramProvider";
 import { Meetup } from "../../db/repositories/meetups";
 import {
     RANGE_0_DARK,
@@ -94,9 +95,21 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
         range_4,
         range_full,
     ];
-    const bgColor = useColorModeValue("gray.100", "gray.900");
-    const pageBackgroundColor = useColorModeValue("white", "gray.800");
+
     const lineColor = useColorModeValue("blackAlpha.600", "whiteAlpha.600");
+
+    const { style } = useTelegram();
+    const _dataBgColor = useColorModeValue("gray.100", "gray.900");
+    const _pageBackgroundColor = useColorModeValue("white", "gray.800");
+
+    const dataBgColor = style?.["tg-theme-secondary-bg-color"] || _dataBgColor;
+    const pageBackgroundColor =
+        style?.["tg-theme-bg-color"] || _pageBackgroundColor;
+
+    const _durationBgColor = useColorModeValue("gray.200", "gray.700");
+    const durationTextColor = useColorModeValue("gray.600", "gray.300");
+
+    const durationBgColor = style?.["tg-theme-hint-color"] || _durationBgColor;
 
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter((date) => {
@@ -222,7 +235,9 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
 
                                                         <Box
                                                             w={`${FILLER_WIDTH}px`}
-                                                            bgColor={bgColor}
+                                                            bgColor={
+                                                                dataBgColor
+                                                            }
                                                             height={`${Math.min(
                                                                 24 * 2,
                                                                 CELL_HEIGHT_NUM *
@@ -238,7 +253,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 <Box
                                                     w="100%"
                                                     height="45%"
-                                                    bgColor={bgColor}
+                                                    bgColor={dataBgColor}
                                                     position="relative"
                                                 >
                                                     <Box
@@ -257,7 +272,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                             key={`${minute}::${date}-3`}
                                             //   display="unset"
 
-                                            bgColor={bgColor}
+                                            bgColor={dataBgColor}
                                             mb={2} // TODO: change mb to pb if combining
                                             // TODO: see the lower one, #styling
                                             borderRadius="0 4px 4px 0"
@@ -267,7 +282,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 position="absolute"
                                                 right="6px"
                                                 top="-12px"
-                                                bgColor={"gray.700"}
+                                                bgColor={durationBgColor}
                                                 p={1}
                                                 borderRadius="4px"
                                                 width="46px" // the max width of the longest word (23 hr 30 min)
@@ -276,7 +291,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 <Text
                                                     fontSize={"2xs"}
                                                     fontWeight="light"
-                                                    color="gray.300"
+                                                    color={durationTextColor}
                                                 >
                                                     {getSlotLength(
                                                         `${minute}::${date}`,
