@@ -45,7 +45,8 @@ const Create = () => {
 
     const { user, webApp, style } = useTelegram();
 
-    const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
+    const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
+        useStateRef<boolean>(false);
 
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
         9 * 60,
@@ -79,6 +80,8 @@ const Create = () => {
         isFullDay,
     ]);
 
+    const [_, setHasUserSubmitted, hasUserSubmittedRef] = useStateRef(false);
+
     /**
      *
      * The submit handler when a user clicks Telegram's MainButton.
@@ -87,16 +90,17 @@ const Create = () => {
      *
      *
      */
-    const onSubmit = () => {
+    const onSubmit = useCallback(() => {
         // setIsSubmitting(true);
         console.log("submitting data or smt");
         // webApp?.MainButton.showProgress(false);
 
         // Validate data
-        if (!userCanSubmit) {
+        if (!userCanSubmitRef.current || hasUserSubmittedRef.current) {
             return console.log("can't submit!");
         }
 
+        setHasUserSubmitted(true);
         const MeetupData: Meetup = {
             title: titleRef.current,
             description: descriptionRef.current,
@@ -126,18 +130,18 @@ const Create = () => {
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                webApp?.switchInlineQuery(title, [
-                    "users",
-                    "groups",
-                    "channels",
-                    "bots",
-                ]);
-                webApp?.close();
+                // webApp?.switchInlineQuery(title, [
+                //     "users",
+                //     "groups",
+                //     "channels",
+                //     "bots",
+                // ]);
+                // webApp?.close();
             })
             .catch((e) => {
                 alert("somme error!!");
             });
-    };
+    }, [webApp]);
 
     /**
      * Initialize button at bottom of screen
@@ -185,9 +189,15 @@ const Create = () => {
                 disableButton();
             }
             console.log("updating onSubmit");
-            webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, userCanSubmit, style]);
+
+    useEffect(() => {
+        if (webApp?.initData) {
+            console.log("Bound the submit!");
+            webApp.MainButton.onClick(onSubmit);
+        }
+    }, [webApp?.initData]);
 
     // useEffect(() => {
     //     if (webApp?.initData) {
