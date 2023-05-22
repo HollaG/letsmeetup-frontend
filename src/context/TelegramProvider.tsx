@@ -86,11 +86,41 @@ export const TelegramProvider = ({
 
     const { colorMode, toggleColorMode, setColorMode } = useColorMode();
 
+    const updateColorMode = () => {
+        const newStyle = ((window as any).Telegram.WebApp as IWebApp)
+            .themeParams;
+
+        // check if it's dark or light mode
+        console.log({ newStyle, this: this });
+        const htmlElement = document.getElementsByTagName("html")[0];
+
+        console.log(htmlElement);
+        // @ts-ignore
+        const attr = htmlElement.attributes.style.textContent;
+        console.log(attr);
+        const newAttrArr: string[] = attr
+            .replaceAll("--", "")
+            .replaceAll(" ", "")
+            .trim()
+            .split(";");
+        console.log({ newAttrArr });
+        const isDarkMode = newAttrArr.some((attr) =>
+            attr.includes("tg-color-scheme:dark")
+        );
+
+        console.log({ isDarkMode });
+        if (isDarkMode) {
+            setColorMode("dark");
+        } else {
+            setColorMode("light");
+        }
+    };
+
     useEffect(() => {
         console.log("this useeffect run");
         const app = (window as any).Telegram?.WebApp;
 
-        if (app) {
+        if (app as IWebApp) {
             const initData = app.initData;
 
             if (initData) {
@@ -99,6 +129,8 @@ export const TelegramProvider = ({
                     app.ready();
                     setWebApp(app);
                 });
+                app.onEvent("themeChanged", updateColorMode);
+                updateColorMode();
             }
         }
     }, [(window as any).Telegram?.WebApp]);
@@ -117,63 +149,63 @@ export const TelegramProvider = ({
      */
     const [style, setStyle] = useState<ThemeParams | null>(null);
     const [prevAttrString, setPrevAttrString] = useState<string>("");
-    useEffect(() => {
-        const htmlElement = document.getElementsByTagName("html")[0];
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === "attributes") {
-                    const newAttr: string = // @ts-ignore
-                        (mutation.target as Element).attributes.style
-                            .textContent;
+    // useEffect(() => {
+    //     const htmlElement = document.getElementsByTagName("html")[0];
+    //     const observer = new MutationObserver((mutations) => {
+    //         mutations.forEach((mutation) => {
+    //             if (mutation.type === "attributes") {
+    //                 const newAttr: string = // @ts-ignore
+    //                     (mutation.target as Element).attributes.style
+    //                         .textContent;
 
-                    const newObj: ThemeParams = {};
-                    const newAttrArr = newAttr
-                        .replaceAll("--", "")
-                        .replaceAll(" ", "")
-                        .trim()
-                        .split(";");
-                    newAttrArr.forEach((item) => {
-                        const [name, style] = item.split(":");
-                        if (name) {
-                            // Ignore these two attributes, as they cause unnecessary updates when resizing.
-                            if (
-                                name === "tg-viewport-height" ||
-                                name === "tg-viewport-stable-height"
-                            ) {
-                            } else {
-                                newObj[name as keyof ThemeParams] = style;
-                            }
-                        }
-                    });
+    //                 const newObj: ThemeParams = {};
+    //                 const newAttrArr = newAttr
+    //                     .replaceAll("--", "")
+    //                     .replaceAll(" ", "")
+    //                     .trim()
+    //                     .split(";");
+    //                 newAttrArr.forEach((item) => {
+    //                     const [name, style] = item.split(":");
+    //                     if (name) {
+    //                         // Ignore these two attributes, as they cause unnecessary updates when resizing.
+    //                         if (
+    //                             name === "tg-viewport-height" ||
+    //                             name === "tg-viewport-stable-height"
+    //                         ) {
+    //                         } else {
+    //                             newObj[name as keyof ThemeParams] = style;
+    //                         }
+    //                     }
+    //                 });
 
-                    if (compareWithPrevious(style || {}, newObj)) {
-                        console.log(
-                            "Prevented updates as style was the same as previous."
-                        );
-                        return;
-                    }
-                    setStyle(newObj);
-                    // console.log({ colorMode });
-                    if (newObj["tg-theme-bg-color"]) {
-                        document.body.style.background =
-                            newObj["tg-theme-bg-color"];
-                    }
+    //                 if (compareWithPrevious(style || {}, newObj)) {
+    //                     console.log(
+    //                         "Prevented updates as style was the same as previous."
+    //                     );
+    //                     return;
+    //                 }
+    //                 setStyle(newObj);
+    //                 // console.log({ colorMode });
+    //                 if (newObj["tg-theme-bg-color"]) {
+    //                     document.body.style.background =
+    //                         newObj["tg-theme-bg-color"];
+    //                 }
 
-                    if (colorMode === newObj["tg-color-scheme"]) {
-                        return;
-                    } else if (newObj["tg-color-scheme"]) {
-                        setColorMode(newObj["tg-color-scheme"]);
+    //                 if (colorMode === newObj["tg-color-scheme"]) {
+    //                     return;
+    //                 } else if (newObj["tg-color-scheme"]) {
+    //                     setColorMode(newObj["tg-color-scheme"]);
 
-                        observer.disconnect();
-                    }
-                }
-            });
-        });
+    //                     observer.disconnect();
+    //                 }
+    //             }
+    //         });
+    //     });
 
-        observer.observe(htmlElement, { attributes: true, subtree: false });
+    //     observer.observe(htmlElement, { attributes: true, subtree: false });
 
-        return () => observer.disconnect();
-    }, [colorMode]);
+    //     return () => observer.disconnect();
+    // }, [colorMode]);
 
     const value = useMemo(() => {
         return webApp

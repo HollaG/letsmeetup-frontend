@@ -92,7 +92,7 @@ const Create = () => {
      */
     const onSubmit = useCallback(() => {
         // setIsSubmitting(true);
-        console.log("submitting data or smt");
+        // console.log("submitting data or smt");
         // webApp?.MainButton.showProgress(false);
 
         // Validate data
@@ -122,7 +122,6 @@ const Create = () => {
 
         console.log({ MeetupData });
 
-        console.log("-------------------------");
         create(MeetupData)
             .then((res) => {
                 console.log(res);
@@ -130,7 +129,7 @@ const Create = () => {
                 // webApp?.sendData(res.id)
                 // webApp?.close()
                 const newDocId = res.id;
-                webApp?.switchInlineQuery(title, [
+                webApp?.switchInlineQuery(titleRef.current, [
                     "users",
                     "groups",
                     "channels",
