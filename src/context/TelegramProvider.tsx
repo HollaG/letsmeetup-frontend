@@ -78,13 +78,12 @@ export const TelegramProvider = ({
 }) => {
     const [webApp, setWebApp] = useState<IWebApp | null>(null);
 
-    const { colorMode, toggleColorMode } = useColorMode();
+    const { colorMode, toggleColorMode, setColorMode } = useColorMode();
 
     useEffect(() => {
         console.log("this useeffect run");
         const app = (window as any).Telegram?.WebApp;
 
-        console.log(app, "---");
         if (app) {
             const initData = app.initData;
 
@@ -130,19 +129,18 @@ export const TelegramProvider = ({
                         const [name, style] = item.split(":");
                         if (name) newObj[name as keyof ThemeParams] = style;
                     });
-                    console.log({ newObj });
 
                     setStyle(newObj);
                     // console.log({ colorMode });
-                    if (newObj["tg-theme-bg-color"])
+                    if (newObj["tg-theme-bg-color"]) {
                         document.body.style.background =
                             newObj["tg-theme-bg-color"];
-                    if (newObj["color-scheme"] === newObj["tg-color-scheme"]) {
+                    }
+
+                    if (colorMode === newObj["tg-color-scheme"]) {
                         return;
                     } else if (newObj["tg-color-scheme"]) {
-                        toggleColorMode();
-
-                        const body = document.getElementsByClassName("body")[0];
+                        setColorMode(newObj["tg-color-scheme"]);
 
                         observer.disconnect();
                     }
@@ -154,11 +152,6 @@ export const TelegramProvider = ({
 
         return () => observer.disconnect();
     }, [colorMode]);
-
-    // useEffect(() => {
-    //     toggleColorMode()
-    //     toggleColorMode()
-    // }, []);
 
     const value = useMemo(() => {
         return webApp

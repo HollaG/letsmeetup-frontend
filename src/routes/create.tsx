@@ -45,7 +45,6 @@ const Create = () => {
 
     const { user, webApp, style } = useTelegram();
 
-    console.log({ style }, "<------------------");
     const [userCanSubmit, setUserCanSubmit] = useState<boolean>(false);
 
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
@@ -119,24 +118,25 @@ const Create = () => {
 
         console.log({ MeetupData });
 
-        create(MeetupData)
-            .then((res) => {
-                // console.log(res);
-                // send the ID back to Telegram
-                // webApp?.sendData(res.id)
-                // webApp?.close()
-                const newDocId = res.id;
-                webApp?.switchInlineQuery(title, [
-                    "users",
-                    "groups",
-                    "channels",
-                    "bots",
-                ]);
-                webApp?.close();
-            })
-            .catch((e) => {
-                alert("somme error!!");
-            });
+        console.log("-------------------------");
+        // create(MeetupData)
+        //     .then((res) => {
+        //         // console.log(res);
+        //         // send the ID back to Telegram
+        //         // webApp?.sendData(res.id)
+        //         // webApp?.close()
+        //         const newDocId = res.id;
+        //         webApp?.switchInlineQuery(title, [
+        //             "users",
+        //             "groups",
+        //             "channels",
+        //             "bots",
+        //         ]);
+        //         webApp?.close();
+        //     })
+        //     .catch((e) => {
+        //         alert("somme error!!");
+        //     });
     };
 
     /**
@@ -184,16 +184,22 @@ const Create = () => {
             } else {
                 disableButton();
             }
-            // console.log("updating onSubmit");
+            console.log("updating onSubmit");
+            webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp, userCanSubmit, style]);
 
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.offClick(onSubmit);
-            webApp.MainButton.onClick(onSubmit);
-        }
-    }, [webApp?.initData]);
+    // useEffect(() => {
+    //     if (webApp?.initData) {
+    //         if (userCanSubmit) {
+    //             enableButton();
+    //         } else {
+    //             disableButton();
+    //         }
+    //         // console.log("updating onSubmit");
+    //         // webApp.MainButton.onClick(onSubmit);
+    //     }
+    // }, [webApp?.initData, style, userCanSubmit]);
 
     /**
      * Automatically add the times from 9 - 5 based on the dates if the user has not selected a day
