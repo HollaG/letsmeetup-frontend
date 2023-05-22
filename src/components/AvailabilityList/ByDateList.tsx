@@ -76,9 +76,8 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
     const _dataBgColor = useColorModeValue("gray.100", "gray.900");
     const _pageBackgroundColor = useColorModeValue("white", "gray.800");
 
-    const dataBgColor = style?.["tg-theme-secondary-bg-color"] || _dataBgColor;
-    const pageBackgroundColor =
-        style?.["tg-theme-bg-color"] || _pageBackgroundColor;
+    const dataBgColor = style?.secondary_bg_color || _dataBgColor;
+    const pageBackgroundColor = style?.bg_color || _pageBackgroundColor;
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter(
         (date) =>

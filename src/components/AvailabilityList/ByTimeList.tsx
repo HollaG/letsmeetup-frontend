@@ -102,14 +102,13 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     const _dataBgColor = useColorModeValue("gray.100", "gray.900");
     const _pageBackgroundColor = useColorModeValue("white", "gray.800");
 
-    const dataBgColor = style?.["tg-theme-secondary-bg-color"] || _dataBgColor;
-    const pageBackgroundColor =
-        style?.["tg-theme-bg-color"] || _pageBackgroundColor;
+    const dataBgColor = style?.secondary_bg_color || _dataBgColor;
+    const pageBackgroundColor = style?.bg_color || _pageBackgroundColor;
 
     const _durationBgColor = useColorModeValue("gray.200", "gray.700");
     const durationTextColor = useColorModeValue("gray.600", "gray.300");
 
-    const durationBgColor = style?.["tg-theme-hint-color"] || _durationBgColor;
+    const durationBgColor = style?.hint_color || _durationBgColor;
 
     // preformat: for each day, check if there is at least one person who is available
     const dates = meetup.dates.filter((date) => {

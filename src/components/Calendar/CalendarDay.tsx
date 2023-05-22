@@ -78,7 +78,7 @@ const CalendarDay = ({
      */
     const getBgColor = () => {
         if (selected) {
-            return style?.["tg-theme-button-color"] || SELECTED_DATE_COLOR;
+            return style?.button_color || SELECTED_DATE_COLOR;
             // return SELECTED_DATE_COLOR;
         } else if (isSameDay(dateParser(dataKey), new Date())) {
             return CURRENT_DATE_COLOR;

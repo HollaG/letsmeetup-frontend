@@ -80,7 +80,7 @@ const TimeRangeSelector = ({
             >
                 <RangeSliderTrack>
                     <RangeSliderFilledTrack
-                        backgroundColor={style?.["tg-theme-button-color"]}
+                        backgroundColor={style?.button_color}
                     />
                 </RangeSliderTrack>
                 {/* <RangeSliderMark

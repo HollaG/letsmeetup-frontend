@@ -203,8 +203,6 @@ export const updateAvailability = async (
         });
     }
 
-    console.log({ newMap });
-
     try {
         const updated = await updateDoc(docRef, {
             users: newAvailabilityData,

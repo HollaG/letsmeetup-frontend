@@ -12,7 +12,7 @@ const HelperText = ({ children }: { children: ReactNode }) => {
     const _color = useColorModeValue("gray.700", "gray.300");
     const { style } = useTelegram();
 
-    const color = style?.["tg-theme-hint-color"] || _color;
+    const color = style?.hint_color || _color;
     return (
         <Text fontSize="xs" color={color} fontWeight="light">
             {children}
