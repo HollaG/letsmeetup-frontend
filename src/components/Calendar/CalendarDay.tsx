@@ -2,6 +2,7 @@ import { Box, Circle, Square, Text, useColorModeValue } from "@chakra-ui/react";
 import { addDays, isAfter, isBefore, subDays } from "date-fns";
 import { isSameDay } from "date-fns/esm";
 import React from "react";
+import { useTelegram } from "../../context/TelegramProvider";
 import { BODY_STYLES } from "./CalendarBody";
 import { dateEncoder, dateParser } from "./CalendarContainer";
 
@@ -68,6 +69,7 @@ const CalendarDay = ({
         isBefore(dateParser(dataKey), addDays(endDate, 1)) &&
         (allowedDates?.includes(dataKey) || !allowedDates);
 
+    const { style } = useTelegram();
     /**
      * Calculates the color of the circle around the date, depending on whether
      * it's selected, today, or not selected.
@@ -76,7 +78,8 @@ const CalendarDay = ({
      */
     const getBgColor = () => {
         if (selected) {
-            return SELECTED_DATE_COLOR;
+            return style?.["tg-theme-button-color"] || SELECTED_DATE_COLOR;
+            // return SELECTED_DATE_COLOR;
         } else if (isSameDay(dateParser(dataKey), new Date())) {
             return CURRENT_DATE_COLOR;
         } else {
@@ -150,7 +153,7 @@ const CalendarDay = ({
     const nextDateStr = dateEncoder(addDays(dateParser(dataKey), 1));
 
     return (
-        <Box data-key={dataKey} className={getClassName()} width="100%">
+        <Box data-key={dataKey} className={`${getClassName()}`} width="100%">
             <Square
                 bg={getBgColor()}
                 size="36px"

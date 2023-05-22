@@ -7,6 +7,7 @@ import {
     Input,
     Stack,
     Tab,
+    TabIndicator,
     TabList,
     TabPanel,
     TabPanels,
@@ -109,7 +110,7 @@ const MeetupPage = () => {
     const [liveMeetup, setLiveMeetup, liveMeetupRef] =
         useStateRef<Meetup>(loadedMeetup);
     // TEMPORARY: OVERRIDE USER ID
-    let { user, webApp } = useTelegram();
+    let { user, webApp, style } = useTelegram();
 
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
 
@@ -431,9 +432,19 @@ const MeetupPage = () => {
     const [hasDataChanged, setHasDataChanged, dataChangedRef] =
         useStateRef(false);
 
-    const btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const textColor = useColorModeValue("#000000", "#ffffff");
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.["tg-theme-button-color"] || _btnColor;
+    const disabledBtnColor =
+        style?.["tg-theme-secondary-bg-color"] || _disabledBtnColor;
+    const enabledTextColor =
+        style?.["tg-theme-button-text-color"] || _enabledTextColor;
+    const disabledTextColor =
+        style?.["tg-theme-text-color"] || _disabledTextColor;
+
     /**
      * Disables the button, along with setting the color
      */
@@ -443,8 +454,9 @@ const MeetupPage = () => {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
             webApp.MainButton.disable();
-            webApp.MainButton.setText("No changes since last save.");
+            webApp.MainButton.setText("No changes since last save");
             webApp.isClosingConfirmationEnabled = false;
+            webApp.MainButton.textColor = disabledTextColor;
         }
     };
 
@@ -460,34 +472,22 @@ const MeetupPage = () => {
             webApp.MainButton.enable();
             webApp.MainButton.setText("Save your availability");
             webApp.isClosingConfirmationEnabled = true;
-            // webApp.MainButton.textColor = textColor
+            webApp.MainButton.textColor = enabledTextColor;
         }
     };
 
-    // Add the submit handler and initialize the MainButton
     useEffect(() => {
         if (webApp?.initData) {
-            disableButton();
-            webApp.MainButton.onClick(onSubmit);
             webApp.MainButton.isVisible = true;
-        }
-
-        return () => webApp?.MainButton.offClick(onSubmit);
-    }, [webApp]);
-
-    // Listen to when the selected data changes and update the button accordingly
-    // also listen to when the theme changes (this shouldn't really happen as we will remove the change theme button)
-    // TODO: maybe synchronise this to Telegram's theme?
-    useEffect(() => {
-        if (webApp?.initData) {
-            if (!hasDataChanged) {
-                disableButton();
-            } else {
+            if (hasDataChanged) {
                 enableButton();
+            } else {
+                disableButton();
             }
-            webApp.MainButton.textColor = textColor;
+            // console.log("updating onSubmit");
+            webApp.MainButton.onClick(onSubmit);
         }
-    }, [hasDataChanged, colorMode]);
+    }, [webApp, hasDataChanged, style]);
 
     const [comments, setComments, commentsRef] = useStateRef<string>(
         meetup.users.find((u) => u.user.id === user?.id)?.comments || ""
@@ -516,11 +516,33 @@ const MeetupPage = () => {
             <Text> {meetup.description} </Text>
             <Divider />
 
-            <Tabs isFitted>
+            <Tabs isFitted variant="unstyled">
                 <TabList>
-                    {webApp?.initData && <Tab> Select your availability </Tab>}
-                    <Tab> View others' availability </Tab>
+                    {webApp?.initData && (
+                        <Tab
+                            _selected={{
+                                bg: disabledBtnColor,
+                            }}
+                        >
+                            {" "}
+                            Select your availability{" "}
+                        </Tab>
+                    )}
+                    <Tab
+                        _selected={{
+                            bg: disabledBtnColor,
+                        }}
+                    >
+                        {" "}
+                        View others' availability{" "}
+                    </Tab>
                 </TabList>
+                <TabIndicator
+                    mt="-1.5px"
+                    height="2px"
+                    bg={btnColor}
+                    borderRadius="1px"
+                />
                 <TabPanels>
                     {webApp?.initData && (
                         <TabPanel>
@@ -548,11 +570,6 @@ const MeetupPage = () => {
                                 />
                                 {!meetup.isFullDay && (
                                     <>
-                                        <Heading fontSize={"lg"}>
-                                            {" "}
-                                            Select your available times{" "}
-                                        </Heading>
-
                                         <TimeSelector
                                             classNameGenerator={
                                                 classNameGenerator

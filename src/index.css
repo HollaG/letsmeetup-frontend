@@ -11,3 +11,13 @@
 .block_underline {
     text-decoration: none;
 }
+
+body {
+    /* Override chakra to use telegram */
+    /* background: var(--tg-theme-bg-color, "unset"); */
+}
+
+.override-button-color {
+    background: var(--tg-theme-button-color) !important;
+    color: var(--tg-theme-button-text-color) !important;
+}
