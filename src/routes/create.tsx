@@ -16,7 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
+import { useSearchParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
+import { URLSearchParams } from "url";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
 import HelperText from "../components/Display/HelperText";
 import TimeContainer, {
@@ -29,6 +31,14 @@ import { TimeSelection } from "../types/types";
 
 const Create = () => {
     const { colorMode, toggleColorMode } = useColorMode();
+
+    // const searchParams = new URLSearchParams(document.location.search);
+    // const params = searchParams.get("tgWebAppStartParam");
+    // console.log({ params });
+
+    // const [searchParams, setSearchParams] = useSearchParams();
+    // const params = searchParams.get("tgWebAppStartParam");
+    // console.log({ params });
 
     const [title, setTitle, titleRef] = useStateRef<string>("");
     const [description, setDescription, descriptionRef] =
