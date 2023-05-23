@@ -6,7 +6,14 @@
 
 .select-container {
     user-select: none;
-    touch-action: none !important;
+}
+
+.selectable {
+    touch-action: none;
+}
+
+.blocked {
+    touch-action: auto !important;
 }
 
 .block_underline {
