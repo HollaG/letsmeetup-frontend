@@ -251,13 +251,6 @@ const Create = () => {
     const enabledTextColor = style?.button_text_color || _enabledTextColor;
     const disabledTextColor = style?.text_color || _disabledTextColor;
 
-    console.log({
-        btnColor,
-        disabledBtnColor,
-        enabledTextColor,
-        disabledTextColor,
-    });
-
     /**
      * Disables the button, along with setting the color
      */

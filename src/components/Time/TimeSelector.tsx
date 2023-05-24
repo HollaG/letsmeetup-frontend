@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns";
+import React from "react";
 import { isMobile } from "react-device-detect";
 import useStateRef from "react-usestateref";
 import { useTelegram } from "../../context/TelegramProvider";
@@ -367,9 +368,7 @@ type SelectableCellProps = {
     isAllowed?: boolean;
 };
 
-const TableCell =
-    // React.memo
-    // (
+const TableCell = React.memo(
     ({
         cellColor,
         data,
@@ -451,6 +450,12 @@ const TableCell =
                 ></Box>
             );
         }
-    };
+    },
+    (prev, next) =>
+        prev.cellColor === next.cellColor &&
+        prev.cellOutlineColor === next.cellOutlineColor &&
+        prev.className === next.className
+    // prev.data
+);
 
 export default TimeSelector;
