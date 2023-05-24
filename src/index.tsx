@@ -35,6 +35,10 @@ const router = createHashRouter([
         errorElement: <ErrorPage />,
         children: [
             {
+                path: "/",
+                element: <Root />,
+            },
+            {
                 path: "/create",
                 element: <Create />,
             },
