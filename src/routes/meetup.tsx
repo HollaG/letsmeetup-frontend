@@ -153,6 +153,15 @@ const MeetupPage = () => {
             ),
         ].sort() || []
     );
+    const [staticDatesSelected, setStaticDatesSelected] = useState<string[]>(
+        [
+            ...new Set(
+                meetup.users
+                    .find((u) => u.user.id === user?.id)
+                    ?.selected.map(removeTime)
+            ),
+        ].sort() || []
+    );
 
     const [timesSelected, setTimesSelected, timesRef] =
         useStateRef<TimeSelection>(
@@ -354,6 +363,7 @@ const MeetupPage = () => {
         //     ),
         // });
         setHasDataChanged(true);
+        setStaticDatesSelected(datesRef.current);
         // onSubmit()
     };
 
@@ -576,7 +586,7 @@ const MeetupPage = () => {
                                             classNameGenerator={
                                                 classNameGenerator
                                             }
-                                            datesSelected={datesRef.current}
+                                            datesSelected={staticDatesSelected}
                                             deselectAll={deselectAllTimes}
                                             endMin={endMin}
                                             startMin={startMin}

@@ -194,4 +194,11 @@ const CalendarDay = ({
     );
 };
 
-export default React.memo(CalendarDay);
+export default React.memo(
+    CalendarDay,
+    (prev, next) =>
+        prev.dataKey === next.dataKey &&
+        prev.selected === next.selected &&
+        prev.nextSelected === next.nextSelected &&
+        prev.prevSelected === next.prevSelected
+);
