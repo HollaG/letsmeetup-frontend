@@ -22,6 +22,7 @@ import MeetupPage from "./routes/meetup";
 import { doc, getDoc } from "firebase/firestore";
 import fire, { db } from "./db";
 import { COLLECTION_NAME } from "./db/repositories/meetups";
+import WebApp from "./routes/webapp";
 /**
  * React-router routes for handling viewing, creating, and home page
  *
@@ -55,6 +56,10 @@ const router = createHashRouter([
                         ).data(), // fetch shit here
                     };
                 },
+            },
+            {
+                path: "/webapp",
+                element: <WebApp />,
             },
         ],
     },
