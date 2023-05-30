@@ -15,7 +15,7 @@ import { ITelegramUser } from "../../types/telegram";
 import { swapDateTimeStr } from "../../routes/meetup";
 
 // collection name
-export const COLLECTION_NAME = "meetups_dev";
+export const COLLECTION_NAME = "meetups";
 
 // mapping the todo document
 export type Todo = {
