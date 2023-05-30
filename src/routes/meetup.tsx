@@ -557,7 +557,7 @@ const MeetupPage = () => {
                 />
                 <TabPanels>
                     {webApp?.initData && !meetup.isEnded && (
-                        <TabPanel>
+                        <TabPanel p={1}>
                             <Stack spacing={4} justifyContent="left">
                                 <Box>
                                     <Heading fontSize={"lg"}>
@@ -608,7 +608,7 @@ const MeetupPage = () => {
                             </Stack>
                         </TabPanel>
                     )}
-                    <TabPanel>
+                    <TabPanel p={1}>
                         <Stack spacing={4} justifyContent="left">
                             <Heading fontSize="lg">
                                 {" "}

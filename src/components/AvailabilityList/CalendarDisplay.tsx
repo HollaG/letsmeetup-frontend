@@ -19,7 +19,11 @@ import {
     RANGE_FULL_DARK,
 } from "../../lib/std";
 import { removeDate, removeTime } from "../../routes/meetup";
-import { assignColor, RangeColors } from "../../utils/availabilityList.utils";
+import {
+    aC,
+    assignColor,
+    RangeColors,
+} from "../../utils/availabilityList.utils";
 import { dateEncoder, dateParser } from "../Calendar/CalendarContainer";
 import GeneralCalendar from "../Calendar/GeneralCalendar";
 // Color values
@@ -71,6 +75,9 @@ const CalendarDisplay = ({
         range_full,
     ];
 
+    const fullColor = "#38A169";
+    const emptyColor = range_empty;
+
     const currentMonthNum = new Date().getMonth();
 
     const initialDate = parse(
@@ -120,7 +127,7 @@ const CalendarDisplay = ({
         if (!meetup.dates.includes(dateStr)) return "unset";
 
         if (numThisDate === 0 || !numThisDate) return "unset";
-        const col = assignColor(numTotal, numThisDate, colors);
+        const col = aC(numTotal, numThisDate, fullColor, emptyColor);
 
         return col;
     };

@@ -43,6 +43,39 @@ export const assignColor = (
     return colors[6];
 };
 
+export const aC = (
+    totalNum: number,
+    amount: number,
+    fullColor = "#38A169",
+    emptyColor: string
+) => {
+    // temp
+
+    const { r, g, b } = hexToRgb(fullColor) as {
+        r: number;
+        g: number;
+        b: number;
+    };
+
+    const percent = amount / totalNum;
+    if (percent === 0) {
+        return emptyColor;
+    }
+    if (percent < 0.25) {
+        return `rgba(${r}, ${g}, ${b}, 0.2)`;
+    }
+    if (percent < 0.5) {
+        return `rgba(${r}, ${g}, ${b}, 0.4)`;
+    }
+    if (percent < 0.75) {
+        return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    }
+    if (percent < 1) {
+        return `rgba(${r}, ${g}, ${b}, 0.8)`;
+    }
+    return `rgba(${r}, ${g}, ${b}, 1)`;
+};
+
 /**
  * Checks to see if the next timing has people who selected it.
  *
@@ -206,3 +239,25 @@ export const getSlotLength = (dateTimeStr: string, meetup: Meetup) => {
 
     return `${numMinutes / 60} hrs`;
 };
+
+/**
+ * Converts a HEX code to RGB.
+ *
+ * @example
+ * const myHex = "#ff0000";
+ * const myRgb = hexToRgb(myHex);
+ * console.log(myRgb); // {r: 255, g: 0, b: 0}
+ *
+ * @param hex The hex code to convert
+ * @returns
+ */
+function hexToRgb(hex: string) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16),
+          }
+        : null;
+}

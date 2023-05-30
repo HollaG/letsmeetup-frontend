@@ -11,6 +11,7 @@ import {
     Text,
     useColorModeValue,
     Link,
+    Progress,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { useTelegram } from "../../context/TelegramProvider";
@@ -32,7 +33,11 @@ import {
     RANGE_FULL_LIGHT,
     RANGE_FULL_DARK,
 } from "../../lib/std";
-import { assignColor, RangeColors } from "../../utils/availabilityList.utils";
+import {
+    aC,
+    assignColor,
+    RangeColors,
+} from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import ColorExplainer from "./common/ColorExplainer";
 import CommentsDisplay from "./common/CommentsDisplay";
@@ -41,8 +46,9 @@ import DisplayBox from "./common/DisplayBox";
 const CELL_WIDTH = "36px";
 const CELL_WIDTH_NUM = 36;
 const FILLER_WIDTH = 6;
-const CELL_HEIGHT = "24px";
-const CELL_HEIGHT_NUM = 24;
+// const CELL_HEIGHT = "24px";
+// const CELL_HEIGHT_NUM = 24;
+const CELL_HEIGHT_NUM = 48;
 
 type ByDateListProps = {
     meetup: Meetup;
@@ -71,7 +77,8 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
         range_4,
         range_full,
     ];
-
+    const fullColor = "#38A169";
+    const emptyColor = range_empty;
     const { style } = useTelegram();
     const _dataBgColor = useColorModeValue("gray.100", "gray.900");
     const _pageBackgroundColor = useColorModeValue("white", "gray.800");
@@ -112,12 +119,13 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                         <Stack spacing={1} flexDir="column">
                             <Flex>
                                 <DisplayBox
-                                    bgColor={assignColor(
+                                    bgColor={aC(
                                         numberOfUsers,
                                         meetup.selectionMap[date]
                                             ? meetup.selectionMap[date].length
                                             : 0,
-                                        colors
+                                        fullColor,
+                                        emptyColor
                                     )}
                                     height={CELL_HEIGHT_NUM}
                                 >
@@ -128,7 +136,14 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                             numberOfUsers) *
                                             100
                                     )}
-                                    %
+                                    %{" "}
+                                    <sup>
+                                        {meetup.selectionMap[`${date}`]
+                                            ? meetup.selectionMap[`${date}`]
+                                                  .length
+                                            : 0}
+                                    </sup>
+                                    /<sub>{numberOfUsers}</sub>
                                 </DisplayBox>
 
                                 <Box
@@ -170,17 +185,42 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                     isExternal
                                     key={i}
                                 >
-                                    <Flex alignItems="center">
+                                    <Stack
+                                        alignItems={"center"}
+                                        justifyContent="center"
+                                        spacing={1}
+                                    >
                                         <Avatar
-                                            name={`${user.first_name} ${user.last_name}`}
+                                            // name={`${user.first_name} ${user.last_name}`}
                                             src={user.photo_url}
                                             size="xs"
                                         />
-                                        <Text ml={2}>{user.first_name}</Text>
-                                    </Flex>
+                                        <Text textAlign={"center"}>
+                                            {user.first_name}
+                                        </Text>
+                                    </Stack>
                                 </Link>
                             ))}
                     </SimpleGrid>
+                    <Box
+
+                    // bgColor="white"
+                    >
+                        <Progress
+                            colorScheme={"gray"}
+                            value={Math.round(
+                                ((meetup.selectionMap[`${date}`]
+                                    ? meetup.selectionMap[`${date}`].length
+                                    : 0) /
+                                    numberOfUsers) *
+                                    100
+                            )}
+                            // size="xs"
+                            height="3px"
+                            borderBottomLeftRadius={2}
+                            borderBottomRightRadius={2}
+                        />
+                    </Box>
                 </GridItem>,
             ])}
 
