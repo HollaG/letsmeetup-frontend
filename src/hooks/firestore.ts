@@ -8,13 +8,13 @@ import {
     QuerySnapshot,
 } from "firebase/firestore";
 import { db as fire } from "../db/index";
+import { COLLECTION_NAME } from "../db/repositories/meetups";
 
 /**
  * Handle real-time stuff https://stackoverflow.com/questions/59977856/firebase-listener-with-react-hooks
  */
 
 // collection name
-export const COLLECTION_NAME = "meetups";
 
 const useFirestore = () => {
     const getDocument = (

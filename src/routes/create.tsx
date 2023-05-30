@@ -1,12 +1,18 @@
+import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
     Box,
     Button,
     Collapse,
     Container,
     Flex,
+    FormControl,
     FormHelperText,
     Heading,
     Input,
+    InputGroup,
+    InputLeftAddon,
+    InputRightAddon,
+    InputRightElement,
     Stack,
     Switch,
     Text,
@@ -62,6 +68,9 @@ const Create = () => {
         9 * 60,
         17 * 60,
     ]); // in minutes
+
+    const [notificationNumber, setNotificationNumber, notificationNumberRef] =
+        useStateRef<number>();
 
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
@@ -129,6 +138,9 @@ const Create = () => {
             selectionMap: {},
             messages: [],
             isEnded: false,
+            notificationThreshold:
+                notificationNumberRef.current || Number.MAX_VALUE,
+            creatorInfoMessageId: 0,
         };
 
         console.log({ MeetupData });
@@ -283,77 +295,179 @@ const Create = () => {
     };
 
     return (
-        <Stack spacing={4}>
-            <Heading fontSize={"xl"}> Create a new event </Heading>
-            <Input
-                id="title"
-                placeholder="Event title (required)"
-                required
-                value={title}
-                onChange={onTitleChange}
-            />
-            <Textarea
-                id="description"
-                placeholder="Event description (optional)"
-                value={description}
-                onChange={onDescriptionChange}
-            />
-            <Box>
+        <FormControl>
+            <Stack spacing={4}>
+                <Heading fontSize={"xl"}> Create a new event </Heading>
+                <Input
+                    id="title"
+                    placeholder="Event title (required)"
+                    required
+                    value={title}
+                    onChange={onTitleChange}
+                />
+                <Textarea
+                    id="description"
+                    placeholder="Event description (optional)"
+                    value={description}
+                    onChange={onDescriptionChange}
+                />
+                <Box>
+                    <Heading fontSize={"xl"} pt={6}>
+                        {" "}
+                        Select the possible event dates{" "}
+                    </Heading>
+
+                    <HelperText>
+                        {" "}
+                        {isMobile ? "Touch / Touch" : "Click / click"} and drag
+                        to select.
+                    </HelperText>
+                </Box>
+
+                <CalendarContainer
+                    datesSelected={datesRef.current}
+                    setDatesSelected={setDatesSelected}
+                    onStop={onStop}
+                />
+
                 <Heading fontSize={"xl"} pt={6}>
                     {" "}
-                    Select the possible event dates{" "}
+                    Select the possible event timings{" "}
                 </Heading>
+                <Flex direction={"row"} justifyContent="space-between">
+                    <Text> Set as full day </Text>
+                    <Switch
+                        isChecked={isFullDay}
+                        onChange={(e) => {
+                            setIsFullDay(e.target.checked);
+                        }}
+                        // colorScheme={"#ffffff"}
+                        sx={{
+                            "span.chakra-switch__track[data-checked]": {
+                                backgroundColor: btnColor,
+                            },
+                            // "span.chakra-switch__track:not([data-checked])": {
+                            //     backgroundColor:
+                            //         style?.secondary_bg_color,
+                            // },
+                        }}
+                    />
+                </Flex>
+                <Collapse in={!isFullDay}>
+                    <TimeContainer
+                        datesSelected={datesRef.current}
+                        setTimesSelected={setTimesSelected}
+                        timesSelected={timesRef.current}
+                        setPristine={setPristine}
+                        pristine={pristine}
+                        endMin={endMin}
+                        setTime={setTime}
+                        timeRef={timeRef}
+                        startMin={startMin}
+                    />
+                </Collapse>
 
-                <HelperText>
-                    {" "}
-                    {isMobile ? "Touch / Touch" : "Click / click"} and drag to
-                    select.
-                </HelperText>
-            </Box>
+                <Box>
+                    <Heading fontSize={"xl"} pt={6}>
+                        Advanced settings
+                    </Heading>
+                    <HelperText>
+                        Unmodified settings will be set to their default.
+                    </HelperText>
+                </Box>
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Box>
+                        <Text>
+                            {" "}
+                            Send a notification when number of users hits:{" "}
+                        </Text>
+                        <HelperText> Default: No notification </HelperText>
+                    </Box>
+                    <Box>
+                        <InputGroup size="sm">
+                            <Input
+                                type="number"
+                                placeholder="0"
+                                width="72px"
+                                value={notificationNumber}
+                                onChange={(e) => {
+                                    setNotificationNumber(
+                                        parseInt(e.target.value)
+                                    );
+                                }}
+                            />
+                            <InputRightElement>
+                                {notificationNumber ? (
+                                    <CheckIcon color="green.500" />
+                                ) : (
+                                    <MinusIcon color="gray.500" />
+                                )}
+                            </InputRightElement>
+                        </InputGroup>
+                    </Box>
+                </Flex>
 
-            <CalendarContainer
-                datesSelected={datesRef.current}
-                setDatesSelected={setDatesSelected}
-                onStop={onStop}
-            />
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Box>
+                        <Text> Limit the number of users to: </Text>
+                        <HelperText> [WIP] Default: No limit</HelperText>
+                    </Box>
+                    <Box>
+                        <InputGroup size="sm">
+                            <Input type="number" placeholder="0" width="72px" />
+                            <InputRightElement>
+                                {notificationNumber ? (
+                                    <CheckIcon color="green.500" />
+                                ) : (
+                                    <MinusIcon color="gray.500" />
+                                )}
+                            </InputRightElement>
+                        </InputGroup>
+                    </Box>
+                </Flex>
 
-            <Heading fontSize={"xl"} pt={6}>
-                {" "}
-                Select the possible event timings{" "}
-            </Heading>
-            <Flex direction={"row"} justifyContent="space-between">
-                <Text> Set as full day </Text>
-                <Switch
-                    isChecked={isFullDay}
-                    onChange={(e) => {
-                        setIsFullDay(e.target.checked);
-                    }}
-                    // colorScheme={"#ffffff"}
-                    sx={{
-                        "span.chakra-switch__track[data-checked]": {
-                            backgroundColor: btnColor,
-                        },
-                        // "span.chakra-switch__track:not([data-checked])": {
-                        //     backgroundColor:
-                        //         style?.secondary_bg_color,
-                        // },
-                    }}
-                />
-            </Flex>
-            <Collapse in={!isFullDay}>
-                <TimeContainer
-                    datesSelected={datesRef.current}
-                    setTimesSelected={setTimesSelected}
-                    timesSelected={timesRef.current}
-                    setPristine={setPristine}
-                    pristine={pristine}
-                    endMin={endMin}
-                    setTime={setTime}
-                    timeRef={timeRef}
-                    startMin={startMin}
-                />
-            </Collapse>
-        </Stack>
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Box>
+                        <Text>
+                            {" "}
+                            Limit the number of slots a user can select to:{" "}
+                        </Text>
+                        <HelperText> [WIP] Default: No limit </HelperText>
+                    </Box>
+                    <Box>
+                        <InputGroup size="sm">
+                            <Input type="number" placeholder="0" width="72px" />
+                            <InputRightElement>
+                                {notificationNumber ? (
+                                    <CheckIcon color="green.500" />
+                                ) : (
+                                    <MinusIcon color="gray.500" />
+                                )}
+                            </InputRightElement>
+                        </InputGroup>
+                    </Box>
+                </Flex>
+
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Box>
+                        <Text> Limit the number of users per slot to: </Text>
+                        <HelperText> [WIP] Default: No limit </HelperText>
+                    </Box>
+                    <Box>
+                        <InputGroup size="sm">
+                            <Input type="number" placeholder="0" width="72px" />
+                            <InputRightElement>
+                                {notificationNumber ? (
+                                    <CheckIcon color="green.500" />
+                                ) : (
+                                    <MinusIcon color="gray.500" />
+                                )}
+                            </InputRightElement>
+                        </InputGroup>
+                    </Box>
+                </Flex>
+            </Stack>
+        </FormControl>
     );
 };
 

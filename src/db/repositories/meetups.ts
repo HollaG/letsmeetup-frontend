@@ -15,7 +15,7 @@ import { ITelegramUser } from "../../types/telegram";
 import { swapDateTimeStr } from "../../routes/meetup";
 
 // collection name
-export const COLLECTION_NAME = "meetups";
+export const COLLECTION_NAME = "meetups_dev";
 
 // mapping the todo document
 export type Todo = {
@@ -45,6 +45,8 @@ export type Meetup = {
         inline_message_id?: string;
     }[];
     isEnded: boolean;
+    creatorInfoMessageId: number;
+    notificationThreshold: number;
 };
 
 export type UserAvailabilityData = {
