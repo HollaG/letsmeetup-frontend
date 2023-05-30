@@ -136,7 +136,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                             numberOfUsers) *
                                             100
                                     )}
-                                    %{" "}
+                                    % <br />
                                     <sup>
                                         {meetup.selectionMap[`${date}`]
                                             ? meetup.selectionMap[`${date}`]
@@ -191,7 +191,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                         spacing={1}
                                     >
                                         <Avatar
-                                            // name={`${user.first_name} ${user.last_name}`}
+                                            name={`${user.first_name} ${user.last_name}`}
                                             src={user.photo_url}
                                             size="xs"
                                         />

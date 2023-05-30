@@ -236,7 +236,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                     numberOfUsers) *
                                                                     100
                                                             )}
-                                                            %{" "}
+                                                            %<br />
                                                             <sup>
                                                                 {meetup
                                                                     .selectionMap[
@@ -295,7 +295,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                             //   display="unset"
 
                                             bgColor={dataBgColor}
-                                            mb={2} // TODO: change mb to pb if combining
+                                            mb={4} // TODO: change mb to pb if combining
                                             // TODO: see the lower one, #styling
                                             borderRadius="0 4px 4px 0"
                                             position="relative"
@@ -348,7 +348,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                 spacing={1}
                                                             >
                                                                 <Avatar
-                                                                    // name={`${user.first_name} ${user.last_name}`}
+                                                                    name={`${user.first_name} ${user.last_name}`}
                                                                     src={
                                                                         user.photo_url
                                                                     }
