@@ -30,7 +30,10 @@ const DisplayBox = ({
             // outlineColor={cellOutlineColor}
             borderRadius={"4px 0 0 4px"}
         >
-            <Text fontSize="2xs"> {children}</Text>
+            <Text fontSize="2xs" textAlign="center">
+                {" "}
+                {children}
+            </Text>
         </Center>
     );
 };

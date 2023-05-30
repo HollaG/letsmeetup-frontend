@@ -17,6 +17,7 @@ import {
     RANGE_FULL_DARK,
 } from "../../../lib/std";
 import {
+    aC,
     assignColor,
     RangeColors,
 } from "../../../utils/availabilityList.utils";
@@ -29,6 +30,9 @@ const ColorExplainer = ({ numTotal }: { numTotal: number }) => {
     const range_3 = useColorModeValue(RANGE_3_LIGHT, RANGE_3_DARK);
     const range_4 = useColorModeValue(RANGE_4_LIGHT, RANGE_4_DARK);
     const range_full = useColorModeValue(RANGE_FULL_LIGHT, RANGE_FULL_DARK);
+
+    const fullColor = "#38A169";
+    const emptyColor = range_empty;
 
     const colors: RangeColors = [
         range_empty,
@@ -44,7 +48,7 @@ const ColorExplainer = ({ numTotal }: { numTotal: number }) => {
     // naive implementation
     const possibleColors = new Set<string>();
     for (let i = 1; i < numTotal + 1; i++) {
-        const color = assignColor(numTotal, i, colors);
+        const color = aC(numTotal, i, fullColor, emptyColor);
         possibleColors.add(color);
     }
 

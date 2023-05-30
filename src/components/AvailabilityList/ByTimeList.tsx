@@ -9,6 +9,7 @@ import {
     Heading,
     HStack,
     Link,
+    Progress,
     SimpleGrid,
     Stack,
     Text,
@@ -45,6 +46,7 @@ import {
     isSameAsPreviousTimeSlot,
     RangeColors,
     getSlotLength,
+    aC,
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import { create30MinuteIncrements } from "../Time/TimeContainer";
@@ -97,6 +99,9 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     ];
 
     const lineColor = useColorModeValue("blackAlpha.600", "whiteAlpha.600");
+
+    const fullColor = "#38A169";
+    const emptyColor = range_empty;
 
     const { style } = useTelegram();
     const _dataBgColor = useColorModeValue("gray.100", "gray.900");
@@ -165,7 +170,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 alignItems={"center"}
                                                 width="100%"
                                             >
-                                                <Center>
+                                                <Center fontSize={"sm"}>
                                                     {convertMinutesToAmPm(
                                                         minute
                                                     )}
@@ -193,7 +198,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 >
                                                     <Flex>
                                                         <DisplayBox
-                                                            bgColor={assignColor(
+                                                            bgColor={aC(
                                                                 numberOfUsers,
                                                                 meetup
                                                                     .selectionMap[
@@ -204,17 +209,19 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                           `${minute}::${date}`
                                                                       ].length
                                                                     : 0,
-                                                                colors
+                                                                fullColor,
+                                                                emptyColor
                                                             )}
-                                                            height={Math.min(
-                                                                24 * 2,
-                                                                CELL_HEIGHT_NUM *
-                                                                    (getNumberOfConsectiveSelectedTimeSlots(
-                                                                        `${minute}::${date}`,
-                                                                        meetup
-                                                                    ).length +
-                                                                        1)
-                                                            )}
+                                                            // height={Math.min(
+                                                            //     24 * 2,
+                                                            //     CELL_HEIGHT_NUM *
+                                                            //         (getNumberOfConsectiveSelectedTimeSlots(
+                                                            //             `${minute}::${date}`,
+                                                            //             meetup
+                                                            //         ).length +
+                                                            //             1)
+                                                            // )}
+                                                            height={48}
                                                         >
                                                             {Math.round(
                                                                 ((meetup
@@ -229,7 +236,22 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                     numberOfUsers) *
                                                                     100
                                                             )}
-                                                            %
+                                                            %{" "}
+                                                            <sup>
+                                                                {meetup
+                                                                    .selectionMap[
+                                                                    `${minute}::${date}`
+                                                                ]
+                                                                    ? meetup
+                                                                          .selectionMap[
+                                                                          `${minute}::${date}`
+                                                                      ].length
+                                                                    : 0}
+                                                            </sup>
+                                                            /
+                                                            <sub>
+                                                                {numberOfUsers}
+                                                            </sub>
                                                         </DisplayBox>
 
                                                         <Box
@@ -237,15 +259,16 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             bgColor={
                                                                 dataBgColor
                                                             }
-                                                            height={`${Math.min(
-                                                                24 * 2,
-                                                                CELL_HEIGHT_NUM *
-                                                                    (getNumberOfConsectiveSelectedTimeSlots(
-                                                                        `${minute}::${date}`,
-                                                                        meetup
-                                                                    ).length +
-                                                                        1)
-                                                            )}px`}
+                                                            // height={`${Math.min(
+                                                            //     24 * 2,
+                                                            //     CELL_HEIGHT_NUM *
+                                                            //         (getNumberOfConsectiveSelectedTimeSlots(
+                                                            //             `${minute}::${date}`,
+                                                            //             meetup
+                                                            //         ).length +
+                                                            //             1)
+                                                            // )}px`}
+                                                            height="48px"
                                                         ></Box>
                                                     </Flex>
                                                 </Stack>
@@ -299,9 +322,10 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 </Text>
                                             </Box>
                                             <SimpleGrid
+                                                mt={2}
                                                 columns={2}
-                                                spacing={3}
-                                                p={3}
+                                                spacing={2}
+                                                p={2}
                                             >
                                                 {meetup.selectionMap[
                                                     `${minute}::${date}`
@@ -316,23 +340,57 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                             key={i}
                                                             fontSize="sm"
                                                         >
-                                                            <Flex alignItems="center">
+                                                            <Stack
+                                                                alignItems={
+                                                                    "center"
+                                                                }
+                                                                justifyContent="center"
+                                                                spacing={1}
+                                                            >
                                                                 <Avatar
-                                                                    name={`${user.first_name} ${user.last_name}`}
+                                                                    // name={`${user.first_name} ${user.last_name}`}
                                                                     src={
                                                                         user.photo_url
                                                                     }
                                                                     size="xs"
                                                                 />
-                                                                <Text ml={2}>
+                                                                <Text
+                                                                    textAlign={
+                                                                        "center"
+                                                                    }
+                                                                >
                                                                     {
                                                                         user.first_name
                                                                     }
                                                                 </Text>
-                                                            </Flex>
+                                                            </Stack>
                                                         </Link>
                                                     ))}
                                             </SimpleGrid>
+                                            <Box
+
+                                            // bgColor="white"
+                                            >
+                                                <Progress
+                                                    colorScheme={"gray"}
+                                                    value={Math.round(
+                                                        ((meetup.selectionMap[
+                                                            `${minute}::${date}`
+                                                        ]
+                                                            ? meetup
+                                                                  .selectionMap[
+                                                                  `${minute}::${date}`
+                                                              ].length
+                                                            : 0) /
+                                                            numberOfUsers) *
+                                                            100
+                                                    )}
+                                                    // size="xs"
+                                                    height="3px"
+                                                    borderBottomLeftRadius={2}
+                                                    borderBottomRightRadius={2}
+                                                />
+                                            </Box>
                                         </GridItem>,
                                     ]
                                   : []),
@@ -355,7 +413,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 alignItems={"center"}
                                                 width="100%"
                                             >
-                                                <Center>
+                                                <Center fontSize={"sm"}>
                                                     {convertMinutesToAmPm(
                                                         minute + 30
                                                     )}
