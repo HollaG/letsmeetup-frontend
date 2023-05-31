@@ -43,6 +43,7 @@ type TimeContainerProps = {
     setTime: React.Dispatch<React.SetStateAction<[number, number]>>;
     // @ts-ignore: this isn't exposed
     timeRef: ReadOnlyRefObject<[number, number]>;
+    timeInitiallyOpen?: boolean;
 };
 
 /**
@@ -134,6 +135,7 @@ const TimeContainer = ({
     setTime,
     startMin,
     timeRef,
+    timeInitiallyOpen = false,
 }: TimeContainerProps) => {
     /**
      * Changes whether the times can be set for each individual date.
@@ -231,7 +233,8 @@ const TimeContainer = ({
     // e.g. [540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840] for startMin = 530, endMin = 840
     const thirtyMinuteIncrements = create30MinuteIncrements(startMin, endMin);
 
-    const [showIndividualTimes, setShowIndividualTimes] = useState(false);
+    const [showIndividualTimes, setShowIndividualTimes] =
+        useState(timeInitiallyOpen);
     const convertRowNumberToMinutes = (startMin: number, row: number) =>
         startMin + row * 30;
 

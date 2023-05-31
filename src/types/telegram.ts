@@ -63,6 +63,19 @@ export interface IWebApp {
     };
     close: () => void;
     switchInlineQuery: (query: string, choose_chat_types: string[]) => void;
+    showPopup: (params: PopupParams, callback?: (id: string) => void) => void;
 }
+
+type PopupParams = {
+    title?: string;
+    message: string;
+    buttons?: PopupButton[];
+};
+
+type PopupButton = {
+    id?: string;
+    type?: "default" | "ok" | "close" | "cancel" | "destructive";
+    text?: string;
+};
 
 export {};
