@@ -459,7 +459,7 @@ const Create = () => {
                     </Box>
                 </Flex>
 
-                <Flex justifyContent={"space-between"} alignItems="center">
+                {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text>
                             {" "}
@@ -489,7 +489,7 @@ const Create = () => {
                             </InputRightElement>
                         </InputGroup>
                     </Box>
-                </Flex>
+                </Flex> */}
 
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
