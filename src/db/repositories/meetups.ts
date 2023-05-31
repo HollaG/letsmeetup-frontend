@@ -100,11 +100,10 @@ export const create = async (meetup: Meetup): Promise<Meetup> | never => {
     }
 };
 
-// TODO: this function is incorrect ??
 export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
     const docRef = doc(db, COLLECTION_NAME, id);
     try {
-        const updated = await updateDoc(docRef, meetup);
+        const updated = await updateDoc(docRef, { ...meetup });
         return {
             id: docRef.id,
             ...meetup,
@@ -184,6 +183,9 @@ export const updateAvailability = async (
 
     // remove all users who have not selected anything
     newAvailabilityData = newAvailabilityData.filter((u) => u.selected.length);
+
+    //TODO (to check:) remove all users who have selected things that are not in selectionMap
+    // newAvailabilityData = newAvailabilityData.filter((u) => u.selected.some((s) => oldMeetup.selectionMap[s]))
 
     // update the selectionMap
     let newMap: { [key: string]: ITelegramUser[] } = {};

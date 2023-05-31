@@ -23,21 +23,21 @@ import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
-import ByDateList from "../components/AvailabilityList/ByDateList";
-import ByTimeList from "../components/AvailabilityList/ByTimeList";
-import CalendarDisplay from "../components/AvailabilityList/CalendarDisplay";
-import ColorExplainer from "../components/AvailabilityList/common/ColorExplainer";
+import ByDateList from "../../components/AvailabilityList/ByDateList";
+import ByTimeList from "../../components/AvailabilityList/ByTimeList";
+import CalendarDisplay from "../../components/AvailabilityList/CalendarDisplay";
+import ColorExplainer from "../../components/AvailabilityList/common/ColorExplainer";
 import CalendarContainer, {
     dateParser,
-} from "../components/Calendar/CalendarContainer";
-import HelperText from "../components/Display/HelperText";
-import { CellData } from "../components/Time/TimeContainer";
-import TimeSelector from "../components/Time/TimeSelector";
-import { useTelegram } from "../context/TelegramProvider";
-import { Meetup, updateAvailability } from "../db/repositories/meetups";
-import useFirestore from "../hooks/firestore";
-import { ITelegramUser } from "../types/telegram";
-import { TimeSelection } from "../types/types";
+} from "../../components/Calendar/CalendarContainer";
+import HelperText from "../../components/Display/HelperText";
+import { CellData } from "../../components/Time/TimeContainer";
+import TimeSelector from "../../components/Time/TimeSelector";
+import { useTelegram } from "../../context/TelegramProvider";
+import { Meetup, updateAvailability } from "../../db/repositories/meetups";
+import useFirestore from "../../hooks/firestore";
+import { ITelegramUser } from "../../types/telegram";
+import { TimeSelection } from "../../types/types";
 
 let tempUser: ITelegramUser = {
     id: 8995652501,
@@ -177,6 +177,7 @@ const MeetupPage = () => {
         (a, b) => a - b
     );
 
+    // expects to be sorted
     const startMin = meetup.timeslots.length ? times[0] : 0;
     const endMin = meetup.timeslots.length
         ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
@@ -553,6 +554,8 @@ const MeetupPage = () => {
     const [warningMessage, setWarningMessage] = useState<string>("");
     /**
      * Disallows slots if that slot has hit the max number of respondents
+     *
+     * Only for meetups that have the `limit per slot` option enabled
      */
     useEffect(() => {
         const creatorAllowed = liveMeetup.isFullDay
@@ -562,13 +565,29 @@ const MeetupPage = () => {
         // for each of the allowed slots, check if the slot has hit the max number of respondents
         if (liveMeetup.options.limitPerSlot !== Number.MAX_VALUE) {
             // number has been modified from default
-            const allowedAfterPerSlotLimitHit = creatorAllowed.filter((slot) =>
-                // if the slot is selected, we should not render 'not allowed'
-                liveMeetup.selectionMap[slot]
-                    ? liveMeetup.selectionMap[slot].length <=
-                      liveMeetup.options.limitPerSlot
-                    : true
+            console.log({ creatorAllowed });
+            const allowedAfterPerSlotLimitHit = creatorAllowed.filter(
+                (slot) => {
+                    // if the slot is selected, we should always render it.
+                    if (
+                        liveMeetup.users
+                            .find((u) => u.user.id === user?.id)
+                            ?.selected.includes(slot)
+                    ) {
+                        // user selecetd this slot
+                        console.log("a");
+                        return true;
+                    }
+
+                    // always return true if there is nobody who selected this
+                    return liveMeetup.selectionMap[slot]
+                        ? liveMeetup.selectionMap[slot].length <=
+                              liveMeetup.options.limitPerSlot
+                        : true;
+                }
             );
+
+            console.log({ allowedAfterPerSlotLimitHit });
 
             if (allowedAfterPerSlotLimitHit.length != creatorAllowed.length) {
                 // some slots have hit the limit

@@ -9,6 +9,7 @@ import { TelegramProvider } from "./context/TelegramProvider";
 import {
     createBrowserRouter,
     createHashRouter,
+    LoaderFunctionArgs,
     RouterProvider,
 } from "react-router-dom";
 import Root from "./routes/root";
@@ -23,6 +24,14 @@ import { doc, getDoc } from "firebase/firestore";
 import fire, { db } from "./db";
 import { COLLECTION_NAME } from "./db/repositories/meetups";
 import WebApp from "./routes/webapp";
+import MeetupEditPage from "./routes/meetup/edit";
+
+async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
+    return {
+        meetup: (await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))).data(), // fetch shit here
+    };
+}
+
 /**
  * React-router routes for handling viewing, creating, and home page
  *
@@ -46,16 +55,12 @@ const router = createHashRouter([
             {
                 path: "/meetup/:meetupId",
                 element: <MeetupPage />,
-                loader: async ({ params: { meetupId } }) => {
-                    // https://react-location.tanstack.com/guides/route-loaders
-                    return {
-                        meetup: (
-                            await getDoc(
-                                doc(db, COLLECTION_NAME, meetupId || "")
-                            )
-                        ).data(), // fetch shit here
-                    };
-                },
+                loader,
+            },
+            {
+                path: "/meetup/:meetupId/edit",
+                element: <MeetupEditPage />,
+                loader,
             },
             {
                 path: "/webapp",

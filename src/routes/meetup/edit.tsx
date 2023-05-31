@@ -1,81 +1,121 @@
 import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Button,
-    Collapse,
-    Container,
-    Flex,
+    useColorModeValue,
     FormControl,
-    FormHelperText,
+    Stack,
     Heading,
     Input,
-    InputGroup,
-    InputLeftAddon,
-    InputRightAddon,
-    InputRightElement,
-    Stack,
-    Switch,
-    Text,
     Textarea,
-    useColorMode,
-    useColorModeValue,
+    Flex,
+    Switch,
+    Collapse,
+    InputGroup,
+    InputRightElement,
+    Text,
+    Box,
+    Alert,
+    AlertIcon,
+    NumberInput,
+    NumberDecrementStepper,
+    NumberIncrementStepper,
+    NumberInputField,
+    NumberInputStepper,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useCallback } from "react";
 import { isMobile } from "react-device-detect";
-import { useSearchParams } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
-import { URLSearchParams } from "url";
-import CalendarContainer from "../components/Calendar/CalendarContainer";
-import HelperText from "../components/Display/HelperText";
+import { removeDate } from ".";
+import CalendarContainer from "../../components/Calendar/CalendarContainer";
+import HelperText from "../../components/Display/HelperText";
 import TimeContainer, {
     create30MinuteIncrements,
-} from "../components/Time/TimeContainer";
-import TimeRangeSelector from "../components/Time/TimeRangeSelector";
-import { useTelegram } from "../context/TelegramProvider";
-import { create, Meetup } from "../db/repositories/meetups";
-import { TimeSelection } from "../types/types";
+} from "../../components/Time/TimeContainer";
+import { useTelegram } from "../../context/TelegramProvider";
+import {
+    create,
+    Meetup,
+    update,
+    UserAvailabilityData,
+} from "../../db/repositories/meetups";
+import { TimeSelection } from "../../types/types";
 
-const Create = () => {
-    const [title, setTitle, titleRef] = useStateRef<string>("");
-    const [description, setDescription, descriptionRef] =
-        useStateRef<string>("");
+const MeetupEditPage = () => {
+    let { meetupId } = useParams<{
+        meetupId: string;
+    }>() as { meetupId: string };
+    const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
+
+    // don't allow edit access if meetup's creator is not same as telegram
+
+    const [title, setTitle, titleRef] = useStateRef<string>(loadedMeetup.title);
+    const [description, setDescription, descriptionRef] = useStateRef<string>(
+        loadedMeetup.description || ""
+    );
 
     const [datesSelected, setDatesSelected, datesRef] = useStateRef<string[]>(
-        []
+        loadedMeetup.dates
     );
 
     const [timesSelected, setTimesSelected, timesRef] =
-        useStateRef<TimeSelection>([]);
+        useStateRef<TimeSelection>(loadedMeetup.timeslots);
 
-    const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
+    const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(
+        loadedMeetup.isFullDay
+    );
 
     const { user, webApp, style } = useTelegram();
 
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
         useStateRef<boolean>(false);
 
+    const times = [...new Set(loadedMeetup.timeslots.map(removeDate))].sort(
+        (a, b) => a - b
+    );
+
+    const initStartMin = loadedMeetup.timeslots.length ? times[0] : 0;
+    const initEndMin = loadedMeetup.timeslots.length
+        ? times[times.length - 1] + 30 // add 30 because the value gotten is the START of the 30-min slot
+        : 24 * 60;
     const [[startMin, endMin], setTime, timeRef] = useStateRef([
-        9 * 60,
-        17 * 60,
+        initStartMin,
+        initEndMin,
     ]); // in minutes
 
     const [
         notificationThreshold,
         setNotificationThreshold,
         notificationThresholdRef,
-    ] = useStateRef<number>();
-    const [limitPerSlot, setLimitPerSlot, limitPerSlotRef] =
-        useStateRef<number>();
+    ] = useStateRef<number | undefined>(
+        loadedMeetup.options.notificationThreshold === Number.MAX_VALUE
+            ? undefined
+            : loadedMeetup.options.notificationThreshold
+    );
+    const [limitPerSlot, setLimitPerSlot, limitPerSlotRef] = useStateRef<
+        number | undefined
+    >(
+        loadedMeetup.options.limitPerSlot === Number.MAX_VALUE
+            ? undefined
+            : loadedMeetup.options.limitPerSlot
+    );
     const [
         limitNumberRespondents,
         setLimitNumberRespondents,
         limitNumberRespondentsRef,
-    ] = useStateRef<number>();
+    ] = useStateRef<number | undefined>(
+        loadedMeetup.options.limitNumberRespondents === Number.MAX_VALUE
+            ? undefined
+            : loadedMeetup.options.limitNumberRespondents
+    );
     const [
         limitSlotsPerRespondent,
         setLimitSlotsPerRespondent,
         limitSlotsPerRespondentRef,
-    ] = useStateRef<number>();
+    ] = useStateRef<number | undefined>(
+        loadedMeetup.options.limitSlotsPerRespondent === Number.MAX_VALUE
+            ? undefined
+            : loadedMeetup.options.limitSlotsPerRespondent
+    );
 
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
@@ -123,58 +163,161 @@ const Create = () => {
         if (!userCanSubmitRef.current || hasUserSubmittedRef.current) {
             return console.log("can't submit!");
         }
+        const submitUpdate = () => {
+            let newSelectionMap = structuredClone(loadedMeetup.selectionMap);
+            // if the creator changed from a full day to a non-full day or vice versa,
+            let newUsers: UserAvailabilityData[] = structuredClone(
+                loadedMeetup.users
+            );
+            if (isFullDayRef.current !== loadedMeetup.isFullDay) {
+                if (
+                    isFullDayRef.current === true &&
+                    loadedMeetup.isFullDay === false
+                ) {
+                    // changed from non-full day to full day
+                    // remove all the timeslots
+                    // remove all the selectionMap
+                    newSelectionMap = {};
+                    newUsers = [];
+                } else {
+                    // changed from full day to non-full day
+                    // remove all the selectionMap
+                    // add to timeslots
+                    newSelectionMap = {};
+                    newUsers = [];
+                }
+            } else {
+                // if there are any times set in the old selectionMap as keys that are NOT in the new timeslots / new dates, remove them
+                if (isFullDayRef.current) {
+                    // the meetup was a full day.
+                    for (let dateStr in loadedMeetup.selectionMap) {
+                        if (!datesRef.current.includes(dateStr)) {
+                            delete newSelectionMap[dateStr];
+                        }
+                    }
 
-        setHasUserSubmitted(true);
-        const MeetupData: Meetup = {
-            title: titleRef.current,
-            description: descriptionRef.current,
-            date_created: new Date(),
-            creator: {
-                id: user!.id,
-                first_name: user!.first_name,
-                username: user!.username,
-                photo_url: user!.photo_url || "",
-            },
-            isFullDay: isFullDayRef.current,
-            timeslots: isFullDayRef.current ? [] : timesRef.current,
-            dates: datesRef.current,
-            users: [],
-            notified: false,
-            selectionMap: {},
-            messages: [],
-            isEnded: false,
-            options: {
-                notificationThreshold:
-                    notificationThresholdRef.current || Number.MAX_VALUE,
+                    for (let userData of newUsers) {
+                        userData.selected = userData.selected.filter((s) =>
+                            datesRef.current.includes(s)
+                        );
+                    }
+                } else {
+                    // the meetup was a time one
+                    for (let dateTimeStr in loadedMeetup.selectionMap) {
+                        if (!timesRef.current.includes(dateTimeStr)) {
+                            delete newSelectionMap[dateTimeStr];
+                        }
+                    }
+                    for (let userData of newUsers) {
+                        console.log("before", userData.selected);
+                        userData.selected = userData.selected.filter((s) =>
+                            timesRef.current.includes(s)
+                        );
+                        console.log("after", userData.selected);
+                    }
+                }
+            }
 
-                limitNumberRespondents:
-                    limitNumberRespondentsRef.current || Number.MAX_VALUE,
-                limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
-                limitSlotsPerRespondent:
-                    limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
-            },
-            creatorInfoMessageId: 0,
+            // filter the users to remove those who have no more items selected
+            newUsers = newUsers.filter((u) => u.selected.length !== 0);
+
+            // special: if the number of new users drops below the notification limit, set notified to false
+            if (newUsers.length < loadedMeetup.options.notificationThreshold) {
+                loadedMeetup.notified = false;
+            }
+
+            const MeetupData: Meetup = {
+                ...loadedMeetup,
+                title: titleRef.current,
+                description: descriptionRef.current,
+                // date_created: new Date(),
+                // creator: {
+                //     id: user!.id,
+                //     first_name: user!.first_name,
+                //     username: user!.username,
+                //     photo_url: user!.photo_url || "",
+                // },
+                isFullDay: isFullDayRef.current,
+                timeslots: isFullDayRef.current ? [] : timesRef.current,
+                dates: datesRef.current,
+                // users: [],
+                // notified: false,
+                selectionMap: newSelectionMap,
+                // messages: [],
+                // isEnded: false,
+                options: {
+                    notificationThreshold:
+                        notificationThresholdRef.current ?? Number.MAX_VALUE,
+
+                    limitNumberRespondents:
+                        limitNumberRespondentsRef.current ?? Number.MAX_VALUE,
+                    limitPerSlot: limitPerSlotRef.current ?? Number.MAX_VALUE,
+                    limitSlotsPerRespondent:
+                        limitSlotsPerRespondentRef.current ?? Number.MAX_VALUE,
+                },
+                users: newUsers,
+                // creatorInfoMessageId: 0,
+            };
+
+            console.log({ MeetupData });
+
+            update(meetupId, MeetupData)
+                .then((res) => {
+                    disableButton();
+                    // TODO: update the loaded meetup
+                    setUserCanSubmit(false);
+                })
+                .catch((e) => {
+                    alert(e);
+                });
+
+            // create(MeetupData)
+            //     .then((res) => {
+            //         // send the ID back to Telegram
+            //         // webApp?.sendData(res.id)
+            //         // webApp?.close()
+            //         const newDocId = res.id;
+            //         webApp?.switchInlineQuery(titleRef.current, [
+            //             "users",
+            //             "groups",
+            //             "channels",
+            //             "bots",
+            //         ]);
+            //         webApp?.close();
+            //     })
+            //     .catch((e) => {
+            //         alert("somme error!!");
+            //     });
         };
+        if (webApp) {
+            if (loadedMeetup.isFullDay !== isFullDayRef.current) {
+                webApp.showPopup(
+                    {
+                        title: "Warning",
+                        message:
+                            "Changing the meetup type from a full-day to a part-day meetup will reset everyone's selections!",
+                        buttons: [
+                            { id: "proceed", text: "OK", type: "destructive" },
+                            { id: "cancel", text: "Cancel", type: "cancel" },
+                        ],
+                    },
+                    (buttonId) => {
+                        if (buttonId === "proceed") {
+                            // setHasUserSubmitted(true);
 
-        console.log({ MeetupData });
+                            // update the old selectionMap to remove any timings that are now outside of the selected dates and timeslots
+                            submitUpdate();
+                        } else {
+                            return;
+                        }
+                    }
+                );
+            } else {
+                submitUpdate();
+            }
+        }
 
-        create(MeetupData)
-            .then((res) => {
-                // send the ID back to Telegram
-                // webApp?.sendData(res.id)
-                // webApp?.close()
-                const newDocId = res.id;
-                webApp?.switchInlineQuery(titleRef.current, [
-                    "users",
-                    "groups",
-                    "channels",
-                    "bots",
-                ]);
-                webApp?.close();
-            })
-            .catch((e) => {
-                alert("somme error!!");
-            });
+        return;
     }, [webApp]);
 
     /**
@@ -285,7 +428,7 @@ const Create = () => {
             // webApp.MainButton.isVisible = false;
             webApp.MainButton.color = disabledBtnColor;
             webApp.MainButton.disable();
-            webApp.MainButton.setText("Please fill in all required fields");
+            webApp.MainButton.setText("No changes since last save");
             webApp.isClosingConfirmationEnabled = false;
             webApp.MainButton.textColor = disabledTextColor;
         }
@@ -301,16 +444,22 @@ const Create = () => {
             // webApp.MainButton.isVisible = true;
             webApp.MainButton.color = btnColor;
             webApp.MainButton.enable();
-            webApp.MainButton.setText("Create and share meetup");
+            webApp.MainButton.setText("Update meetup");
             webApp.isClosingConfirmationEnabled = true;
             webApp.MainButton.textColor = enabledTextColor;
         }
     };
 
+    if (!user || !loadedMeetup) {
+        if (user?.id !== loadedMeetup?.creator.id) {
+            return <>You do not have access to edit this meetup</>;
+        }
+    }
+
     return (
         <FormControl>
             <Stack spacing={4}>
-                <Heading fontSize={"xl"}> Create a new event </Heading>
+                <Heading fontSize={"xl"}> Edit event </Heading>
                 <Input
                     id="title"
                     placeholder="Event title (required)"
@@ -336,6 +485,11 @@ const Create = () => {
                         to select.
                     </HelperText>
                 </Box>
+                <Alert status="warning">
+                    <AlertIcon />
+                    Please note that removing a date or time that people have
+                    indicated WILL remove their indication as well!
+                </Alert>
 
                 <CalendarContainer
                     datesSelected={datesRef.current}
@@ -377,6 +531,7 @@ const Create = () => {
                         setTime={setTime}
                         timeRef={timeRef}
                         startMin={startMin}
+                        timeInitiallyOpen={!isFullDay}
                     />
                 </Collapse>
 
@@ -388,6 +543,11 @@ const Create = () => {
                         Unmodified settings will be set to their default.
                     </HelperText>
                 </Box>
+                <Alert status="warning">
+                    <AlertIcon />
+                    Please note that changing any 'limit' setting will NOT
+                    remove users who have already indicated!
+                </Alert>
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text>
@@ -398,24 +558,22 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
+                            <NumberInput
                                 placeholder="0"
                                 width="72px"
                                 value={notificationThreshold}
                                 onChange={(e) => {
-                                    setNotificationThreshold(
-                                        parseInt(e.target.value)
-                                    );
+                                    setNotificationThreshold(parseInt(e));
+                                    setUserCanSubmit(true);
                                 }}
-                            />
-                            <InputRightElement>
-                                {notificationThreshold ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>
@@ -427,24 +585,22 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
+                            <NumberInput
                                 placeholder="0"
                                 width="72px"
                                 value={limitNumberRespondents}
-                                onChange={(e) =>
-                                    setLimitNumberRespondents(
-                                        parseInt(e.target.value)
-                                    )
-                                }
-                            />
-                            <InputRightElement>
-                                {limitNumberRespondents ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                onChange={(e) => {
+                                    setLimitNumberRespondents(parseInt(e));
+                                    setUserCanSubmit(true);
+                                }}
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>
@@ -488,22 +644,22 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
+                            <NumberInput
                                 placeholder="0"
                                 width="72px"
                                 value={limitPerSlot}
-                                onChange={(e) =>
-                                    setLimitPerSlot(parseInt(e.target.value))
-                                }
-                            />
-                            <InputRightElement>
-                                {limitPerSlot ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                onChange={(e) => {
+                                    setUserCanSubmit(true);
+                                    setLimitPerSlot(parseInt(e));
+                                }}
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>
@@ -511,5 +667,4 @@ const Create = () => {
         </FormControl>
     );
 };
-
-export default Create;
+export default MeetupEditPage;
