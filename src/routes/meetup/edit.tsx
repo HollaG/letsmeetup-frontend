@@ -44,7 +44,7 @@ const MeetupEditPage = () => {
     let { meetupId } = useParams<{
         meetupId: string;
     }>() as { meetupId: string };
-    const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
+    let { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
 
     // don't allow edit access if meetup's creator is not same as telegram
 
@@ -254,6 +254,7 @@ const MeetupEditPage = () => {
                     disableButton();
                     // TODO: update the loaded meetup
                     setUserCanSubmit(false);
+                    loadedMeetup = res;
                 })
                 .catch((e) => {
                     alert(e);
