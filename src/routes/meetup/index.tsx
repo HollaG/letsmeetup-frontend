@@ -655,7 +655,7 @@ const MeetupPage = () => {
                             <Stack spacing={4} justifyContent="left">
                                 <Box>
                                     <Heading fontSize={"lg"}>
-                                        Select your available dates{" "}
+                                        📅 Select your available dates{" "}
                                     </Heading>
                                     <HelperText>
                                         {" "}

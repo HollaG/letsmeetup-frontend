@@ -13,6 +13,11 @@ import {
     InputLeftAddon,
     InputRightAddon,
     InputRightElement,
+    NumberDecrementStepper,
+    NumberIncrementStepper,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
     Stack,
     Switch,
     Text,
@@ -310,7 +315,7 @@ const Create = () => {
     return (
         <FormControl>
             <Stack spacing={4}>
-                <Heading fontSize={"xl"}> Create a new event </Heading>
+                <Heading fontSize={"xl"}>🎉Create a new event </Heading>
                 <Input
                     id="title"
                     placeholder="Event title (required)"
@@ -327,7 +332,7 @@ const Create = () => {
                 <Box>
                     <Heading fontSize={"xl"} pt={6}>
                         {" "}
-                        Select the possible event dates{" "}
+                        📅 Select the possible event dates{" "}
                     </Heading>
 
                     <HelperText>
@@ -345,7 +350,7 @@ const Create = () => {
 
                 <Heading fontSize={"xl"} pt={6}>
                     {" "}
-                    Select the possible event timings{" "}
+                    🕔 Select the possible event timings{" "}
                 </Heading>
                 <Flex direction={"row"} justifyContent="space-between">
                     <Text> Set as full day </Text>
@@ -382,7 +387,7 @@ const Create = () => {
 
                 <Box>
                     <Heading fontSize={"xl"} pt={6}>
-                        Advanced settings
+                        ⚙️ Advanced settings
                     </Heading>
                     <HelperText>
                         Unmodified settings will be set to their default.
@@ -398,24 +403,20 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
-                                placeholder="0"
+                            <NumberInput
                                 width="72px"
                                 value={notificationThreshold}
                                 onChange={(e) => {
-                                    setNotificationThreshold(
-                                        parseInt(e.target.value)
-                                    );
+                                    setNotificationThreshold(parseInt(e));
                                 }}
-                            />
-                            <InputRightElement>
-                                {notificationThreshold ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>
@@ -427,24 +428,20 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
-                                placeholder="0"
+                            <NumberInput
                                 width="72px"
                                 value={limitNumberRespondents}
-                                onChange={(e) =>
-                                    setLimitNumberRespondents(
-                                        parseInt(e.target.value)
-                                    )
-                                }
-                            />
-                            <InputRightElement>
-                                {limitNumberRespondents ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                onChange={(e) => {
+                                    setLimitNumberRespondents(parseInt(e));
+                                }}
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>
@@ -488,22 +485,20 @@ const Create = () => {
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input
-                                type="number"
-                                placeholder="0"
+                            <NumberInput
                                 width="72px"
-                                value={limitPerSlot}
-                                onChange={(e) =>
-                                    setLimitPerSlot(parseInt(e.target.value))
-                                }
-                            />
-                            <InputRightElement>
-                                {limitPerSlot ? (
-                                    <CheckIcon color="green.500" />
-                                ) : (
-                                    <MinusIcon color="gray.500" />
-                                )}
-                            </InputRightElement>
+                                value={limitNumberRespondents}
+                                onChange={(e) => {
+                                    setLimitNumberRespondents(parseInt(e));
+                                }}
+                                min={1}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
                         </InputGroup>
                     </Box>
                 </Flex>

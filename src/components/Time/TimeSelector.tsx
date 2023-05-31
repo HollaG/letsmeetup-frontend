@@ -184,7 +184,10 @@ const TimeSelector = ({
     return (
         <Stack>
             <Box>
-                <Heading fontSize={"lg"}> Select your available times </Heading>
+                <Heading fontSize={"lg"}>
+                    {" "}
+                    🕔 Select your available times{" "}
+                </Heading>
                 <HelperText>
                     {" "}
                     {isMobile ? "Touch / Touch" : "Click / click"} and drag to
