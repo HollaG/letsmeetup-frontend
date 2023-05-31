@@ -96,7 +96,6 @@ const CalendarContainer = ({
     onStop,
     onBeforeStart,
 }: CalendarContainerProps) => {
-    const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
     const { user, webApp } = useTelegram();
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
@@ -105,13 +104,15 @@ const CalendarContainer = ({
         setWebAppRef(webApp);
     }, [webApp]);
 
-    const firstDateInMonth = parse(
-        `${1}-${currentMonthNum + 1}-${new Date().getFullYear()}`,
+    // if startDate is specified, the 'selectedDate' should be the first day of the month of the startDate
+    const initialDateSelected = parse(
+        `${1}-${startDate.getMonth() + 1}-${startDate.getFullYear()}`,
         "d-MM-yyyy",
         new Date()
     );
 
-    const [selectedDate, setSelectedDate] = useState<Date>(firstDateInMonth);
+    const [selectedDate, setSelectedDate, selectedDateRef] =
+        useStateRef<Date>(initialDateSelected);
 
     useEffect(() => {
         const d = new Date();
@@ -176,13 +177,49 @@ const CalendarContainer = ({
     const goLeft = () => {
         // Disable go-left if the next month will be in the past
         if (!canGoLeft) return;
+
         setSelectedDate((prev) => subMonths(prev, 1));
+        // skip months that are not in allowedDates.
+        // check if `allowedDates` has any dates that are in the previous month
+        if (allowedDates) {
+            let hasOneDateInPreviousMonth = false;
+            const prevMonthNum = selectedDateRef.current.getMonth();
+            for (let allowedDate of allowedDates) {
+                const allowedDateObj = dateParser(allowedDate);
+                if (allowedDateObj.getMonth() == prevMonthNum) {
+                    hasOneDateInPreviousMonth = true;
+                    break;
+                }
+            }
+            if (hasOneDateInPreviousMonth) {
+            } else {
+                goLeft();
+            }
+        }
     };
 
-    const goRight = () => {
+    const goRight = async () => {
         // disable go-right if the next month is 1 year from now
         if (!canGoRight) return;
         setSelectedDate((prev) => addMonths(prev, 1));
+
+        if (allowedDates) {
+            let hasOneDateInNextMonth = false;
+            // Use the ref object so that we get access to the already updated value
+            const prevMonthNum = selectedDateRef.current.getMonth();
+            for (let allowedDate of allowedDates) {
+                const allowedDateObj = dateParser(allowedDate);
+                if (allowedDateObj.getMonth() == prevMonthNum) {
+                    console.log("has one");
+                    hasOneDateInNextMonth = true;
+                    break;
+                }
+            }
+            if (hasOneDateInNextMonth) {
+            } else {
+                goRight();
+            }
+        }
     };
 
     const [isDragging, setIsDragging] = useState(false);
