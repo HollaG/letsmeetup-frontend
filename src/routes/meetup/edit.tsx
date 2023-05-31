@@ -170,22 +170,10 @@ const MeetupEditPage = () => {
                 loadedMeetup.users
             );
             if (isFullDayRef.current !== loadedMeetup.isFullDay) {
-                if (
-                    isFullDayRef.current === true &&
-                    loadedMeetup.isFullDay === false
-                ) {
-                    // changed from non-full day to full day
-                    // remove all the timeslots
-                    // remove all the selectionMap
-                    newSelectionMap = {};
-                    newUsers = [];
-                } else {
-                    // changed from full day to non-full day
-                    // remove all the selectionMap
-                    // add to timeslots
-                    newSelectionMap = {};
-                    newUsers = [];
-                }
+                // remove all the timeslots
+                // remove all the selectionMap
+                newSelectionMap = {};
+                newUsers = [];
             } else {
                 // if there are any times set in the old selectionMap as keys that are NOT in the new timeslots / new dates, remove them
                 if (isFullDayRef.current) {
