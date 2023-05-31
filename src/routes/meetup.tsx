@@ -564,7 +564,7 @@ const MeetupPage = () => {
             const allowedAfterPerSlotLimitHit = creatorAllowed.filter((slot) =>
                 // if the slot is selected, we should not render 'not allowed'
                 liveMeetup.selectionMap[slot]
-                    ? liveMeetup.selectionMap[slot].length <
+                    ? liveMeetup.selectionMap[slot].length <=
                       liveMeetup.options.limitPerSlot
                     : true
             );
