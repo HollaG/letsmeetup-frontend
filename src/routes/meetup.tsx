@@ -548,10 +548,12 @@ const MeetupPage = () => {
             "The creator has stopped collecting responses. You can no longer indicate your availability.";
     }
 
+    const [totalAllowedSlots, setTotalAllowedSlots] = useState<string[]>([]);
+    const [warningMessage, setWarningMessage] = useState<string>("");
     /**
      * Disallows slots if that slot has hit the max number of respondents
      */
-    const totalAllowedSlots = useMemo(() => {
+    useEffect(() => {
         const creatorAllowed = liveMeetup.isFullDay
             ? liveMeetup.dates
             : liveMeetup.timeslots;
@@ -559,15 +561,26 @@ const MeetupPage = () => {
         // for each of the allowed slots, check if the slot has hit the max number of respondents
         if (liveMeetup.options.limitPerSlot !== Number.MAX_VALUE) {
             // number has been modified from default
-            return creatorAllowed.filter(
-                (slot) =>
-                    liveMeetup.selectionMap[slot]
-                        ? liveMeetup.selectionMap[slot].length <=
-                          liveMeetup.options.limitPerSlot
-                        : true // if the slot is selected, we should not render 'not allowed'
+            const allowedAfterPerSlotLimitHit = creatorAllowed.filter((slot) =>
+                // if the slot is selected, we should not render 'not allowed'
+                liveMeetup.selectionMap[slot]
+                    ? liveMeetup.selectionMap[slot].length <
+                      liveMeetup.options.limitPerSlot
+                    : true
             );
+
+            if (allowedAfterPerSlotLimitHit.length != creatorAllowed.length) {
+                // some slots have hit the limit
+                setWarningMessage(
+                    "Some slots cannot be selected as they have hit the limit of respondents for that slot."
+                );
+            } else {
+                setWarningMessage("");
+            }
+
+            setTotalAllowedSlots(allowedAfterPerSlotLimitHit);
         } else {
-            return creatorAllowed;
+            setTotalAllowedSlots(creatorAllowed);
         }
     }, [liveMeetup]);
 
@@ -577,6 +590,12 @@ const MeetupPage = () => {
                 <Alert status="error">
                     <AlertIcon />
                     {cannotIndicateReason}
+                </Alert>
+            )}
+            {warningMessage && (
+                <Alert status="warning">
+                    <AlertIcon />
+                    {warningMessage}
                 </Alert>
             )}
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
