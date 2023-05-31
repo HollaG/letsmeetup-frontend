@@ -548,7 +548,6 @@ const MeetupEditPage = () => {
                     <Box>
                         <InputGroup size="sm">
                             <NumberInput
-                                placeholder="0"
                                 width="72px"
                                 value={notificationThreshold}
                                 onChange={(e) => {
@@ -575,7 +574,6 @@ const MeetupEditPage = () => {
                     <Box>
                         <InputGroup size="sm">
                             <NumberInput
-                                placeholder="0"
                                 width="72px"
                                 value={limitNumberRespondents}
                                 onChange={(e) => {
@@ -634,7 +632,6 @@ const MeetupEditPage = () => {
                     <Box>
                         <InputGroup size="sm">
                             <NumberInput
-                                placeholder="0"
                                 width="72px"
                                 value={limitPerSlot}
                                 onChange={(e) => {
