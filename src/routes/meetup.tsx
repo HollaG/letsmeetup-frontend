@@ -531,7 +531,8 @@ const MeetupPage = () => {
     const indicateIsVisible =
         webApp?.initData &&
         !liveMeetup.isEnded &&
-        (liveMeetup.users.length < liveMeetup.options.limitNumberRespondents ||
+        (liveMeetup.users.length <
+            (liveMeetup.options?.limitNumberRespondents || 0) ||
             liveMeetup.users.find((u) => u.user.id === user?.id));
     let cannotIndicateReason = "";
 
