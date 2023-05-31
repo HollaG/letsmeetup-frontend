@@ -29,6 +29,7 @@ type CalendarDayProps = {
     startDate: Date; // the start date of the calendar. Defaults to today
     endDate: Date; // the end date of the calendar. Defaults to 1 year from today
     allowedDates?: string[];
+    isAllowed: boolean;
     // type: 0|1|2|3|4 // 0: unselected, 1: circle, 2: square, 3: left square, 4: right square
 };
 
@@ -48,6 +49,7 @@ const CalendarDay = ({
     startDate,
     endDate,
     allowedDates,
+    isAllowed,
 }: CalendarDayProps) => {
     // console.log("day rerender")
     const UNSELECTABLE_TEXT_COLOR = useColorModeValue(
@@ -67,7 +69,8 @@ const CalendarDay = ({
     const isSelectable =
         isAfter(dateParser(dataKey), subDays(startDate, 1)) &&
         isBefore(dateParser(dataKey), addDays(endDate, 1)) &&
-        (allowedDates?.includes(dataKey) || !allowedDates);
+        // (allowedDates?.includes(dataKey) || !allowedDates);
+        isAllowed;
 
     const { style } = useTelegram();
     /**

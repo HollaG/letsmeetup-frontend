@@ -454,7 +454,8 @@ const TableCell = React.memo(
     (prev, next) =>
         prev.cellColor === next.cellColor &&
         prev.cellOutlineColor === next.cellOutlineColor &&
-        prev.className === next.className
+        prev.className === next.className &&
+        prev.isAllowed === next.isAllowed // for live updating of allowed
     // prev.data
 );
 

@@ -47,7 +47,13 @@ export type Meetup = {
     }[];
     isEnded: boolean;
     creatorInfoMessageId: number;
-    notificationThreshold: number;
+
+    options: {
+        notificationThreshold: number;
+        limitPerSlot: number;
+        limitNumberRespondents: number;
+        limitSlotsPerRespondent: number;
+    };
 };
 
 export type UserAvailabilityData = {

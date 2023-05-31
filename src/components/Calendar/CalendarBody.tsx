@@ -76,7 +76,12 @@ const CalendarBody = ({
                         onTouchEnd={onTouchEnd}
                         startDate={startDate}
                         endDate={endDate}
-                        allowedDates={allowedDates}
+                        // allowedDates={allowedDates}
+                        isAllowed={
+                            allowedDates
+                                ? allowedDates.includes(dateEncoder(d.date))
+                                : true
+                        }
                     />
                 </GridItem>
             ))}
@@ -92,7 +97,10 @@ export default React.memo(CalendarBody, (prevProps, nextProps) => {
         prevProps.selectedDate.toString() ===
             nextProps.selectedDate.toString() &&
         prevProps.drawnDays[0].date.toString() ===
-            nextProps.drawnDays[0].date.toString();
+            nextProps.drawnDays[0].date.toString() &&
+        (prevProps.allowedDates
+            ? prevProps.allowedDates.length === nextProps.allowedDates?.length
+            : true); // this might be an issue: if the allowed dates change but the total length doesn't, the body won't update
 
     return res;
 });
