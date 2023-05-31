@@ -1,4 +1,6 @@
 import {
+    Alert,
+    AlertIcon,
     Box,
     Button,
     Center,
@@ -17,7 +19,7 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
@@ -522,15 +524,68 @@ const MeetupPage = () => {
     // Force calendar to re-render
     const [_rerender, _setRerender] = useState(false);
 
+    /**
+     * Helps to determine if the Indicate tab should be visible.
+     * Should be live data!
+     */
+    const indicateIsVisible =
+        webApp?.initData &&
+        !liveMeetup.isEnded &&
+        (liveMeetup.users.length < liveMeetup.options.limitNumberRespondents ||
+            liveMeetup.users.find((u) => u.user.id === user?.id));
+    let cannotIndicateReason = "";
+
+    if (
+        liveMeetup.users.length >= liveMeetup.options.limitNumberRespondents &&
+        !liveMeetup.users.find((u) => u.user.id === user?.id)
+    ) {
+        cannotIndicateReason =
+            "The number of respondents has reached the limit set by the creator. You can no longer indicate your availability.";
+    }
+
+    if (meetup.isEnded) {
+        cannotIndicateReason =
+            "The creator has stopped collecting responses. You can no longer indicate your availability.";
+    }
+
+    /**
+     * Disallows slots if that slot has hit the max number of respondents
+     */
+    const totalAllowedSlots = useMemo(() => {
+        const creatorAllowed = liveMeetup.isFullDay
+            ? liveMeetup.dates
+            : liveMeetup.timeslots;
+
+        // for each of the allowed slots, check if the slot has hit the max number of respondents
+        if (liveMeetup.options.limitPerSlot !== Number.MAX_VALUE) {
+            // number has been modified from default
+            return creatorAllowed.filter(
+                (slot) =>
+                    liveMeetup.selectionMap[slot]
+                        ? liveMeetup.selectionMap[slot].length <=
+                          liveMeetup.options.limitPerSlot
+                        : true // if the slot is selected, we should not render 'not allowed'
+            );
+        } else {
+            return creatorAllowed;
+        }
+    }, [liveMeetup]);
+
     return (
         <Stack spacing={4}>
+            {cannotIndicateReason && (
+                <Alert status="error">
+                    <AlertIcon />
+                    {cannotIndicateReason}
+                </Alert>
+            )}
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
             <Text> {meetup.description} </Text>
             <Divider />
 
             <Tabs isFitted variant="unstyled">
                 <TabList>
-                    {webApp?.initData && !meetup.isEnded && (
+                    {indicateIsVisible && (
                         <Tab
                             _selected={{
                                 bg: disabledBtnColor,
@@ -556,7 +611,7 @@ const MeetupPage = () => {
                     borderRadius="1px"
                 />
                 <TabPanels>
-                    {webApp?.initData && !meetup.isEnded && (
+                    {indicateIsVisible && (
                         <TabPanel p={1}>
                             <Stack spacing={4} justifyContent="left">
                                 <Box>
@@ -576,7 +631,11 @@ const MeetupPage = () => {
                                     setDatesSelected={setDatesSelected}
                                     startDate={startDate}
                                     endDate={endDate}
-                                    allowedDates={meetup.dates}
+                                    allowedDates={
+                                        meetup.isFullDay
+                                            ? totalAllowedSlots
+                                            : meetup.dates
+                                    }
                                     onStop={onStopDate}
                                     onBeforeStart={onBeforeStartDate}
                                 />
@@ -595,7 +654,7 @@ const MeetupPage = () => {
                                             timesSelected={timesRef.current}
                                             onBeforeStart={onBeforeStartTime}
                                             onMove={onMoveTime}
-                                            allowedTimes={meetup.timeslots}
+                                            allowedTimes={totalAllowedSlots}
                                             onStop={onStopTime}
                                         />
                                     </>

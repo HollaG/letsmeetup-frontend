@@ -69,8 +69,23 @@ const Create = () => {
         17 * 60,
     ]); // in minutes
 
-    const [notificationNumber, setNotificationNumber, notificationNumberRef] =
+    const [
+        notificationThreshold,
+        setNotificationThreshold,
+        notificationThresholdRef,
+    ] = useStateRef<number>();
+    const [limitPerSlot, setLimitPerSlot, limitPerSlotRef] =
         useStateRef<number>();
+    const [
+        limitNumberRespondents,
+        setLimitNumberRespondents,
+        limitNumberRespondentsRef,
+    ] = useStateRef<number>();
+    const [
+        limitSlotsPerRespondent,
+        setLimitSlotsPerRespondent,
+        limitSlotsPerRespondentRef,
+    ] = useStateRef<number>();
 
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
@@ -138,8 +153,16 @@ const Create = () => {
             selectionMap: {},
             messages: [],
             isEnded: false,
-            notificationThreshold:
-                notificationNumberRef.current || Number.MAX_VALUE,
+            options: {
+                notificationThreshold:
+                    notificationThresholdRef.current || Number.MAX_VALUE,
+
+                limitNumberRespondents:
+                    limitNumberRespondentsRef.current || Number.MAX_VALUE,
+                limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
+                limitSlotsPerRespondent:
+                    limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+            },
             creatorInfoMessageId: 0,
         };
 
@@ -389,15 +412,15 @@ const Create = () => {
                                 type="number"
                                 placeholder="0"
                                 width="72px"
-                                value={notificationNumber}
+                                value={notificationThreshold}
                                 onChange={(e) => {
-                                    setNotificationNumber(
+                                    setNotificationThreshold(
                                         parseInt(e.target.value)
                                     );
                                 }}
                             />
                             <InputRightElement>
-                                {notificationNumber ? (
+                                {notificationThreshold ? (
                                     <CheckIcon color="green.500" />
                                 ) : (
                                     <MinusIcon color="gray.500" />
@@ -410,13 +433,23 @@ const Create = () => {
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text> Limit the number of users to: </Text>
-                        <HelperText> [WIP] Default: No limit</HelperText>
+                        <HelperText> Default: No limit</HelperText>
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input type="number" placeholder="0" width="72px" />
+                            <Input
+                                type="number"
+                                placeholder="0"
+                                width="72px"
+                                value={limitNumberRespondents}
+                                onChange={(e) =>
+                                    setLimitNumberRespondents(
+                                        parseInt(e.target.value)
+                                    )
+                                }
+                            />
                             <InputRightElement>
-                                {notificationNumber ? (
+                                {limitNumberRespondents ? (
                                     <CheckIcon color="green.500" />
                                 ) : (
                                     <MinusIcon color="gray.500" />
@@ -432,13 +465,23 @@ const Create = () => {
                             {" "}
                             Limit the number of slots a user can select to:{" "}
                         </Text>
-                        <HelperText> [WIP] Default: No limit </HelperText>
+                        <HelperText> Default: No limit </HelperText>
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input type="number" placeholder="0" width="72px" />
+                            <Input
+                                type="number"
+                                placeholder="0"
+                                width="72px"
+                                value={limitSlotsPerRespondent}
+                                onChange={(e) =>
+                                    setLimitSlotsPerRespondent(
+                                        parseInt(e.target.value)
+                                    )
+                                }
+                            />
                             <InputRightElement>
-                                {notificationNumber ? (
+                                {limitSlotsPerRespondent ? (
                                     <CheckIcon color="green.500" />
                                 ) : (
                                     <MinusIcon color="gray.500" />
@@ -451,13 +494,21 @@ const Create = () => {
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text> Limit the number of users per slot to: </Text>
-                        <HelperText> [WIP] Default: No limit </HelperText>
+                        <HelperText> Default: No limit </HelperText>
                     </Box>
                     <Box>
                         <InputGroup size="sm">
-                            <Input type="number" placeholder="0" width="72px" />
+                            <Input
+                                type="number"
+                                placeholder="0"
+                                width="72px"
+                                value={limitPerSlot}
+                                onChange={(e) =>
+                                    setLimitPerSlot(parseInt(e.target.value))
+                                }
+                            />
                             <InputRightElement>
-                                {notificationNumber ? (
+                                {limitPerSlot ? (
                                     <CheckIcon color="green.500" />
                                 ) : (
                                     <MinusIcon color="gray.500" />
