@@ -11,8 +11,8 @@ import {
     doc,
     getDoc,
 } from "firebase/firestore";
-import { ITelegramUser } from "../../types/telegram";
-import { swapDateTimeStr } from "../../routes/meetup";
+import { ITelegramUser } from "../../../types/telegram";
+import { swapDateTimeStr } from "../../../routes/meetup";
 
 // collection name
 export const COLLECTION_NAME =

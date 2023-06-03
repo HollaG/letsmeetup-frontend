@@ -34,7 +34,10 @@ import HelperText from "../../components/Display/HelperText";
 import { CellData } from "../../components/Time/TimeContainer";
 import TimeSelector from "../../components/Time/TimeSelector";
 import { useTelegram } from "../../context/TelegramProvider";
-import { Meetup, updateAvailability } from "../../db/repositories/meetups";
+import {
+    Meetup,
+    updateAvailability,
+} from "../../firebase/db/repositories/meetups";
 import useFirestore from "../../hooks/firestore";
 import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";

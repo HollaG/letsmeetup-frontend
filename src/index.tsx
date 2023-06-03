@@ -21,10 +21,12 @@ import "./index.css";
 import Layout from "./routes/layout";
 import MeetupPage from "./routes/meetup";
 import { doc, getDoc } from "firebase/firestore";
-import fire, { db } from "./db";
-import { COLLECTION_NAME } from "./db/repositories/meetups";
+import fire, { db } from "./firebase/db";
+import { COLLECTION_NAME } from "./firebase/db/repositories/meetups";
 import WebApp from "./routes/webapp";
 import MeetupEditPage from "./routes/meetup/edit";
+import AuthPage from "./routes/auth";
+import PrivateRoutes from "./routes/PrivateRoutes";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -49,22 +51,39 @@ const router = createHashRouter([
                 element: <Root />,
             },
             {
-                path: "/create",
-                element: <Create />,
+                path: "/auth",
+                element: <AuthPage />,
             },
+        ],
+    },
+    {
+        path: "/",
+        element: <Layout />,
+        errorElement: <ErrorPage />,
+        children: [
             {
-                path: "/meetup/:meetupId",
-                element: <MeetupPage />,
-                loader,
-            },
-            {
-                path: "/meetup/:meetupId/edit",
-                element: <MeetupEditPage />,
-                loader,
-            },
-            {
-                path: "/webapp",
-                element: <WebApp />,
+                path: "/",
+                element: <PrivateRoutes />,
+                children: [
+                    {
+                        path: "/create",
+                        element: <Create />,
+                    },
+                    {
+                        path: "/meetup/:meetupId",
+                        element: <MeetupPage />,
+                        loader,
+                    },
+                    {
+                        path: "/meetup/:meetupId/edit",
+                        element: <MeetupEditPage />,
+                        loader,
+                    },
+                    {
+                        path: "/webapp",
+                        element: <WebApp />,
+                    },
+                ],
             },
         ],
     },

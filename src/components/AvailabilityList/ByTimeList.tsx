@@ -21,7 +21,7 @@ import {
 import { format } from "date-fns";
 import React from "react";
 import { useTelegram } from "../../context/TelegramProvider";
-import { Meetup } from "../../db/repositories/meetups";
+import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_0_DARK,
     RANGE_0_LIGHT,

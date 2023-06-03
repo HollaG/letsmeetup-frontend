@@ -2,6 +2,7 @@ import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
     Box,
     Button,
+    Center,
     Collapse,
     Container,
     Flex,
@@ -37,7 +38,7 @@ import TimeContainer, {
 } from "../components/Time/TimeContainer";
 import TimeRangeSelector from "../components/Time/TimeRangeSelector";
 import { useTelegram } from "../context/TelegramProvider";
-import { create, Meetup } from "../db/repositories/meetups";
+import { create, Meetup } from "../firebase/db/repositories/meetups";
 import { TimeSelection } from "../types/types";
 
 const Create = () => {
@@ -163,23 +164,27 @@ const Create = () => {
 
         console.log({ MeetupData });
 
-        create(MeetupData)
-            .then((res) => {
-                // send the ID back to Telegram
-                // webApp?.sendData(res.id)
-                // webApp?.close()
-                const newDocId = res.id;
-                webApp?.switchInlineQuery(titleRef.current, [
-                    "users",
-                    "groups",
-                    "channels",
-                    "bots",
-                ]);
-                webApp?.close();
-            })
-            .catch((e) => {
-                alert("somme error!!");
-            });
+        // for users through telegram
+        if (user) {
+            create(MeetupData)
+                .then((res) => {
+                    // send the ID back to Telegram
+                    // webApp?.sendData(res.id)
+                    // webApp?.close()
+                    const newDocId = res.id;
+                    webApp?.switchInlineQuery(titleRef.current, [
+                        "users",
+                        "groups",
+                        "channels",
+                        "bots",
+                    ]);
+                    webApp?.close();
+                })
+                .catch((e) => {
+                    alert("somme error!!");
+                });
+        } else {
+        }
     }, [webApp]);
 
     /**
@@ -313,140 +318,155 @@ const Create = () => {
     };
 
     return (
-        <FormControl>
-            <Stack spacing={4}>
-                <Heading fontSize={"xl"}>🎉Create a new event </Heading>
-                <Input
-                    id="title"
-                    placeholder="Event title (required)"
-                    required
-                    value={title}
-                    onChange={onTitleChange}
-                />
-                <Textarea
-                    id="description"
-                    placeholder="Event description (optional)"
-                    value={description}
-                    onChange={onDescriptionChange}
-                />
-                <Box>
-                    <Heading fontSize={"xl"} pt={6}>
-                        {" "}
-                        📅 Select the possible event dates{" "}
-                    </Heading>
-
-                    <HelperText>
-                        {" "}
-                        {isMobile ? "Touch / Touch" : "Click / click"} and drag
-                        to select.
-                    </HelperText>
-                </Box>
-
-                <CalendarContainer
-                    datesSelected={datesRef.current}
-                    setDatesSelected={setDatesSelected}
-                    onStop={onStop}
-                />
-
-                <Heading fontSize={"xl"} pt={6}>
-                    {" "}
-                    🕔 Select the possible event timings{" "}
-                </Heading>
-                <Flex direction={"row"} justifyContent="space-between">
-                    <Text> Set as full day </Text>
-                    <Switch
-                        isChecked={isFullDay}
-                        onChange={(e) => {
-                            setIsFullDay(e.target.checked);
-                        }}
-                        // colorScheme={"#ffffff"}
-                        sx={{
-                            "span.chakra-switch__track[data-checked]": {
-                                backgroundColor: btnColor,
-                            },
-                            // "span.chakra-switch__track:not([data-checked])": {
-                            //     backgroundColor:
-                            //         style?.secondary_bg_color,
-                            // },
-                        }}
+        <Stack spacing={4} justifyContent="center" alignItems={"center"}>
+            <Container id="container-details" p={0}>
+                <Stack>
+                    <Heading fontSize={"xl"}>🎉Create a new event </Heading>
+                    <Input
+                        id="title"
+                        placeholder="Event title (required)"
+                        required
+                        value={title}
+                        onChange={onTitleChange}
                     />
-                </Flex>
-                <Collapse in={!isFullDay}>
-                    <TimeContainer
-                        datesSelected={datesRef.current}
-                        setTimesSelected={setTimesSelected}
-                        timesSelected={timesRef.current}
-                        setPristine={setPristine}
-                        pristine={pristine}
-                        endMin={endMin}
-                        setTime={setTime}
-                        timeRef={timeRef}
-                        startMin={startMin}
+                    <Textarea
+                        id="description"
+                        placeholder="Event description (optional)"
+                        value={description}
+                        onChange={onDescriptionChange}
                     />
-                </Collapse>
+                </Stack>
+            </Container>
 
-                <Box>
-                    <Heading fontSize={"xl"} pt={6}>
-                        ⚙️ Advanced settings
-                    </Heading>
-                    <HelperText>
-                        Unmodified settings will be set to their default.
-                    </HelperText>
-                </Box>
-                <Flex justifyContent={"space-between"} alignItems="center">
+            <Container id="container-dates" p={0}>
+                <Stack>
                     <Box>
-                        <Text>
+                        <Heading fontSize={"xl"} pt={6}>
                             {" "}
-                            Send a notification when number of users hits:{" "}
-                        </Text>
-                        <HelperText> Default: No notification </HelperText>
-                    </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={notificationThreshold}
-                                onChange={(e) => {
-                                    setNotificationThreshold(parseInt(e));
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
+                            📅 Select the possible event dates{" "}
+                        </Heading>
 
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Text> Limit the number of users to: </Text>
-                        <HelperText> Default: No limit</HelperText>
+                        <HelperText>
+                            {" "}
+                            {isMobile ? "Touch / Touch" : "Click / click"} and
+                            drag to select.
+                        </HelperText>
                     </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={limitNumberRespondents}
-                                onChange={(e) => {
-                                    setLimitNumberRespondents(parseInt(e));
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
 
-                {/* <Flex justifyContent={"space-between"} alignItems="center">
+                    <CalendarContainer
+                        datesSelected={datesRef.current}
+                        setDatesSelected={setDatesSelected}
+                        onStop={onStop}
+                    />
+                </Stack>
+            </Container>
+
+            <Container id="container-timings" p={0}>
+                <Stack>
+                    <Heading fontSize={"xl"} pt={6}>
+                        {" "}
+                        🕔 Select the possible event timings{" "}
+                    </Heading>
+                    <Flex direction={"row"} justifyContent="space-between">
+                        <Text> Set as full day </Text>
+                        <Switch
+                            isChecked={isFullDay}
+                            onChange={(e) => {
+                                setIsFullDay(e.target.checked);
+                            }}
+                            // colorScheme={"#ffffff"}
+                            sx={{
+                                "span.chakra-switch__track[data-checked]": {
+                                    backgroundColor: btnColor,
+                                },
+                                // "span.chakra-switch__track:not([data-checked])": {
+                                //     backgroundColor:
+                                //         style?.secondary_bg_color,
+                                // },
+                            }}
+                        />
+                    </Flex>
+                    <Collapse in={!isFullDay}>
+                        <TimeContainer
+                            datesSelected={datesRef.current}
+                            setTimesSelected={setTimesSelected}
+                            timesSelected={timesRef.current}
+                            setPristine={setPristine}
+                            pristine={pristine}
+                            endMin={endMin}
+                            setTime={setTime}
+                            timeRef={timeRef}
+                            startMin={startMin}
+                        />
+                    </Collapse>
+                </Stack>{" "}
+            </Container>
+
+            <Container id="container-settings" p={0}>
+                {" "}
+                <Stack>
+                    <Box>
+                        <Heading fontSize={"xl"} pt={6}>
+                            ⚙️ Advanced settings
+                        </Heading>
+                        <HelperText>
+                            Unmodified settings will be set to their default.
+                        </HelperText>
+                    </Box>
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text>
+                                {" "}
+                                Send a notification when number of users hits:{" "}
+                            </Text>
+                            <HelperText> Default: No notification </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <NumberInput
+                                    width="72px"
+                                    value={notificationThreshold}
+                                    onChange={(e) => {
+                                        setNotificationThreshold(parseInt(e));
+                                    }}
+                                    min={1}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text> Limit the number of users to: </Text>
+                            <HelperText> Default: No limit</HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <NumberInput
+                                    width="72px"
+                                    value={limitNumberRespondents}
+                                    onChange={(e) => {
+                                        setLimitNumberRespondents(parseInt(e));
+                                    }}
+                                    min={1}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+
+                    {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text>
                             {" "}
@@ -478,32 +498,50 @@ const Create = () => {
                     </Box>
                 </Flex> */}
 
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Text> Limit the number of users per slot to: </Text>
-                        <HelperText> Default: No limit </HelperText>
-                    </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={limitNumberRespondents}
-                                onChange={(e) => {
-                                    setLimitNumberRespondents(parseInt(e));
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
-            </Stack>
-        </FormControl>
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text>
+                                {" "}
+                                Limit the number of users per slot to:{" "}
+                            </Text>
+                            <HelperText> Default: No limit </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <NumberInput
+                                    width="72px"
+                                    value={limitNumberRespondents}
+                                    onChange={(e) => {
+                                        setLimitNumberRespondents(parseInt(e));
+                                    }}
+                                    min={1}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+                </Stack>{" "}
+            </Container>
+
+            <Container id="container-submit" p={0}>
+                {!user && (
+                    <Center>
+                        <Button
+                            colorScheme={"blue"}
+                            isDisabled={!userCanSubmit}
+                        >
+                            {" "}
+                            Create event{" "}
+                        </Button>
+                    </Center>
+                )}
+            </Container>
+        </Stack>
     );
 };
 

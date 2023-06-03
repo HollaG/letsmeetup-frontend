@@ -12,7 +12,7 @@ import {
     getDoc,
     setDoc,
 } from "firebase/firestore";
-import { ITelegramUser } from "../../types/telegram";
+import { ITelegramUser } from "../../../types/telegram";
 import { Meetup } from "./meetups";
 
 // collection name

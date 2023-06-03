@@ -1,4 +1,4 @@
-import { Meetup } from "../db/repositories/meetups";
+import { Meetup } from "../firebase/db/repositories/meetups";
 
 export type RangeColors = [
     string,

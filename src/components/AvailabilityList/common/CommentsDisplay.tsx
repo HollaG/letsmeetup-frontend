@@ -7,7 +7,7 @@ import {
     Link,
     Avatar,
 } from "@chakra-ui/react";
-import { Meetup } from "../../../db/repositories/meetups";
+import { Meetup } from "../../../firebase/db/repositories/meetups";
 
 const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
     return (

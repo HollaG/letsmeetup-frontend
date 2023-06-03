@@ -16,7 +16,7 @@ import {
 import { format } from "date-fns";
 import { useTelegram } from "../../context/TelegramProvider";
 
-import { Meetup } from "../../db/repositories/meetups";
+import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
     RANGE_EMPTY_DARK,

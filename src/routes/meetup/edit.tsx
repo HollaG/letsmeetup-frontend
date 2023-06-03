@@ -37,7 +37,7 @@ import {
     Meetup,
     update,
     UserAvailabilityData,
-} from "../../db/repositories/meetups";
+} from "../../firebase/db/repositories/meetups";
 import { TimeSelection } from "../../types/types";
 
 const MeetupEditPage = () => {
