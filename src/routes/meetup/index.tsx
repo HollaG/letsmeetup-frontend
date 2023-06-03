@@ -433,7 +433,7 @@ const MeetupPage = () => {
         console.log("onsubmit");
         await updateAvailability(
             meetupId,
-            user || tempUser,
+            user,
             {
                 datesSelected: datesRef.current,
                 timesSelected: timesRef.current.filter((t) =>

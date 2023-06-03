@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
 import { swapDateTimeStr } from "../../../routes/meetup";
+import { IMeetupUser } from "./users";
 
 // collection name
 export const COLLECTION_NAME =
@@ -27,7 +28,7 @@ export type Todo = {
 
 export type Meetup = {
     id?: string;
-    creator: ITelegramUser;
+    creator: IMeetupUser;
     isFullDay: boolean;
     timeslots: string[];
     dates: string[];
@@ -37,7 +38,7 @@ export type Meetup = {
     description?: string;
     notified: boolean;
     selectionMap: {
-        [dateOrTimeStr: string]: ITelegramUser[];
+        [dateOrTimeStr: string]: IMeetupUser[];
     };
     messages: {
         message_id: number;
@@ -59,7 +60,7 @@ export type Meetup = {
 export type UserAvailabilityData = {
     comments: string;
     selected: string[]; // either it's a string like this: 540::2023-05-02 (!isFullDay) or it's a string like this: 2023-05-02 (isFullDay)
-    user: ITelegramUser;
+    user: IMeetupUser;
     // user_ID: number;
     // username: string;
     // first_name: string;
@@ -123,7 +124,7 @@ export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
 
 export const updateAvailability = async (
     id: string,
-    user: ITelegramUser,
+    user: IMeetupUser | undefined,
 
     {
         datesSelected,
@@ -135,7 +136,8 @@ export const updateAvailability = async (
         // isFullDay: boolean;
     },
     comments: string = ""
-): Promise<Meetup> => {
+): Promise<Meetup | null> => {
+    if (!user) return null;
     const docRef = doc(db, COLLECTION_NAME, id);
     const oldMeetup = (await getDoc(docRef)).data() as Meetup;
     if (!oldMeetup) {
@@ -188,7 +190,7 @@ export const updateAvailability = async (
     // newAvailabilityData = newAvailabilityData.filter((u) => u.selected.some((s) => oldMeetup.selectionMap[s]))
 
     // update the selectionMap
-    let newMap: { [key: string]: ITelegramUser[] } = {};
+    let newMap: { [key: string]: IMeetupUser[] } = {};
 
     // first, remove this user from the selectionMap
     for (let dateTimeStr in oldMeetup.selectionMap) {

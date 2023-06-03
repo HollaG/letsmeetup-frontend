@@ -1,11 +1,12 @@
 import { useColorMode } from "@chakra-ui/react";
 import { ThemeProvider } from "@emotion/react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { IMeetupUser } from "../firebase/db/repositories/users";
 import type { ITelegramUser, IWebApp, ThemeParams } from "../types/telegram";
 
 export interface ITelegramContext {
     webApp?: IWebApp;
-    user?: ITelegramUser;
+    user?: IMeetupUser;
     style?: ThemeParams;
 }
 

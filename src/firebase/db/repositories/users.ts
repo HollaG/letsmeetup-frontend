@@ -15,8 +15,13 @@ import {
 import { ITelegramUser } from "../../../types/telegram";
 import { Meetup } from "./meetups";
 
-type WebUser = {
-    type: "web";
+export type WebUser = {
+    type: "google" | "firebase";
+    id: string; // uid
+    first_name: string; // displayName.split(" ")[0]
+    last_name?: string; // displayName.split(" ")[1]
+    email: string; // email
+    photo_url?: string;
 };
 
 export type IMeetupUser = WebUser | ITelegramUser;
@@ -43,15 +48,15 @@ export const all = async (): Promise<Array<IMeetupUser>> => {
 
 // create a user
 export const createIfNotExists = async (
-    user: ITelegramUser
-): Promise<ITelegramUser> | never => {
+    user: IMeetupUser
+): Promise<IMeetupUser> | never => {
     const dbRef = doc(db, COLLECTION_NAME);
     try {
         const docRef = await setDoc(dbRef, user);
 
         return {
             ...user,
-        } as ITelegramUser;
+        } as IMeetupUser;
     } catch (e) {
         console.log(e);
         throw e;

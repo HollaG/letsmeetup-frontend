@@ -27,6 +27,7 @@ import WebApp from "./routes/webapp";
 import MeetupEditPage from "./routes/meetup/edit";
 import AuthPage from "./routes/auth";
 import PrivateRoutes from "./routes/PrivateRoutes";
+import { WebUserProvider } from "./context/WebAuthProvider";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -98,7 +99,9 @@ root.render(
         <ColorModeScript />
         <ChakraProvider theme={theme}>
             <TelegramProvider>
-                <RouterProvider router={router} />
+                <WebUserProvider>
+                    <RouterProvider router={router} />
+                </WebUserProvider>
                 {/* <App /> */}
                 {/* </RouterProvider> */}
             </TelegramProvider>
