@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
-import * as meetups from "./db/repositories/meetups";
+import * as meetups from "./firebase/db/repositories/meetups";
 import { useEffect } from "react";
 
 import {

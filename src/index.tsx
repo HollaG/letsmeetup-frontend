@@ -21,7 +21,7 @@ import "./index.css";
 import Layout from "./routes/layout";
 import MeetupPage from "./routes/meetup";
 import { doc, getDoc } from "firebase/firestore";
-import fire, { db } from "./firebase/db";
+import fire, { db } from "./firebase";
 import { COLLECTION_NAME } from "./firebase/db/repositories/meetups";
 import WebApp from "./routes/webapp";
 import MeetupEditPage from "./routes/meetup/edit";

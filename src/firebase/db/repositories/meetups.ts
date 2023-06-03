@@ -1,5 +1,5 @@
 // import db config
-import fire, { db } from "..";
+import fire, { db } from "../..";
 import {
     getFirestore,
     collection,
