@@ -15,6 +15,7 @@ import {
     Center,
 } from "@chakra-ui/react";
 import GoogleButton from "react-google-button";
+import { signInWithGoogle } from "../firebase/auth/google";
 
 const AuthPage = () => {
     return (
@@ -78,11 +79,7 @@ function LoginCard() {
                         </Stack>
                         <Divider />
                         <Center>
-                            <GoogleButton
-                                onClick={() => {
-                                    console.log("Google button clicked");
-                                }}
-                            />
+                            <GoogleButton onClick={signInWithGoogle} />
                         </Center>
                     </Stack>
                 </Box>

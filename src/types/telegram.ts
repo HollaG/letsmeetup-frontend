@@ -6,6 +6,7 @@ export interface ITelegramUser {
     username: string;
     language_code?: string;
     photo_url?: string;
+    type: string;
 }
 
 export interface ThemeParams {

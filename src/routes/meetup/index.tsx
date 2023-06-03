@@ -48,6 +48,7 @@ let tempUser: ITelegramUser = {
     last_name: "Kruglikov",
     username: "vkruglikov",
     language_code: "en",
+    type: "telegram",
 };
 
 /**

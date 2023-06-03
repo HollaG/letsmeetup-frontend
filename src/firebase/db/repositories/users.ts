@@ -15,10 +15,16 @@ import {
 import { ITelegramUser } from "../../../types/telegram";
 import { Meetup } from "./meetups";
 
+type WebUser = {
+    type: "web";
+};
+
+export type IMeetupUser = WebUser | ITelegramUser;
+
 // collection name
 export const COLLECTION_NAME = "users";
 
-export const all = async (): Promise<Array<ITelegramUser>> => {
+export const all = async (): Promise<Array<IMeetupUser>> => {
     const q = query(collection(db, COLLECTION_NAME));
     const data: Array<any> = [];
 
@@ -32,7 +38,7 @@ export const all = async (): Promise<Array<ITelegramUser>> => {
     });
 
     // return and convert back it array of todo
-    return data as Array<ITelegramUser>;
+    return data as Array<IMeetupUser>;
 };
 
 // create a user
