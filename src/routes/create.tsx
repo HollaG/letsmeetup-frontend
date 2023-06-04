@@ -28,7 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useSearchParams } from "react-router-dom";
+import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import { URLSearchParams } from "url";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
@@ -38,7 +38,10 @@ import TimeContainer, {
 } from "../components/Time/TimeContainer";
 import TimeRangeSelector from "../components/Time/TimeRangeSelector";
 import { useTelegram } from "../context/TelegramProvider";
+import { useWebUser } from "../context/WebAuthProvider";
 import { create, Meetup } from "../firebase/db/repositories/meetups";
+import { IMeetupUser } from "../firebase/db/repositories/users";
+import { ITelegramUser } from "../types/telegram";
 import { TimeSelection } from "../types/types";
 
 const Create = () => {
@@ -56,6 +59,7 @@ const Create = () => {
     const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
 
     const { user, webApp, style } = useTelegram();
+    const webUser = useWebUser();
 
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
         useStateRef<boolean>(false);
@@ -131,17 +135,19 @@ const Create = () => {
         }
 
         setHasUserSubmitted(true);
+
+        const telegramUser = {
+            id: user!.id.toString(),
+            first_name: user!.first_name,
+            username: (user! as ITelegramUser).username,
+            photo_url: user!.photo_url || "",
+            type: "telegram",
+        };
         const MeetupData: Meetup = {
             title: titleRef.current,
             description: descriptionRef.current,
             date_created: new Date(),
-            creator: {
-                id: user!.id,
-                first_name: user!.first_name,
-                username: user!.username,
-                photo_url: user!.photo_url || "",
-                type: "telegram",
-            },
+            creator: telegramUser,
             isFullDay: isFullDayRef.current,
             timeslots: isFullDayRef.current ? [] : timesRef.current,
             dates: datesRef.current,
@@ -315,6 +321,51 @@ const Create = () => {
             webApp.MainButton.setText("Create and share meetup");
             webApp.isClosingConfirmationEnabled = true;
             webApp.MainButton.textColor = enabledTextColor;
+        }
+    };
+
+    const navigate = useNavigate();
+
+    const webUserSubmit = () => {
+        console.log("trying to submit");
+        console.log(webUser);
+        if (webUser) {
+            console.log("it");
+
+            const MeetupData: Meetup = {
+                title: titleRef.current,
+                description: descriptionRef.current,
+                date_created: new Date(),
+                creator: webUser,
+                isFullDay: isFullDayRef.current,
+                timeslots: isFullDayRef.current ? [] : timesRef.current,
+                dates: datesRef.current,
+                users: [],
+                notified: false,
+                selectionMap: {},
+                messages: [],
+                isEnded: false,
+                options: {
+                    notificationThreshold:
+                        notificationThresholdRef.current || Number.MAX_VALUE,
+
+                    limitNumberRespondents:
+                        limitNumberRespondentsRef.current || Number.MAX_VALUE,
+                    limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
+                    limitSlotsPerRespondent:
+                        limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+                },
+                creatorInfoMessageId: 0,
+            };
+
+            console.log(MeetupData);
+
+            create(MeetupData).then((meetup) => {
+                // redirect to the meetup page
+                console.log("redirecting to meetup page");
+                console.log(meetup);
+                return navigate(`/meetup/${meetup.id}`);
+            });
         }
     };
 
@@ -535,6 +586,7 @@ const Create = () => {
                         <Button
                             colorScheme={"blue"}
                             isDisabled={!userCanSubmit}
+                            onClick={webUserSubmit}
                         >
                             {" "}
                             Create event{" "}

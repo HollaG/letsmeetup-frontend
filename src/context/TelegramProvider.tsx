@@ -134,7 +134,9 @@ export const TelegramProvider = ({
             ? {
                   webApp,
                   unsafeData: webApp.initDataUnsafe,
-                  user: { ...webApp.initDataUnsafe.user, type: "telegram" },
+                  user: webApp.initDataUnsafe.user
+                      ? { ...webApp.initDataUnsafe.user, type: "telegram" }
+                      : undefined,
                   style: themeParams || undefined,
               }
             : {};

@@ -14,11 +14,29 @@ import {
     Divider,
     Center,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import GoogleButton from "react-google-button";
+import { Navigate, redirect } from "react-router-dom";
+import HelperText from "../components/Display/HelperText";
+import { useWebUser } from "../context/WebAuthProvider";
+import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { signInWithGoogle } from "../firebase/auth/google";
 
 const AuthPage = () => {
-    return (
+    const webUser = useWebUser();
+
+    const searchParams = new URLSearchParams(document.location.search);
+    useEffect(() => {
+        if (webUser) {
+            console.log("got web user", searchParams);
+            // redirect to wherever they were going
+            redirect("/");
+        }
+    }, [webUser]);
+
+    return webUser ? (
+        <Navigate to="/" />
+    ) : (
         <Stack>
             <LoginCard />
         </Stack>
@@ -48,13 +66,23 @@ function LoginCard() {
                     p={8}
                 >
                     <Stack spacing={4}>
+                        <Button onClick={signInWithoutUsername}>
+                            {" "}
+                            Skip sign in{" "}
+                        </Button>
+
                         <FormControl id="email">
-                            <FormLabel>Email address</FormLabel>
+                            <FormLabel>Username</FormLabel>
                             <Input type="email" />
                         </FormControl>
                         <FormControl id="password">
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel>Password (optional)</FormLabel>
                             <Input type="password" />
+                            <HelperText>
+                                {" "}
+                                Set a password so that you can edit your
+                                meetups!{" "}
+                            </HelperText>
                         </FormControl>
                         <Stack spacing={10}>
                             <Stack

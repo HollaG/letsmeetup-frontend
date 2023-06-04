@@ -135,7 +135,7 @@ export const isSameAsPreviousTimeSlot = (
     }
 
     // check if the two arrays have the same contents
-    const temp: { [key: number]: number } = {};
+    const temp: { [key: string]: number } = {};
     curSelected.forEach((user) => (temp[user.id] = 1));
     const isSame = previousSelected.every((user) => temp[user.id] === 1);
 
@@ -170,7 +170,7 @@ export const isSameAsNextTimeSlot = (dateTimeStr: string, meetup: Meetup) => {
     }
 
     // check if the two arrays have the same contents
-    const temp: { [key: number]: number } = {};
+    const temp: { [key: string]: number } = {};
     curSelected.forEach((user) => (temp[user.id] = 1));
     const isSame = nextSelected.every((user) => temp[user.id] === 1);
 

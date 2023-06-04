@@ -1,11 +1,26 @@
 import { User } from "firebase/auth";
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect, useContext } from "react";
+import { auth } from "../firebase";
 import googleAuth from "../firebase/auth/google";
-import { IMeetupUser } from "../firebase/db/repositories/users";
+import {
+    createIfNotExists,
+    IMeetupUser,
+} from "../firebase/db/repositories/users";
 
 export type IWebUser = User;
 
 export const WebUserContext = createContext<IMeetupUser | null>(null);
+
+const ANONYMOUS_NAMES =
+    "alligator, anteater, armadillo, auroch, axolotl, badger, bat, bear, beaver, blobfish, buffalo, camel, chameleon, cheetah, chipmunk, chinchilla, chupacabra, cormorant, coyote, crow, dingo, dinosaur, dog, dolphin, dragon, duck, dumbo octopus, elephant, ferret, fox, frog, giraffe, goose, gopher, grizzly, hamster, hedgehog, hippo, hyena, jackal, jackalope, ibex, ifrit, iguana, kangaroo, kiwi, koala, kraken, lemur, leopard, liger, lion, llama, manatee, mink, monkey, moose, narwhal, nyan cat, orangutan, otter, panda, penguin, platypus, python, pumpkin, quagga, quokka, rabbit, raccoon, rhino, sheep, shrew, skunk, slow loris, squirrel, tiger, turtle, unicorn, walrus, wolf, wolverine, wombat".split(
+        ", "
+    );
+
+const generateAnonName = (seed: string) => {
+    // using the first letter/number of the seed, get the corresponding name
+    const index = seed.charCodeAt(0) % ANONYMOUS_NAMES.length;
+    return ANONYMOUS_NAMES[index];
+};
 
 export const WebUserProvider = ({
     children,
@@ -16,7 +31,8 @@ export const WebUserProvider = ({
 
     // listen to auth changes
     useEffect(() => {
-        const unsubscribe = googleAuth.onAuthStateChanged(async (user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            console.log({ user });
             if (!user) {
                 setUser(null);
                 return;
@@ -30,15 +46,22 @@ export const WebUserProvider = ({
                 // last_name: user.displayName ? user.displayName.split(" ").slice(1, -1).join(" ") : "",
             };
             if (user) setUser(meetupUser);
-            else setUser(null);
 
-            console.log(user);
-            // if (user) {
-            //     // add to db if not exist
-            //     createUserIfNotExists(
-            //         JSON.parse(JSON.stringify(appUser))
-            //     ).catch(console.log);
-            // }
+            if (!meetupUser.first_name) {
+                // set a random name
+                const randomName = capitalizeFirstLetter(
+                    generateAnonName(user.uid)
+                );
+                meetupUser.first_name = `Anonymous ${randomName}`;
+            }
+
+            console.log({ meetupUser });
+            if (user) {
+                // add to db if not exist
+                createIfNotExists(JSON.parse(JSON.stringify(meetupUser))).catch(
+                    console.log
+                );
+            }
         });
 
         return () => unsubscribe();
@@ -50,3 +73,9 @@ export const WebUserProvider = ({
         </WebUserContext.Provider>
     );
 };
+
+export const useWebUser = () => useContext(WebUserContext);
+
+function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

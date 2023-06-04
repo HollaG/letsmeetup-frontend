@@ -24,7 +24,11 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                     .map((user, i) => (
                         <Box key={i}>
                             <Link
-                                href={`https://t.me/${user.user.username}`}
+                                href={
+                                    user.user.type === "telegram"
+                                        ? `https://t.me/${user.user.username}`
+                                        : ""
+                                }
                                 isExternal
                             >
                                 <Flex alignItems="center">
@@ -41,13 +45,15 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                                         {" "}
                                         {user.user.first_name}
                                     </Text>
-                                    <Text
-                                        ml={2}
-                                        fontSize="md"
-                                        fontWeight={"light"}
-                                    >
-                                        @{user.user.username}
-                                    </Text>
+                                    {user.user.type === "telegram" && (
+                                        <Text
+                                            ml={2}
+                                            fontSize="md"
+                                            fontWeight={"light"}
+                                        >
+                                            @{user.user.username}
+                                        </Text>
+                                    )}
                                 </Flex>
                             </Link>
 

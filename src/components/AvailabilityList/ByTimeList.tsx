@@ -334,7 +334,12 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                         `${minute}::${date}`
                                                     ].map((user, i) => (
                                                         <Link
-                                                            href={`https://t.me/${user.username}`}
+                                                            href={
+                                                                user.type ===
+                                                                "telegram"
+                                                                    ? `https://t.me/${user.username}`
+                                                                    : ""
+                                                            }
                                                             textDecor="none"
                                                             isExternal
                                                             key={i}

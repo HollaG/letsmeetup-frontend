@@ -19,6 +19,7 @@ const config = {
 // init app
 const fire = initializeApp(config);
 export const db = getFirestore(fire);
+export const auth = getAuth(fire);
 
 // export default firestore
 export default fire;

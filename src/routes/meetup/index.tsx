@@ -43,7 +43,7 @@ import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
 
 let tempUser: ITelegramUser = {
-    id: 8995652501,
+    id: "8995652501",
     first_name: "Vlad",
     last_name: "Kruglikov",
     username: "vkruglikov",

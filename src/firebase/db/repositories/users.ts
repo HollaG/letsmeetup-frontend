@@ -50,7 +50,7 @@ export const all = async (): Promise<Array<IMeetupUser>> => {
 export const createIfNotExists = async (
     user: IMeetupUser
 ): Promise<IMeetupUser> | never => {
-    const dbRef = doc(db, COLLECTION_NAME);
+    const dbRef = doc(db, COLLECTION_NAME, user.id.toString());
     try {
         const docRef = await setDoc(dbRef, user);
 
