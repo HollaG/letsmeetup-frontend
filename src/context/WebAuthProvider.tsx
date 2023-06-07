@@ -38,7 +38,6 @@ export const WebUserProvider = ({
     // listen to auth changes
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            console.log({ user });
             if (!user) {
                 setUser(null);
                 return;
@@ -48,10 +47,9 @@ export const WebUserProvider = ({
                 first_name: user.displayName || "",
                 email: user?.email || "",
                 photo_url: user?.photoURL || "",
-                type: "google",
+                type: user.providerData.map((a) => a.providerId).join(","),
                 // last_name: user.displayName ? user.displayName.split(" ").slice(1, -1).join(" ") : "",
             };
-            if (user) setUser(meetupUser);
 
             if (!meetupUser.first_name) {
                 // set a random name
@@ -61,13 +59,43 @@ export const WebUserProvider = ({
                 meetupUser.first_name = `Anonymous ${randomName}`;
             }
 
-            console.log({ meetupUser });
+            if (user) setUser(meetupUser);
+
+            console.log({ meetupUser }, "detected");
             if (user) {
                 // add to db if not exist
                 createIfNotExists(JSON.parse(JSON.stringify(meetupUser))).catch(
                     console.log
                 );
             }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    // listen to name changes
+    useEffect(() => {
+        console.log(" id token ");
+        const unsubscribe = auth.onIdTokenChanged((user) => {
+            if (!user) return;
+            const meetupUser: IMeetupUser = {
+                id: user?.uid || "",
+                first_name: user.displayName || "",
+                email: user?.email || "",
+                photo_url: user?.photoURL || "",
+                type: user.providerData.map((a) => a.providerId).join(","),
+                // last_name: user.displayName ? user.displayName.split(" ").slice(1, -1).join(" ") : "",
+            };
+
+            if (!meetupUser.first_name) {
+                // set a random name
+                const randomName = capitalizeFirstLetter(
+                    generateAnonName(user.uid)
+                );
+                meetupUser.first_name = `Anonymous ${randomName}`;
+            }
+
+            if (user) setUser(meetupUser);
         });
 
         return () => unsubscribe();

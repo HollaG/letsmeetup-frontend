@@ -8,6 +8,7 @@ import {
     Avatar,
 } from "@chakra-ui/react";
 import { Meetup } from "../../../firebase/db/repositories/meetups";
+import { ITelegramUser } from "../../../types/telegram";
 
 const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
     return (
@@ -26,7 +27,10 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                             <Link
                                 href={
                                     user.user.type === "telegram"
-                                        ? `https://t.me/${user.user.username}`
+                                        ? `https://t.me/${
+                                              (user.user as ITelegramUser)
+                                                  .username
+                                          }`
                                         : ""
                                 }
                                 isExternal
@@ -51,7 +55,11 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                                             fontSize="md"
                                             fontWeight={"light"}
                                         >
-                                            @{user.user.username}
+                                            @
+                                            {
+                                                (user.user as ITelegramUser)
+                                                    .username
+                                            }
                                         </Text>
                                     )}
                                 </Flex>

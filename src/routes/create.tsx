@@ -1,10 +1,20 @@
 import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
+    Alert,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    AlertIcon,
+    AlertTitle,
     Box,
     Button,
     Center,
     Collapse,
     Container,
+    Divider,
     Flex,
     FormControl,
     FormHelperText,
@@ -25,8 +35,10 @@ import {
     Textarea,
     useColorMode,
     useColorModeValue,
+    useDisclosure,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
@@ -39,10 +51,13 @@ import TimeContainer, {
 import TimeRangeSelector from "../components/Time/TimeRangeSelector";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
+import { auth } from "../firebase";
+import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { create, Meetup } from "../firebase/db/repositories/meetups";
 import { IMeetupUser } from "../firebase/db/repositories/users";
 import { ITelegramUser } from "../types/telegram";
 import { TimeSelection } from "../types/types";
+import { LoginCard, LoginInfo } from "./auth";
 
 const Create = () => {
     const [title, setTitle, titleRef] = useStateRef<string>("");
@@ -326,48 +341,79 @@ const Create = () => {
 
     const navigate = useNavigate();
 
-    const webUserSubmit = () => {
+    const [newUserName, setNewUserName] = useState<string>("");
+
+    const webUserSubmit = async () => {
         console.log("trying to submit");
         console.log(webUser);
-        if (webUser) {
-            console.log("it");
-
-            const MeetupData: Meetup = {
-                title: titleRef.current,
-                description: descriptionRef.current,
-                date_created: new Date(),
-                creator: webUser,
-                isFullDay: isFullDayRef.current,
-                timeslots: isFullDayRef.current ? [] : timesRef.current,
-                dates: datesRef.current,
-                users: [],
-                notified: false,
-                selectionMap: {},
-                messages: [],
-                isEnded: false,
-                options: {
-                    notificationThreshold:
-                        notificationThresholdRef.current || Number.MAX_VALUE,
-
-                    limitNumberRespondents:
-                        limitNumberRespondentsRef.current || Number.MAX_VALUE,
-                    limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
-                    limitSlotsPerRespondent:
-                        limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
-                },
-                creatorInfoMessageId: 0,
-            };
-
-            console.log(MeetupData);
-
-            create(MeetupData).then((meetup) => {
-                // redirect to the meetup page
-                console.log("redirecting to meetup page");
-                console.log(meetup);
-                return navigate(`/meetup/${meetup.id}`);
-            });
+        let tWebUser: IMeetupUser;
+        if (!webUser) {
+            console.log("logging them in...");
+            let user = await signInWithoutUsername(newUserName);
+            tWebUser = {
+                id: user.user.uid,
+                type: "temp",
+                first_name: newUserName,
+                last_name: "",
+            } as IMeetupUser;
+        } else {
+            tWebUser = {
+                id: webUser.id,
+                type: webUser.type,
+                first_name: webUser.first_name,
+                last_name: webUser.last_name || "",
+            } as IMeetupUser;
         }
+
+        console.log({ tWebUser });
+
+        const MeetupData: Meetup = {
+            title: titleRef.current,
+            description: descriptionRef.current,
+            date_created: new Date(),
+            creator: tWebUser,
+            isFullDay: isFullDayRef.current,
+            timeslots: isFullDayRef.current ? [] : timesRef.current,
+            dates: datesRef.current,
+            users: [],
+            notified: false,
+            selectionMap: {},
+            messages: [],
+            isEnded: false,
+            options: {
+                notificationThreshold:
+                    notificationThresholdRef.current || Number.MAX_VALUE,
+
+                limitNumberRespondents:
+                    limitNumberRespondentsRef.current || Number.MAX_VALUE,
+                limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
+                limitSlotsPerRespondent:
+                    limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+            },
+            creatorInfoMessageId: 0,
+        };
+
+        console.log(MeetupData);
+
+        create(MeetupData).then((meetup) => {
+            // redirect to the meetup page
+            console.log("redirecting to meetup page");
+            console.log(meetup);
+            return navigate(`/meetup/${meetup.id}`);
+        });
     };
+
+    const cancelRef = useRef<HTMLButtonElement>(null);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    // on sign in, close the popup, if any
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            console.log("LOGGED IN", user);
+            if (user) onClose();
+        });
+        return () => unsubscribe();
+    }, []);
 
     return (
         <Stack spacing={4} justifyContent="center" alignItems={"center"}>
@@ -591,6 +637,45 @@ const Create = () => {
                 </Stack>{" "}
             </Container>
 
+            {!user && !webUser && (
+                <Container id="container-user" p={0}>
+                    <Stack>
+                        <Heading fontSize={"xl"} pt={6}>
+                            👤 User settings
+                        </Heading>
+                        <Alert status="info">
+                            <AlertIcon />
+                            <Flex flexDir="column">
+                                <AlertTitle>
+                                    We notice you're not signed in!
+                                </AlertTitle>
+                                Create an account now to have access to features
+                                such as meetup editing.
+                            </Flex>
+                            <Button
+                                colorScheme="blue"
+                                size="sm"
+                                onClick={onOpen}
+                            >
+                                {" "}
+                                Sign in{" "}
+                            </Button>
+                        </Alert>
+
+                        <Text>
+                            Alternatively, just enter your name below to
+                            continue as a guest:{" "}
+                        </Text>
+                        <Input
+                            placeholder="Your name (required)"
+                            value={newUserName}
+                            onChange={(e) => setNewUserName(e.target.value)}
+                        />
+                        {/* <Divider />
+                        <Text> Or, create an account </Text> */}
+                    </Stack>
+                </Container>
+            )}
             <Container id="container-submit" p={0}>
                 {!user && (
                     <Center>
@@ -605,6 +690,33 @@ const Create = () => {
                     </Center>
                 )}
             </Container>
+            <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+                size="xl"
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            Create or sign in to your account
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            <LoginInfo />
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onClose}>
+                                Never mind, I'll continue as a guest
+                            </Button>
+                            {/* <Button colorScheme="red" onClick={() => {}} ml={3}>
+                                Delete
+                            </Button> */}
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
         </Stack>
     );
 };

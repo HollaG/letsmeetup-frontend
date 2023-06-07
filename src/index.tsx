@@ -56,6 +56,10 @@ const router = createHashRouter([
                 element: <AuthPage />,
             },
             {
+                path: "/create",
+                element: <Create />,
+            },
+            {
                 path: "/meetup/:meetupId",
                 element: <MeetupPage />,
                 loader,
@@ -71,11 +75,6 @@ const router = createHashRouter([
                 path: "/",
                 element: <PrivateRoutes />,
                 children: [
-                    {
-                        path: "/create",
-                        element: <Create />,
-                    },
-
                     {
                         path: "/meetup/:meetupId/edit",
                         element: <MeetupEditPage />,

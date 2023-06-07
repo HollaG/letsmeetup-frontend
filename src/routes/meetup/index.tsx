@@ -547,10 +547,9 @@ const MeetupPage = () => {
     let cannotIndicateReason = "";
 
     const hasNotReachedLimit =
-        (webApp?.initData || webUser) &&
-        (liveMeetup.users.length <
+        liveMeetup.users.length <
             (liveMeetup.options?.limitNumberRespondents || 0) ||
-            liveMeetup.users.find((u) => u.user.id === userId));
+        liveMeetup.users.find((u) => u.user.id === userId);
 
     if (!hasNotReachedLimit) {
         cannotIndicateReason =
@@ -665,6 +664,21 @@ const MeetupPage = () => {
         setHasDataChanged(false);
     };
 
+    const ViewComponent = (
+        <Stack spacing={4} justifyContent="left">
+            <Heading fontSize="lg"> Others' availability </Heading>
+            <Center>
+                <ColorExplainer numTotal={liveMeetupRef.current.users.length} />
+            </Center>
+            <CalendarDisplay
+                meetup={liveMeetupRef.current}
+                _rerender={_rerender}
+            />
+            {!meetup.isFullDay && <ByTimeList meetup={liveMeetupRef.current} />}
+            {meetup.isFullDay && <ByDateList meetup={liveMeetupRef.current} />}
+        </Stack>
+    );
+
     return (
         <Stack spacing={4}>
             {cannotIndicateReason && (
@@ -680,146 +694,134 @@ const MeetupPage = () => {
                 </Alert>
             )}
             <Heading fontSize={"xl"}> {meetup.title} </Heading>
-            <Text> {meetup.description} </Text>
+            {meetup.description && <Text> {meetup.description} </Text>}
+            <Text fontWeight="light" fontStyle="italic">
+                by {meetup.creator.first_name}
+            </Text>
             <Divider />
 
-            <Tabs isFitted variant="unstyled">
-                <TabList>
-                    {indicateIsVisible && (
+            {indicateIsVisible && (
+                <Tabs isFitted variant="unstyled">
+                    <TabList>
+                        {indicateIsVisible && (
+                            <Tab
+                                _selected={{
+                                    bg: disabledBtnColor,
+                                }}
+                            >
+                                {" "}
+                                Select your availability{" "}
+                            </Tab>
+                        )}
                         <Tab
                             _selected={{
                                 bg: disabledBtnColor,
                             }}
                         >
                             {" "}
-                            Select your availability{" "}
+                            View others' availability{" "}
                         </Tab>
-                    )}
-                    <Tab
-                        _selected={{
-                            bg: disabledBtnColor,
-                        }}
-                    >
-                        {" "}
-                        View others' availability{" "}
-                    </Tab>
-                </TabList>
-                <TabIndicator
-                    mt="-1.5px"
-                    height="2px"
-                    bg={btnColor}
-                    borderRadius="1px"
-                />
-                <TabPanels>
-                    {indicateIsVisible && (
-                        <TabPanel p={1}>
-                            <Stack spacing={4} justifyContent="left">
-                                <Box>
-                                    <Heading fontSize={"lg"}>
-                                        📅 Select your available dates{" "}
-                                    </Heading>
-                                    <HelperText>
-                                        {" "}
-                                        {isMobile
-                                            ? "Touch / Touch"
-                                            : "Click / click"}{" "}
-                                        and drag to select.
-                                    </HelperText>
-                                </Box>
-                                <CalendarContainer
-                                    datesSelected={datesSelected}
-                                    setDatesSelected={setDatesSelected}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    allowedDates={
-                                        meetup.isFullDay
-                                            ? totalAllowedSlots
-                                            : meetup.dates
-                                    }
-                                    onStop={onStopDate}
-                                    onBeforeStart={onBeforeStartDate}
-                                />
-                                {!meetup.isFullDay && (
-                                    <>
-                                        <TimeSelector
-                                            classNameGenerator={
-                                                classNameGenerator
-                                            }
-                                            datesSelected={staticDatesSelected}
-                                            deselectAll={deselectAllTimes}
-                                            endMin={endMin}
-                                            startMin={startMin}
-                                            isSelectedCell={isSelectedCell}
-                                            selectAll={selectAllTimes}
-                                            timesSelected={timesRef.current}
-                                            onBeforeStart={onBeforeStartTime}
-                                            onMove={onMoveTime}
-                                            allowedTimes={totalAllowedSlots}
-                                            onStop={onStopTime}
-                                        />
-                                    </>
-                                )}
-                                <Input
-                                    placeholder="Add your comments (optional)"
-                                    value={comments}
-                                    onChange={commentsOnChange}
-                                />
-                                <Divider />
-                                {/* This section is for web users only; let them input a name if they don't have one. */}
-                                {(!webUser || !webUser.first_name) && (
+                    </TabList>
+                    <TabIndicator
+                        mt="-1.5px"
+                        height="2px"
+                        bg={btnColor}
+                        borderRadius="1px"
+                    />
+                    <TabPanels>
+                        {indicateIsVisible && (
+                            <TabPanel p={1}>
+                                <Stack spacing={4} justifyContent="left">
                                     <Box>
-                                        <Input
-                                            placeholder={"Your name (required)"}
-                                            onChange={(e) =>
-                                                setTempName(e.target.value)
-                                            }
-                                            value={tempName}
-                                        />
+                                        <Heading fontSize={"lg"}>
+                                            📅 Select your available dates{" "}
+                                        </Heading>
+                                        <HelperText>
+                                            {" "}
+                                            {isMobile
+                                                ? "Touch / Touch"
+                                                : "Click / click"}{" "}
+                                            and drag to select.
+                                        </HelperText>
                                     </Box>
-                                )}
-                                {!user && (
-                                    <Center>
-                                        <Button
-                                            isDisabled={
-                                                !hasDataChanged || !tempName
-                                            }
-                                            colorScheme="blue"
-                                            onClick={onSubmitWebUser}
-                                        >
-                                            Submit
-                                        </Button>
-                                    </Center>
-                                )}
-                            </Stack>
-                        </TabPanel>
-                    )}
-                    <TabPanel p={1}>
-                        <Stack spacing={4} justifyContent="left">
-                            <Heading fontSize="lg">
-                                {" "}
-                                Others' availability{" "}
-                            </Heading>
-                            <Center>
-                                <ColorExplainer
-                                    numTotal={
-                                        liveMeetupRef.current.users.length
-                                    }
-                                />
-                            </Center>
-                            <CalendarDisplay
-                                meetup={liveMeetupRef.current}
-                                _rerender={_rerender}
-                            />
-                            {!meetup.isFullDay && (
-                                <ByTimeList meetup={liveMeetupRef.current} />
-                            )}
-                            {meetup.isFullDay && (
-                                <ByDateList meetup={liveMeetupRef.current} />
-                            )}
-                        </Stack>
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+                                    <CalendarContainer
+                                        datesSelected={datesSelected}
+                                        setDatesSelected={setDatesSelected}
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        allowedDates={
+                                            meetup.isFullDay
+                                                ? totalAllowedSlots
+                                                : meetup.dates
+                                        }
+                                        onStop={onStopDate}
+                                        onBeforeStart={onBeforeStartDate}
+                                    />
+                                    {!meetup.isFullDay && (
+                                        <>
+                                            <TimeSelector
+                                                classNameGenerator={
+                                                    classNameGenerator
+                                                }
+                                                datesSelected={
+                                                    staticDatesSelected
+                                                }
+                                                deselectAll={deselectAllTimes}
+                                                endMin={endMin}
+                                                startMin={startMin}
+                                                isSelectedCell={isSelectedCell}
+                                                selectAll={selectAllTimes}
+                                                timesSelected={timesRef.current}
+                                                onBeforeStart={
+                                                    onBeforeStartTime
+                                                }
+                                                onMove={onMoveTime}
+                                                allowedTimes={totalAllowedSlots}
+                                                onStop={onStopTime}
+                                            />
+                                        </>
+                                    )}
+                                    <Input
+                                        placeholder="Add your comments (optional)"
+                                        value={comments}
+                                        onChange={commentsOnChange}
+                                    />
+                                    <Divider />
+                                    {/* This section is for web users only; let them input a name if they don't have one. */}
+                                    {(!webUser || !webUser.first_name) && (
+                                        <Box>
+                                            <Input
+                                                placeholder={
+                                                    "Your name (required)"
+                                                }
+                                                onChange={(e) =>
+                                                    setTempName(e.target.value)
+                                                }
+                                                value={tempName}
+                                            />
+                                        </Box>
+                                    )}
+                                    {!user && (
+                                        <Center>
+                                            <Button
+                                                isDisabled={
+                                                    !hasDataChanged || !tempName
+                                                }
+                                                colorScheme="blue"
+                                                onClick={onSubmitWebUser}
+                                            >
+                                                Submit
+                                            </Button>
+                                        </Center>
+                                    )}
+                                </Stack>
+                            </TabPanel>
+                        )}
+                        <TabPanel p={1}>{ViewComponent}</TabPanel>
+                    </TabPanels>
+                </Tabs>
+            )}
+            {!indicateIsVisible && ViewComponent}
         </Stack>
     );
 };

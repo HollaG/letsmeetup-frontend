@@ -16,7 +16,7 @@ import { ITelegramUser } from "../../../types/telegram";
 import { Meetup } from "./meetups";
 
 export type WebUser = {
-    type: "google" | "firebase";
+    type: string;
     id: string; // uid
     first_name: string; // displayName.split(" ")[0]
     last_name?: string; // displayName.split(" ")[1]
