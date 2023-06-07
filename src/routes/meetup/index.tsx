@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
     Alert,
     AlertIcon,
@@ -5,8 +6,13 @@ import {
     Button,
     Center,
     Divider,
+    Flex,
     Heading,
     Input,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
     Stack,
     Tab,
     TabIndicator,
@@ -17,11 +23,26 @@ import {
     Text,
     useColorMode,
     useColorModeValue,
+    Link as NavLink,
+    useDisclosure,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    Toast,
+    useToast,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useLoaderData, useParams } from "react-router-dom";
+import {
+    useLoaderData,
+    useNavigate,
+    useNavigation,
+    useParams,
+} from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../../components/AvailabilityList/ByDateList";
 import ByTimeList from "../../components/AvailabilityList/ByTimeList";
@@ -41,6 +62,8 @@ import {
 } from "../../context/WebAuthProvider";
 import { signInWithoutUsername } from "../../firebase/auth/anonymous";
 import {
+    deleteMeetup,
+    endMeetup,
     Meetup,
     updateAvailability,
 } from "../../firebase/db/repositories/meetups";
@@ -48,6 +71,8 @@ import { IMeetupUser } from "../../firebase/db/repositories/users";
 import useFirestore from "../../hooks/firestore";
 import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
+
+import { Link } from "react-router-dom";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -115,6 +140,8 @@ const MeetupPage = () => {
     const [liveMeetup, setLiveMeetup, liveMeetupRef] =
         useStateRef<Meetup>(loadedMeetup);
 
+    const navigate = useNavigate();
+
     /**
      * Subscribe to changes in the document.
      *
@@ -125,8 +152,12 @@ const MeetupPage = () => {
         const unsubscribe = firestore.getDocument(meetupId || "", {
             next: (doc) => {
                 console.log(doc.data(), "---doc changed---");
-                setLiveMeetup(doc.data() as Meetup);
-                _setRerender((prev) => !prev);
+                if (!doc.data()) {
+                    navigate("/");
+                } else {
+                    setLiveMeetup(doc.data() as Meetup);
+                    _setRerender((prev) => !prev);
+                }
             },
         });
         return () => {
@@ -550,15 +581,15 @@ const MeetupPage = () => {
         liveMeetup.users.length <
             (liveMeetup.options?.limitNumberRespondents || 0) ||
         liveMeetup.users.find((u) => u.user.id === userId);
-
+    if (liveMeetup.isEnded) {
+        cannotIndicateReason =
+            "The creator has stopped collecting responses. You can no longer indicate your availability.";
+    } else {
+        cannotIndicateReason = "";
+    }
     if (!hasNotReachedLimit) {
         cannotIndicateReason =
             "The number of respondents has reached the limit set by the creator. You can no longer indicate your availability.";
-    }
-
-    if (meetup.isEnded) {
-        cannotIndicateReason =
-            "The creator has stopped collecting responses. You can no longer indicate your availability.";
     }
 
     const [totalAllowedSlots, setTotalAllowedSlots] = useState<string[]>([]);
@@ -623,6 +654,8 @@ const MeetupPage = () => {
         webUser ? webUser.first_name : ""
     );
 
+    const toast = useToast();
+
     /**
      * Submits the availability data to the server.
      */
@@ -679,6 +712,123 @@ const MeetupPage = () => {
         </Stack>
     );
 
+    // actions should only be shown if the user has the same id
+    const showActions =
+        (user && user.id === liveMeetup.creator.id) ||
+        (webUser && webUser.id === liveMeetup.creator.id);
+
+    // end the meetup
+    const {
+        isOpen: isDeleteOpen,
+        onOpen: onDeleteOpen,
+        onClose: onDeleteClose,
+    } = useDisclosure();
+
+    const cancelDeleteRef = React.useRef<HTMLButtonElement>(null);
+
+    const _endMeetup = () => {
+        if (!showActions) {
+            return;
+        }
+        endMeetup(meetupId, true)
+            .then(() => {
+                toast({
+                    title: "Meetup ended",
+                    description:
+                        "The meetup has been ended. Users can no longer indicate their availability.",
+                    status: "success",
+                });
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error ending meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+            });
+    };
+
+    const resumeMeetup = () => {
+        if (!showActions) {
+            return;
+        }
+        endMeetup(meetupId, false)
+            .then(() => {
+                toast({
+                    title: "Meetup resumed",
+                    description:
+                        "The meetup has been resumed. Users can continue indicating their availability.",
+                    status: "success",
+                });
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error resuming meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+            });
+    };
+
+    const beginDeleteMeetup = () => {
+        onDeleteOpen();
+    };
+
+    const _deleteMeetup = () => {
+        deleteMeetup(meetupId)
+            .then(() => {
+                toast({
+                    title: "Meetup deleted",
+                    description: "The meetup has been deleted.",
+                    status: "success",
+                });
+
+                // redirect back to home page
+                navigate("/");
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error deleting meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+                onDeleteClose();
+            });
+    };
+
+    const AlertDelete = (
+        <AlertDialog
+            isOpen={isDeleteOpen}
+            leastDestructiveRef={cancelDeleteRef}
+            onClose={onDeleteClose}
+        >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Delete meetup
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                        Are you sure? You can't undo this action afterwards.
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                        <Button ref={cancelDeleteRef} onClick={onDeleteClose}>
+                            Cancel
+                        </Button>
+                        <Button
+                            colorScheme="red"
+                            onClick={_deleteMeetup}
+                            ml={3}
+                        >
+                            Delete
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+        </AlertDialog>
+    );
+
     return (
         <Stack spacing={4}>
             {cannotIndicateReason && (
@@ -693,11 +843,57 @@ const MeetupPage = () => {
                     {warningMessage}
                 </Alert>
             )}
-            <Heading fontSize={"xl"}> {meetup.title} </Heading>
-            {meetup.description && <Text> {meetup.description} </Text>}
-            <Text fontWeight="light" fontStyle="italic">
-                by {meetup.creator.first_name}
-            </Text>
+            <Flex
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+            >
+                <Stack>
+                    <Heading fontSize={"xl"}> {meetup.title} </Heading>
+                    {meetup.description && <Text> {meetup.description} </Text>}
+                    <Text fontWeight="light" fontStyle="italic">
+                        by {meetup.creator.first_name}
+                    </Text>
+                </Stack>
+                {showActions && (
+                    <Box>
+                        <Menu size={"sm"}>
+                            <MenuButton
+                                as={Button}
+                                rightIcon={<ChevronDownIcon />}
+                                size="sm"
+                                colorScheme="blue"
+                            >
+                                Actions
+                            </MenuButton>
+                            <MenuList>
+                                <MenuItem>
+                                    <NavLink
+                                        as={Link}
+                                        to={`/meetup/${meetupId}/edit`}
+                                    >
+                                        {" "}
+                                        Edit{" "}
+                                    </NavLink>
+                                </MenuItem>
+                                {liveMeetup.isEnded ? (
+                                    <MenuItem onClick={resumeMeetup}>
+                                        {" "}
+                                        Resume meetup{" "}
+                                    </MenuItem>
+                                ) : (
+                                    <MenuItem onClick={_endMeetup}>
+                                        Mark as ended
+                                    </MenuItem>
+                                )}
+                                <MenuItem onClick={beginDeleteMeetup}>
+                                    Delete
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
+                    </Box>
+                )}
+            </Flex>
             <Divider />
 
             {indicateIsVisible && (
@@ -822,6 +1018,8 @@ const MeetupPage = () => {
                 </Tabs>
             )}
             {!indicateIsVisible && ViewComponent}
+
+            {AlertDelete}
         </Stack>
     );
 };

@@ -10,6 +10,7 @@ import {
     updateDoc,
     doc,
     getDoc,
+    deleteDoc,
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
 import { swapDateTimeStr } from "../../../routes/meetup";
@@ -246,6 +247,25 @@ export const updateAvailability = async (
     // } as Todo;
 };
 
+export const endMeetup = async (id: string, isEnded: boolean = true) => {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    try {
+        return await updateDoc(docRef, { isEnded });
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const deleteMeetup = async (id: string) => {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    try {
+        return await deleteDoc(docRef);
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
 // // delete a todo
 // export const remove = async (id: string) => {
 //     await db.collection(COLLECTION_NAME).doc(id).delete();

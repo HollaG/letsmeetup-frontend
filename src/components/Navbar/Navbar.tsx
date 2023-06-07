@@ -3,7 +3,7 @@ import {
     Box,
     Flex,
     Avatar,
-    Link,
+    Link as NavLink,
     Button,
     Menu,
     MenuButton,
@@ -23,8 +23,10 @@ import { signOutWithoutUsername } from "../../firebase/auth/anonymous";
 import { useWebUser } from "../../context/WebAuthProvider";
 import { useTelegram } from "../../context/TelegramProvider";
 
-const NavLink = ({ children }: { children: ReactNode }) => (
-    <Link
+import { Link } from "react-router-dom";
+
+const MenuNavLink = ({ children }: { children: ReactNode }) => (
+    <NavLink
         px={2}
         py={1}
         rounded={"md"}
@@ -35,7 +37,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
         href={"#"}
     >
         {children}
-    </Link>
+    </NavLink>
 );
 
 export default function Nav() {
@@ -51,7 +53,9 @@ export default function Nav() {
                     alignItems={"center"}
                     justifyContent={"space-between"}
                 >
-                    <Box>📅 MeetUp </Box>
+                    <NavLink as={Link} to="/">
+                        📅 MeetUp
+                    </NavLink>
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={7}>
