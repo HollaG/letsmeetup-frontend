@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
     Alert,
     AlertIcon,
@@ -5,8 +6,13 @@ import {
     Button,
     Center,
     Divider,
+    Flex,
     Heading,
     Input,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
     Stack,
     Tab,
     TabIndicator,
@@ -17,11 +23,26 @@ import {
     Text,
     useColorMode,
     useColorModeValue,
+    Link as NavLink,
+    useDisclosure,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    Toast,
+    useToast,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useLoaderData, useParams } from "react-router-dom";
+import {
+    useLoaderData,
+    useNavigate,
+    useNavigation,
+    useParams,
+} from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../../components/AvailabilityList/ByDateList";
 import ByTimeList from "../../components/AvailabilityList/ByTimeList";
@@ -34,18 +55,24 @@ import HelperText from "../../components/Display/HelperText";
 import { CellData } from "../../components/Time/TimeContainer";
 import TimeSelector from "../../components/Time/TimeSelector";
 import { useTelegram } from "../../context/TelegramProvider";
-import { Meetup, updateAvailability } from "../../db/repositories/meetups";
+import {
+    capitalizeFirstLetter,
+    generateRandomAnonName,
+    useWebUser,
+} from "../../context/WebAuthProvider";
+import { signInWithoutUsername } from "../../firebase/auth/anonymous";
+import {
+    deleteMeetup,
+    endMeetup,
+    Meetup,
+    updateAvailability,
+} from "../../firebase/db/repositories/meetups";
+import { IMeetupUser } from "../../firebase/db/repositories/users";
 import useFirestore from "../../hooks/firestore";
 import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
 
-let tempUser: ITelegramUser = {
-    id: 8995652501,
-    first_name: "Vlad",
-    last_name: "Kruglikov",
-    username: "vkruglikov",
-    language_code: "en",
-};
+import { Link } from "react-router-dom";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -98,10 +125,11 @@ export const removeDate = (time: string) => {
 };
 
 const MeetupPage = () => {
-    const { colorMode, toggleColorMode } = useColorMode();
+    const webUser = useWebUser();
+
+    // Only on this page, create an anonymous account for the user if there is no webUser detected.
 
     const firestore = useFirestore();
-    const [document, setDocument] = useState();
 
     let { meetupId } = useParams<{
         meetupId: string;
@@ -111,16 +139,8 @@ const MeetupPage = () => {
     const [meetup, setMeetup] = useState<Meetup>(loadedMeetup);
     const [liveMeetup, setLiveMeetup, liveMeetupRef] =
         useStateRef<Meetup>(loadedMeetup);
-    // TEMPORARY: OVERRIDE USER ID
-    let { user, webApp, style } = useTelegram();
 
-    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
-
-    useEffect(() => {
-        setWebAppRef(webApp);
-    }, [webApp]);
-
-    if (!user) user = tempUser;
+    const navigate = useNavigate();
 
     /**
      * Subscribe to changes in the document.
@@ -132,8 +152,12 @@ const MeetupPage = () => {
         const unsubscribe = firestore.getDocument(meetupId || "", {
             next: (doc) => {
                 console.log(doc.data(), "---doc changed---");
-                setLiveMeetup(doc.data() as Meetup);
-                _setRerender((prev) => !prev);
+                if (!doc.data()) {
+                    navigate("/");
+                } else {
+                    setLiveMeetup(doc.data() as Meetup);
+                    _setRerender((prev) => !prev);
+                }
             },
         });
         return () => {
@@ -141,16 +165,92 @@ const MeetupPage = () => {
         };
     }, []);
 
+    // Whether the user has modified any data
+    const [hasDataChanged, setHasDataChanged, dataChangedRef] =
+        useStateRef(false);
+
+    /** ----------------- TELEGRAM INTEGRATION ----------------- */
+    let { user, webApp, style } = useTelegram();
+
+    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
+
+    useEffect(() => {
+        setWebAppRef(webApp);
+    }, [webApp]);
+
     // console.log({ meetup });
+
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.button_color || _btnColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
+
+    /**
+     * Disables the button, along with setting the color
+     */
+    const disableButton = () => {
+        // console.log("disabling button");
+        if (webApp?.initData) {
+            // webApp.MainButton.isVisible = false;
+            webApp.MainButton.color = disabledBtnColor;
+            webApp.MainButton.disable();
+            webApp.MainButton.setText("No changes since last save");
+            webApp.isClosingConfirmationEnabled = false;
+            webApp.MainButton.textColor = disabledTextColor;
+        }
+    };
+
+    /**
+     * Enables the button, along with setting the color
+     */
+    const enableButton = () => {
+        // console.log("enabling button");
+
+        if (webApp?.initData) {
+            // webApp.MainButton.isVisible = true;
+            webApp.MainButton.color = btnColor;
+            webApp.MainButton.enable();
+            webApp.MainButton.setText("Save your availability");
+            webApp.isClosingConfirmationEnabled = true;
+            webApp.MainButton.textColor = enabledTextColor;
+        }
+    };
+
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.isVisible = true;
+            if (hasDataChanged) {
+                enableButton();
+            } else {
+                disableButton();
+            }
+            // console.log("updating onSubmit");
+        }
+    }, [webApp, hasDataChanged, style]);
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.offClick(onSubmitTelegram);
+            webApp.MainButton.onClick(onSubmitTelegram);
+        }
+    }, [webApp?.initData]);
+
+    /** ----------------- STATE MANAGEMENT ----------------- */
 
     /**
      * Initalize the dates and times selected to what the user has already selected, if there is any
      */
+
+    const userId = user?.id || (webUser && webUser?.id) || "";
     const [datesSelected, setDatesSelected, datesRef] = useStateRef<string[]>(
         [
             ...new Set(
                 meetup.users
-                    .find((u) => u.user.id === user?.id)
+                    .find((u) => u.user.id === userId)
                     ?.selected.map(removeTime)
             ),
         ].sort() || []
@@ -159,7 +259,7 @@ const MeetupPage = () => {
         [
             ...new Set(
                 meetup.users
-                    .find((u) => u.user.id === user?.id)
+                    .find((u) => u.user.id === userId)
                     ?.selected.map(removeTime)
             ),
         ].sort() || []
@@ -167,7 +267,7 @@ const MeetupPage = () => {
 
     const [timesSelected, setTimesSelected, timesRef] =
         useStateRef<TimeSelection>(
-            meetup.users.find((u) => u.user.id === user?.id)?.selected || []
+            meetup.users.find((u) => u.user.id === userId)?.selected || []
         );
 
     const startDate = dateParser(meetup.dates.sort()[0]);
@@ -425,11 +525,11 @@ const MeetupPage = () => {
     /**
      * Submits the availability data to the server.
      */
-    const onSubmit = async () => {
+    const onSubmitTelegram = async () => {
         console.log("onsubmit");
         await updateAvailability(
             meetupId,
-            user || tempUser,
+            user,
             {
                 datesSelected: datesRef.current,
                 timesSelected: timesRef.current.filter((t) =>
@@ -441,71 +541,8 @@ const MeetupPage = () => {
         setHasDataChanged(false);
     };
 
-    // Whether the user has modified any data
-    const [hasDataChanged, setHasDataChanged, dataChangedRef] =
-        useStateRef(false);
-
-    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
-    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
-
-    const btnColor = style?.button_color || _btnColor;
-    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
-    const enabledTextColor = style?.button_text_color || _enabledTextColor;
-    const disabledTextColor = style?.text_color || _disabledTextColor;
-
-    /**
-     * Disables the button, along with setting the color
-     */
-    const disableButton = () => {
-        // console.log("disabling button");
-        if (webApp?.initData) {
-            // webApp.MainButton.isVisible = false;
-            webApp.MainButton.color = disabledBtnColor;
-            webApp.MainButton.disable();
-            webApp.MainButton.setText("No changes since last save");
-            webApp.isClosingConfirmationEnabled = false;
-            webApp.MainButton.textColor = disabledTextColor;
-        }
-    };
-
-    /**
-     * Enables the button, along with setting the color
-     */
-    const enableButton = () => {
-        // console.log("enabling button");
-
-        if (webApp?.initData) {
-            // webApp.MainButton.isVisible = true;
-            webApp.MainButton.color = btnColor;
-            webApp.MainButton.enable();
-            webApp.MainButton.setText("Save your availability");
-            webApp.isClosingConfirmationEnabled = true;
-            webApp.MainButton.textColor = enabledTextColor;
-        }
-    };
-
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.isVisible = true;
-            if (hasDataChanged) {
-                enableButton();
-            } else {
-                disableButton();
-            }
-            // console.log("updating onSubmit");
-        }
-    }, [webApp, hasDataChanged, style]);
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.offClick(onSubmit);
-            webApp.MainButton.onClick(onSubmit);
-        }
-    }, [webApp?.initData]);
-
     const [comments, setComments, commentsRef] = useStateRef<string>(
-        meetup.users.find((u) => u.user.id === user?.id)?.comments || ""
+        meetup.users.find((u) => u.user.id === userId)?.comments || ""
     );
     /**
      * Controlled component for the comments input
@@ -529,25 +566,30 @@ const MeetupPage = () => {
      * Helps to determine if the Indicate tab should be visible.
      * Should be live data!
      */
+
+    // indicate is always visible, UNLESS:
+    // 1) meetup is ended
+    // 2) meetup is full
     const indicateIsVisible =
-        webApp?.initData &&
         !liveMeetup.isEnded &&
         (liveMeetup.users.length <
             (liveMeetup.options?.limitNumberRespondents || 0) ||
-            liveMeetup.users.find((u) => u.user.id === user?.id));
+            liveMeetup.users.find((u) => u.user.id === userId));
     let cannotIndicateReason = "";
 
-    if (
-        liveMeetup.users.length >= liveMeetup.options.limitNumberRespondents &&
-        !liveMeetup.users.find((u) => u.user.id === user?.id)
-    ) {
-        cannotIndicateReason =
-            "The number of respondents has reached the limit set by the creator. You can no longer indicate your availability.";
-    }
-
-    if (meetup.isEnded) {
+    const hasNotReachedLimit =
+        liveMeetup.users.length <
+            (liveMeetup.options?.limitNumberRespondents || 0) ||
+        liveMeetup.users.find((u) => u.user.id === userId);
+    if (liveMeetup.isEnded) {
         cannotIndicateReason =
             "The creator has stopped collecting responses. You can no longer indicate your availability.";
+    } else {
+        cannotIndicateReason = "";
+    }
+    if (!hasNotReachedLimit) {
+        cannotIndicateReason =
+            "The number of respondents has reached the limit set by the creator. You can no longer indicate your availability.";
     }
 
     const [totalAllowedSlots, setTotalAllowedSlots] = useState<string[]>([]);
@@ -571,7 +613,7 @@ const MeetupPage = () => {
                     // if the slot is selected, we should always render it.
                     if (
                         liveMeetup.users
-                            .find((u) => u.user.id === user?.id)
+                            .find((u) => u.user.id === userId)
                             ?.selected.includes(slot)
                     ) {
                         // user selecetd this slot
@@ -604,6 +646,189 @@ const MeetupPage = () => {
         }
     }, [liveMeetup]);
 
+    /** Handling stuff related to non-signed-in-users */
+    const randomName = `Anonymous ${capitalizeFirstLetter(
+        generateRandomAnonName()
+    )}`;
+    const [tempName, setTempName] = useState<string>(
+        webUser ? webUser.first_name : ""
+    );
+
+    const toast = useToast();
+
+    /**
+     * Submits the availability data to the server.
+     */
+    const onSubmitWebUser = async () => {
+        console.log("onsubmit");
+
+        // if not logged in, as either anon or actual, log them in
+        let tWebUser: IMeetupUser;
+        if (!webUser) {
+            console.log("logging them in...");
+            let user = await signInWithoutUsername(tempName);
+            tWebUser = {
+                id: user.user.uid,
+                type: "temp",
+                first_name: tempName,
+                last_name: "",
+            } as IMeetupUser;
+        } else {
+            tWebUser = {
+                id: webUser.id,
+                type: webUser.type,
+                first_name: webUser.first_name || tempName,
+                last_name: webUser.last_name || "",
+            } as IMeetupUser;
+        }
+        console.log({ tWebUser, meetupId });
+
+        await updateAvailability(
+            meetupId,
+            tWebUser,
+            {
+                datesSelected: datesRef.current,
+                timesSelected: timesRef.current.filter((t) =>
+                    datesRef.current.includes(removeTime(t))
+                ),
+            },
+            commentsRef.current
+        );
+        setHasDataChanged(false);
+    };
+
+    const ViewComponent = (
+        <Stack spacing={4} justifyContent="left">
+            <Heading fontSize="lg"> Others' availability </Heading>
+            <Center>
+                <ColorExplainer numTotal={liveMeetupRef.current.users.length} />
+            </Center>
+            <CalendarDisplay
+                meetup={liveMeetupRef.current}
+                _rerender={_rerender}
+            />
+            {!meetup.isFullDay && <ByTimeList meetup={liveMeetupRef.current} />}
+            {meetup.isFullDay && <ByDateList meetup={liveMeetupRef.current} />}
+        </Stack>
+    );
+
+    // actions should only be shown if the user has the same id
+    const showActions =
+        (user && user.id === liveMeetup.creator.id) ||
+        (webUser && webUser.id === liveMeetup.creator.id);
+
+    // end the meetup
+    const {
+        isOpen: isDeleteOpen,
+        onOpen: onDeleteOpen,
+        onClose: onDeleteClose,
+    } = useDisclosure();
+
+    const cancelDeleteRef = React.useRef<HTMLButtonElement>(null);
+
+    const _endMeetup = () => {
+        if (!showActions) {
+            return;
+        }
+        endMeetup(meetupId, true)
+            .then(() => {
+                toast({
+                    title: "Meetup ended",
+                    description:
+                        "The meetup has been ended. Users can no longer indicate their availability.",
+                    status: "success",
+                });
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error ending meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+            });
+    };
+
+    const resumeMeetup = () => {
+        if (!showActions) {
+            return;
+        }
+        endMeetup(meetupId, false)
+            .then(() => {
+                toast({
+                    title: "Meetup resumed",
+                    description:
+                        "The meetup has been resumed. Users can continue indicating their availability.",
+                    status: "success",
+                });
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error resuming meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+            });
+    };
+
+    const beginDeleteMeetup = () => {
+        onDeleteOpen();
+    };
+
+    const _deleteMeetup = () => {
+        deleteMeetup(meetupId)
+            .then(() => {
+                toast({
+                    title: "Meetup deleted",
+                    description: "The meetup has been deleted.",
+                    status: "success",
+                });
+
+                // redirect back to home page
+                navigate("/");
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error deleting meetup",
+                    description: e.toString(),
+                    status: "error",
+                });
+                onDeleteClose();
+            });
+    };
+
+    const AlertDelete = (
+        <AlertDialog
+            isOpen={isDeleteOpen}
+            leastDestructiveRef={cancelDeleteRef}
+            onClose={onDeleteClose}
+        >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Delete meetup
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                        Are you sure? You can't undo this action afterwards.
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                        <Button ref={cancelDeleteRef} onClick={onDeleteClose}>
+                            Cancel
+                        </Button>
+                        <Button
+                            colorScheme="red"
+                            onClick={_deleteMeetup}
+                            ml={3}
+                        >
+                            Delete
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+        </AlertDialog>
+    );
+
     return (
         <Stack spacing={4}>
             {cannotIndicateReason && (
@@ -618,121 +843,183 @@ const MeetupPage = () => {
                     {warningMessage}
                 </Alert>
             )}
-            <Heading fontSize={"xl"}> {meetup.title} </Heading>
-            <Text> {meetup.description} </Text>
+            <Flex
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+            >
+                <Stack>
+                    <Heading fontSize={"xl"}> {meetup.title} </Heading>
+                    {meetup.description && <Text> {meetup.description} </Text>}
+                    <Text fontWeight="light" fontStyle="italic">
+                        by {meetup.creator.first_name}
+                    </Text>
+                </Stack>
+                {showActions && (
+                    <Box>
+                        <Menu size={"sm"}>
+                            <MenuButton
+                                as={Button}
+                                rightIcon={<ChevronDownIcon />}
+                                size="sm"
+                                colorScheme="blue"
+                            >
+                                Actions
+                            </MenuButton>
+                            <MenuList>
+                                <MenuItem>
+                                    <NavLink
+                                        as={Link}
+                                        to={`/meetup/${meetupId}/edit`}
+                                    >
+                                        {" "}
+                                        Edit{" "}
+                                    </NavLink>
+                                </MenuItem>
+                                {liveMeetup.isEnded ? (
+                                    <MenuItem onClick={resumeMeetup}>
+                                        {" "}
+                                        Resume meetup{" "}
+                                    </MenuItem>
+                                ) : (
+                                    <MenuItem onClick={_endMeetup}>
+                                        Mark as ended
+                                    </MenuItem>
+                                )}
+                                <MenuItem onClick={beginDeleteMeetup}>
+                                    Delete
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
+                    </Box>
+                )}
+            </Flex>
             <Divider />
 
-            <Tabs isFitted variant="unstyled">
-                <TabList>
-                    {indicateIsVisible && (
+            {indicateIsVisible && (
+                <Tabs isFitted variant="unstyled">
+                    <TabList>
+                        {indicateIsVisible && (
+                            <Tab
+                                _selected={{
+                                    bg: disabledBtnColor,
+                                }}
+                            >
+                                {" "}
+                                Select your availability{" "}
+                            </Tab>
+                        )}
                         <Tab
                             _selected={{
                                 bg: disabledBtnColor,
                             }}
                         >
                             {" "}
-                            Select your availability{" "}
+                            View others' availability{" "}
                         </Tab>
-                    )}
-                    <Tab
-                        _selected={{
-                            bg: disabledBtnColor,
-                        }}
-                    >
-                        {" "}
-                        View others' availability{" "}
-                    </Tab>
-                </TabList>
-                <TabIndicator
-                    mt="-1.5px"
-                    height="2px"
-                    bg={btnColor}
-                    borderRadius="1px"
-                />
-                <TabPanels>
-                    {indicateIsVisible && (
-                        <TabPanel p={1}>
-                            <Stack spacing={4} justifyContent="left">
-                                <Box>
-                                    <Heading fontSize={"lg"}>
-                                        📅 Select your available dates{" "}
-                                    </Heading>
-                                    <HelperText>
-                                        {" "}
-                                        {isMobile
-                                            ? "Touch / Touch"
-                                            : "Click / click"}{" "}
-                                        and drag to select.
-                                    </HelperText>
-                                </Box>
-                                <CalendarContainer
-                                    datesSelected={datesSelected}
-                                    setDatesSelected={setDatesSelected}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    allowedDates={
-                                        meetup.isFullDay
-                                            ? totalAllowedSlots
-                                            : meetup.dates
-                                    }
-                                    onStop={onStopDate}
-                                    onBeforeStart={onBeforeStartDate}
-                                />
-                                {!meetup.isFullDay && (
-                                    <>
-                                        <TimeSelector
-                                            classNameGenerator={
-                                                classNameGenerator
-                                            }
-                                            datesSelected={staticDatesSelected}
-                                            deselectAll={deselectAllTimes}
-                                            endMin={endMin}
-                                            startMin={startMin}
-                                            isSelectedCell={isSelectedCell}
-                                            selectAll={selectAllTimes}
-                                            timesSelected={timesRef.current}
-                                            onBeforeStart={onBeforeStartTime}
-                                            onMove={onMoveTime}
-                                            allowedTimes={totalAllowedSlots}
-                                            onStop={onStopTime}
-                                        />
-                                    </>
-                                )}
-                                <Input
-                                    placeholder="Add your comments (optional)"
-                                    value={comments}
-                                    onChange={commentsOnChange}
-                                />
-                            </Stack>
-                        </TabPanel>
-                    )}
-                    <TabPanel p={1}>
-                        <Stack spacing={4} justifyContent="left">
-                            <Heading fontSize="lg">
-                                {" "}
-                                Others' availability{" "}
-                            </Heading>
-                            <Center>
-                                <ColorExplainer
-                                    numTotal={
-                                        liveMeetupRef.current.users.length
-                                    }
-                                />
-                            </Center>
-                            <CalendarDisplay
-                                meetup={liveMeetupRef.current}
-                                _rerender={_rerender}
-                            />
-                            {!meetup.isFullDay && (
-                                <ByTimeList meetup={liveMeetupRef.current} />
-                            )}
-                            {meetup.isFullDay && (
-                                <ByDateList meetup={liveMeetupRef.current} />
-                            )}
-                        </Stack>
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+                    </TabList>
+                    <TabIndicator
+                        mt="-1.5px"
+                        height="2px"
+                        bg={btnColor}
+                        borderRadius="1px"
+                    />
+                    <TabPanels>
+                        {indicateIsVisible && (
+                            <TabPanel p={1}>
+                                <Stack spacing={4} justifyContent="left">
+                                    <Box>
+                                        <Heading fontSize={"lg"}>
+                                            📅 Select your available dates{" "}
+                                        </Heading>
+                                        <HelperText>
+                                            {" "}
+                                            {isMobile
+                                                ? "Touch / Touch"
+                                                : "Click / click"}{" "}
+                                            and drag to select.
+                                        </HelperText>
+                                    </Box>
+                                    <CalendarContainer
+                                        datesSelected={datesSelected}
+                                        setDatesSelected={setDatesSelected}
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        allowedDates={
+                                            meetup.isFullDay
+                                                ? totalAllowedSlots
+                                                : meetup.dates
+                                        }
+                                        onStop={onStopDate}
+                                        onBeforeStart={onBeforeStartDate}
+                                    />
+                                    {!meetup.isFullDay && (
+                                        <>
+                                            <TimeSelector
+                                                classNameGenerator={
+                                                    classNameGenerator
+                                                }
+                                                datesSelected={
+                                                    staticDatesSelected
+                                                }
+                                                deselectAll={deselectAllTimes}
+                                                endMin={endMin}
+                                                startMin={startMin}
+                                                isSelectedCell={isSelectedCell}
+                                                selectAll={selectAllTimes}
+                                                timesSelected={timesRef.current}
+                                                onBeforeStart={
+                                                    onBeforeStartTime
+                                                }
+                                                onMove={onMoveTime}
+                                                allowedTimes={totalAllowedSlots}
+                                                onStop={onStopTime}
+                                            />
+                                        </>
+                                    )}
+                                    <Input
+                                        placeholder="Add your comments (optional)"
+                                        value={comments}
+                                        onChange={commentsOnChange}
+                                    />
+                                    <Divider />
+                                    {/* This section is for web users only; let them input a name if they don't have one. */}
+                                    {(!webUser || !webUser.first_name) && (
+                                        <Box>
+                                            <Input
+                                                placeholder={
+                                                    "Your name (required)"
+                                                }
+                                                onChange={(e) =>
+                                                    setTempName(e.target.value)
+                                                }
+                                                value={tempName}
+                                            />
+                                        </Box>
+                                    )}
+                                    {!user && (
+                                        <Center>
+                                            <Button
+                                                isDisabled={
+                                                    !hasDataChanged || !tempName
+                                                }
+                                                colorScheme="blue"
+                                                onClick={onSubmitWebUser}
+                                            >
+                                                Submit
+                                            </Button>
+                                        </Center>
+                                    )}
+                                </Stack>
+                            </TabPanel>
+                        )}
+                        <TabPanel p={1}>{ViewComponent}</TabPanel>
+                    </TabPanels>
+                </Tabs>
+            )}
+            {!indicateIsVisible && ViewComponent}
+
+            {AlertDelete}
         </Stack>
     );
 };

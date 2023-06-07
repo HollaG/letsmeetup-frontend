@@ -1,10 +1,14 @@
-import { Heading, Text } from "@chakra-ui/react";
+import { Heading, Stack, Text } from "@chakra-ui/react";
+import CallToActionWithIllustration from "../components/CTA/CTA";
+import SimpleThreeColumns from "../components/CTA/Features";
 
 const Root = () => {
     return (
-        <>
-            <Heading> This is my home page it has nothing atm </Heading>
-        </>
+        <Stack>
+            <CallToActionWithIllustration />
+            <Heading textAlign="center">Features</Heading>
+            <SimpleThreeColumns />
+        </Stack>
     );
 };
 

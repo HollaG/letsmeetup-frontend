@@ -16,7 +16,7 @@ import {
 import { format } from "date-fns";
 import { useTelegram } from "../../context/TelegramProvider";
 
-import { Meetup } from "../../db/repositories/meetups";
+import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
     RANGE_EMPTY_DARK,
@@ -33,6 +33,7 @@ import {
     RANGE_FULL_LIGHT,
     RANGE_FULL_DARK,
 } from "../../lib/std";
+import { ITelegramUser } from "../../types/telegram";
 import {
     aC,
     assignColor,
@@ -176,31 +177,61 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                     // TODO: see the lower one, #styling
                     borderRadius="0 4px 4px 0"
                 >
-                    <SimpleGrid columns={2} spacing={3} p={3}>
+                    <SimpleGrid
+                        columns={{
+                            base: 2,
+                            sm: 3,
+                            md: 4,
+                            lg: 6,
+                        }}
+                        spacing={3}
+                        p={3}
+                    >
                         {meetup.selectionMap[date] &&
-                            meetup.selectionMap[date].map((user, i) => (
-                                <Link
-                                    href={`https://t.me/${user.username}`}
-                                    textDecor="none"
-                                    isExternal
-                                    key={i}
-                                >
-                                    <Stack
-                                        alignItems={"center"}
-                                        justifyContent="center"
-                                        spacing={1}
+                            meetup.selectionMap[date].map((user, i) =>
+                                user.type === "telegram" ? (
+                                    <Link
+                                        href={`https://t.me/${
+                                            (user as ITelegramUser).username
+                                        }`}
+                                        textDecor="none"
+                                        isExternal
+                                        key={i}
                                     >
-                                        <Avatar
-                                            name={`${user.first_name} ${user.last_name}`}
-                                            src={user.photo_url}
-                                            size="xs"
-                                        />
-                                        <Text textAlign={"center"}>
-                                            {user.first_name}
-                                        </Text>
-                                    </Stack>
-                                </Link>
-                            ))}
+                                        <Stack
+                                            alignItems={"center"}
+                                            justifyContent="center"
+                                            spacing={1}
+                                        >
+                                            <Avatar
+                                                name={`${user.first_name} ${user.last_name}`}
+                                                src={user.photo_url}
+                                                size="xs"
+                                            />
+                                            <Text textAlign={"center"}>
+                                                {user.first_name}
+                                            </Text>
+                                        </Stack>
+                                    </Link>
+                                ) : (
+                                    <Box key={i}>
+                                        <Stack
+                                            alignItems={"center"}
+                                            justifyContent="center"
+                                            spacing={1}
+                                        >
+                                            <Avatar
+                                                name={`${user.first_name} ${user.last_name}`}
+                                                src={user.photo_url}
+                                                size="xs"
+                                            />
+                                            <Text textAlign={"center"}>
+                                                {user.first_name}
+                                            </Text>
+                                        </Stack>
+                                    </Box>
+                                )
+                            )}
                     </SimpleGrid>
                     <Box
 

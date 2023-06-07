@@ -1,5 +1,5 @@
 // import db config
-import fire, { db } from "..";
+import fire, { db } from "../..";
 import {
     getFirestore,
     collection,
@@ -12,13 +12,24 @@ import {
     getDoc,
     setDoc,
 } from "firebase/firestore";
-import { ITelegramUser } from "../../types/telegram";
+import { ITelegramUser } from "../../../types/telegram";
 import { Meetup } from "./meetups";
+
+export type WebUser = {
+    type: string;
+    id: string; // uid
+    first_name: string; // displayName.split(" ")[0]
+    last_name?: string; // displayName.split(" ")[1]
+    email: string; // email
+    photo_url?: string;
+};
+
+export type IMeetupUser = WebUser | ITelegramUser;
 
 // collection name
 export const COLLECTION_NAME = "users";
 
-export const all = async (): Promise<Array<ITelegramUser>> => {
+export const all = async (): Promise<Array<IMeetupUser>> => {
     const q = query(collection(db, COLLECTION_NAME));
     const data: Array<any> = [];
 
@@ -32,20 +43,20 @@ export const all = async (): Promise<Array<ITelegramUser>> => {
     });
 
     // return and convert back it array of todo
-    return data as Array<ITelegramUser>;
+    return data as Array<IMeetupUser>;
 };
 
 // create a user
 export const createIfNotExists = async (
-    user: ITelegramUser
-): Promise<ITelegramUser> | never => {
-    const dbRef = doc(db, COLLECTION_NAME);
+    user: IMeetupUser
+): Promise<IMeetupUser> | never => {
+    const dbRef = doc(db, COLLECTION_NAME, user.id.toString());
     try {
         const docRef = await setDoc(dbRef, user);
 
         return {
             ...user,
-        } as ITelegramUser;
+        } as IMeetupUser;
     } catch (e) {
         console.log(e);
         throw e;

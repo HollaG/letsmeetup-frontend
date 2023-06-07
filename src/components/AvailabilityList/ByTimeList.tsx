@@ -21,7 +21,7 @@ import {
 import { format } from "date-fns";
 import React from "react";
 import { useTelegram } from "../../context/TelegramProvider";
-import { Meetup } from "../../db/repositories/meetups";
+import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_0_DARK,
     RANGE_0_LIGHT,
@@ -39,6 +39,7 @@ import {
     RANGE_FULL_LIGHT,
 } from "../../lib/std";
 import { removeDate } from "../../routes/meetup";
+import { ITelegramUser } from "../../types/telegram";
 import {
     assignColor,
     hasPeopleInNextTimeSlot,
@@ -323,7 +324,12 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                             </Box>
                                             <SimpleGrid
                                                 mt={2}
-                                                columns={2}
+                                                columns={{
+                                                    base: 2,
+                                                    sm: 3,
+                                                    md: 4,
+                                                    lg: 6,
+                                                }}
                                                 spacing={2}
                                                 p={2}
                                             >
@@ -332,40 +338,75 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 ] &&
                                                     meetup.selectionMap[
                                                         `${minute}::${date}`
-                                                    ].map((user, i) => (
-                                                        <Link
-                                                            href={`https://t.me/${user.username}`}
-                                                            textDecor="none"
-                                                            isExternal
-                                                            key={i}
-                                                            fontSize="sm"
-                                                        >
-                                                            <Stack
-                                                                alignItems={
-                                                                    "center"
-                                                                }
-                                                                justifyContent="center"
-                                                                spacing={1}
+                                                    ].map((user, i) =>
+                                                        user.type ===
+                                                        "telegram" ? (
+                                                            <Link
+                                                                href={`https://t.me/${
+                                                                    (
+                                                                        user as ITelegramUser
+                                                                    ).username
+                                                                }`}
+                                                                textDecor="none"
+                                                                isExternal
+                                                                key={i}
+                                                                fontSize="sm"
                                                             >
-                                                                <Avatar
-                                                                    name={`${user.first_name} ${user.last_name}`}
-                                                                    src={
-                                                                        user.photo_url
-                                                                    }
-                                                                    size="xs"
-                                                                />
-                                                                <Text
-                                                                    textAlign={
+                                                                <Stack
+                                                                    alignItems={
                                                                         "center"
                                                                     }
+                                                                    justifyContent="center"
+                                                                    spacing={1}
                                                                 >
-                                                                    {
-                                                                        user.first_name
+                                                                    <Avatar
+                                                                        name={`${user.first_name} ${user.last_name}`}
+                                                                        src={
+                                                                            user.photo_url
+                                                                        }
+                                                                        size="xs"
+                                                                    />
+                                                                    <Text
+                                                                        textAlign={
+                                                                            "center"
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            user.first_name
+                                                                        }
+                                                                    </Text>
+                                                                </Stack>
+                                                            </Link>
+                                                        ) : (
+                                                            <Box key={i}>
+                                                                {" "}
+                                                                <Stack
+                                                                    alignItems={
+                                                                        "center"
                                                                     }
-                                                                </Text>
-                                                            </Stack>
-                                                        </Link>
-                                                    ))}
+                                                                    justifyContent="center"
+                                                                    spacing={1}
+                                                                >
+                                                                    <Avatar
+                                                                        name={`${user.first_name} ${user.last_name}`}
+                                                                        src={
+                                                                            user.photo_url
+                                                                        }
+                                                                        size="xs"
+                                                                    />
+                                                                    <Text
+                                                                        textAlign={
+                                                                            "center"
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            user.first_name
+                                                                        }
+                                                                    </Text>
+                                                                </Stack>
+                                                            </Box>
+                                                        )
+                                                    )}
                                             </SimpleGrid>
                                             <Box
 

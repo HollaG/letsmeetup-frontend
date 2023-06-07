@@ -1,7 +1,7 @@
 import { ChakraProps, useColorModeValue } from "@chakra-ui/react";
 import { isAfter, isBefore, parse } from "date-fns";
 import { CSSProperties } from "react";
-import { Meetup } from "../../db/repositories/meetups";
+import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
     RANGE_EMPTY_DARK,

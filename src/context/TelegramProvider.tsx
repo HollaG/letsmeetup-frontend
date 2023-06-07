@@ -1,11 +1,12 @@
 import { useColorMode } from "@chakra-ui/react";
 import { ThemeProvider } from "@emotion/react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { IMeetupUser } from "../firebase/db/repositories/users";
 import type { ITelegramUser, IWebApp, ThemeParams } from "../types/telegram";
 
 export interface ITelegramContext {
     webApp?: IWebApp;
-    user?: ITelegramUser;
+    user?: IMeetupUser;
     style?: ThemeParams;
 }
 
@@ -62,8 +63,6 @@ export const TelegramProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const [webApp, setWebApp] = useState<IWebApp | null>(null);
-
     const { colorMode, toggleColorMode, setColorMode } = useColorMode();
 
     const [themeParams, setThemeParams] = useState<ThemeParams | null>(null);
@@ -97,6 +96,7 @@ export const TelegramProvider = ({
         document.body.style.background = newStyle.bg_color;
     };
 
+    // Update the color mode if it changes
     useEffect(() => {
         const app = (window as any).Telegram?.WebApp;
 
@@ -104,23 +104,39 @@ export const TelegramProvider = ({
             const initData = app.initData;
 
             if (initData) {
-                validateHash(initData).then(() => {
-                    console.log("Data validated, you're good to go!");
-                    app.ready();
-                    setWebApp(app);
-                });
-                app.onEvent("themeChanged", updateColorMode);
                 updateColorMode();
             }
         }
     }, [(window as any).Telegram?.WebApp]);
+
+    let app = (window as any).Telegram?.WebApp;
+
+    if (app as IWebApp) {
+        const initData = app.initData;
+
+        if (initData) {
+            validateHash(initData)
+                .then(() => {
+                    console.log("Data validated, you're good to go!");
+                    app.ready();
+                })
+                .catch((e) => {
+                    app = null;
+                });
+            app.onEvent("themeChanged", updateColorMode);
+        }
+    }
+
+    const [webApp, setWebApp] = useState<IWebApp | null>(app);
 
     const value = useMemo(() => {
         return webApp
             ? {
                   webApp,
                   unsafeData: webApp.initDataUnsafe,
-                  user: webApp.initDataUnsafe.user,
+                  user: webApp.initDataUnsafe.user
+                      ? { ...webApp.initDataUnsafe.user, type: "telegram" }
+                      : undefined,
                   style: themeParams || undefined,
               }
             : {};

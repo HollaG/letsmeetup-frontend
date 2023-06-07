@@ -21,10 +21,13 @@ import "./index.css";
 import Layout from "./routes/layout";
 import MeetupPage from "./routes/meetup";
 import { doc, getDoc } from "firebase/firestore";
-import fire, { db } from "./db";
-import { COLLECTION_NAME } from "./db/repositories/meetups";
+import fire, { db } from "./firebase";
+import { COLLECTION_NAME } from "./firebase/db/repositories/meetups";
 import WebApp from "./routes/webapp";
 import MeetupEditPage from "./routes/meetup/edit";
+import AuthPage from "./routes/auth";
+import PrivateRoutes from "./routes/PrivateRoutes";
+import { WebUserProvider } from "./context/WebAuthProvider";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -49,6 +52,10 @@ const router = createHashRouter([
                 element: <Root />,
             },
             {
+                path: "/auth",
+                element: <AuthPage />,
+            },
+            {
                 path: "/create",
                 element: <Create />,
             },
@@ -57,14 +64,27 @@ const router = createHashRouter([
                 element: <MeetupPage />,
                 loader,
             },
+        ],
+    },
+    {
+        path: "/",
+        element: <Layout />,
+        errorElement: <ErrorPage />,
+        children: [
             {
-                path: "/meetup/:meetupId/edit",
-                element: <MeetupEditPage />,
-                loader,
-            },
-            {
-                path: "/webapp",
-                element: <WebApp />,
+                path: "/",
+                element: <PrivateRoutes />,
+                children: [
+                    {
+                        path: "/meetup/:meetupId/edit",
+                        element: <MeetupEditPage />,
+                        loader,
+                    },
+                    {
+                        path: "/webapp",
+                        element: <WebApp />,
+                    },
+                ],
             },
         ],
     },
@@ -79,7 +99,9 @@ root.render(
         <ColorModeScript />
         <ChakraProvider theme={theme}>
             <TelegramProvider>
-                <RouterProvider router={router} />
+                <WebUserProvider>
+                    <RouterProvider router={router} />
+                </WebUserProvider>
                 {/* <App /> */}
                 {/* </RouterProvider> */}
             </TelegramProvider>
