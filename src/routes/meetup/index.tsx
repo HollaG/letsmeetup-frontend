@@ -35,21 +35,19 @@ import { CellData } from "../../components/Time/TimeContainer";
 import TimeSelector from "../../components/Time/TimeSelector";
 import { useTelegram } from "../../context/TelegramProvider";
 import {
+    capitalizeFirstLetter,
+    generateRandomAnonName,
+    useWebUser,
+} from "../../context/WebAuthProvider";
+import { signInWithoutUsername } from "../../firebase/auth/anonymous";
+import {
     Meetup,
     updateAvailability,
 } from "../../firebase/db/repositories/meetups";
+import { IMeetupUser } from "../../firebase/db/repositories/users";
 import useFirestore from "../../hooks/firestore";
 import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
-
-let tempUser: ITelegramUser = {
-    id: "8995652501",
-    first_name: "Vlad",
-    last_name: "Kruglikov",
-    username: "vkruglikov",
-    language_code: "en",
-    type: "telegram",
-};
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -102,10 +100,11 @@ export const removeDate = (time: string) => {
 };
 
 const MeetupPage = () => {
-    const { colorMode, toggleColorMode } = useColorMode();
+    const webUser = useWebUser();
+
+    // Only on this page, create an anonymous account for the user if there is no webUser detected.
 
     const firestore = useFirestore();
-    const [document, setDocument] = useState();
 
     let { meetupId } = useParams<{
         meetupId: string;
@@ -115,16 +114,6 @@ const MeetupPage = () => {
     const [meetup, setMeetup] = useState<Meetup>(loadedMeetup);
     const [liveMeetup, setLiveMeetup, liveMeetupRef] =
         useStateRef<Meetup>(loadedMeetup);
-    // TEMPORARY: OVERRIDE USER ID
-    let { user, webApp, style } = useTelegram();
-
-    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
-
-    useEffect(() => {
-        setWebAppRef(webApp);
-    }, [webApp]);
-
-    if (!user) user = tempUser;
 
     /**
      * Subscribe to changes in the document.
@@ -145,16 +134,92 @@ const MeetupPage = () => {
         };
     }, []);
 
+    // Whether the user has modified any data
+    const [hasDataChanged, setHasDataChanged, dataChangedRef] =
+        useStateRef(false);
+
+    /** ----------------- TELEGRAM INTEGRATION ----------------- */
+    let { user, webApp, style } = useTelegram();
+
+    const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
+
+    useEffect(() => {
+        setWebAppRef(webApp);
+    }, [webApp]);
+
     // console.log({ meetup });
+
+    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
+    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
+    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+
+    const btnColor = style?.button_color || _btnColor;
+    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
+    const enabledTextColor = style?.button_text_color || _enabledTextColor;
+    const disabledTextColor = style?.text_color || _disabledTextColor;
+
+    /**
+     * Disables the button, along with setting the color
+     */
+    const disableButton = () => {
+        // console.log("disabling button");
+        if (webApp?.initData) {
+            // webApp.MainButton.isVisible = false;
+            webApp.MainButton.color = disabledBtnColor;
+            webApp.MainButton.disable();
+            webApp.MainButton.setText("No changes since last save");
+            webApp.isClosingConfirmationEnabled = false;
+            webApp.MainButton.textColor = disabledTextColor;
+        }
+    };
+
+    /**
+     * Enables the button, along with setting the color
+     */
+    const enableButton = () => {
+        // console.log("enabling button");
+
+        if (webApp?.initData) {
+            // webApp.MainButton.isVisible = true;
+            webApp.MainButton.color = btnColor;
+            webApp.MainButton.enable();
+            webApp.MainButton.setText("Save your availability");
+            webApp.isClosingConfirmationEnabled = true;
+            webApp.MainButton.textColor = enabledTextColor;
+        }
+    };
+
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.isVisible = true;
+            if (hasDataChanged) {
+                enableButton();
+            } else {
+                disableButton();
+            }
+            // console.log("updating onSubmit");
+        }
+    }, [webApp, hasDataChanged, style]);
+    useEffect(() => {
+        if (webApp?.initData) {
+            webApp.MainButton.offClick(onSubmitTelegram);
+            webApp.MainButton.onClick(onSubmitTelegram);
+        }
+    }, [webApp?.initData]);
+
+    /** ----------------- STATE MANAGEMENT ----------------- */
 
     /**
      * Initalize the dates and times selected to what the user has already selected, if there is any
      */
+
+    const userId = user?.id || (webUser && webUser?.id) || "";
     const [datesSelected, setDatesSelected, datesRef] = useStateRef<string[]>(
         [
             ...new Set(
                 meetup.users
-                    .find((u) => u.user.id === user?.id)
+                    .find((u) => u.user.id === userId)
                     ?.selected.map(removeTime)
             ),
         ].sort() || []
@@ -163,7 +228,7 @@ const MeetupPage = () => {
         [
             ...new Set(
                 meetup.users
-                    .find((u) => u.user.id === user?.id)
+                    .find((u) => u.user.id === userId)
                     ?.selected.map(removeTime)
             ),
         ].sort() || []
@@ -171,7 +236,7 @@ const MeetupPage = () => {
 
     const [timesSelected, setTimesSelected, timesRef] =
         useStateRef<TimeSelection>(
-            meetup.users.find((u) => u.user.id === user?.id)?.selected || []
+            meetup.users.find((u) => u.user.id === userId)?.selected || []
         );
 
     const startDate = dateParser(meetup.dates.sort()[0]);
@@ -429,7 +494,7 @@ const MeetupPage = () => {
     /**
      * Submits the availability data to the server.
      */
-    const onSubmit = async () => {
+    const onSubmitTelegram = async () => {
         console.log("onsubmit");
         await updateAvailability(
             meetupId,
@@ -445,71 +510,8 @@ const MeetupPage = () => {
         setHasDataChanged(false);
     };
 
-    // Whether the user has modified any data
-    const [hasDataChanged, setHasDataChanged, dataChangedRef] =
-        useStateRef(false);
-
-    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
-    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
-
-    const btnColor = style?.button_color || _btnColor;
-    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
-    const enabledTextColor = style?.button_text_color || _enabledTextColor;
-    const disabledTextColor = style?.text_color || _disabledTextColor;
-
-    /**
-     * Disables the button, along with setting the color
-     */
-    const disableButton = () => {
-        // console.log("disabling button");
-        if (webApp?.initData) {
-            // webApp.MainButton.isVisible = false;
-            webApp.MainButton.color = disabledBtnColor;
-            webApp.MainButton.disable();
-            webApp.MainButton.setText("No changes since last save");
-            webApp.isClosingConfirmationEnabled = false;
-            webApp.MainButton.textColor = disabledTextColor;
-        }
-    };
-
-    /**
-     * Enables the button, along with setting the color
-     */
-    const enableButton = () => {
-        // console.log("enabling button");
-
-        if (webApp?.initData) {
-            // webApp.MainButton.isVisible = true;
-            webApp.MainButton.color = btnColor;
-            webApp.MainButton.enable();
-            webApp.MainButton.setText("Save your availability");
-            webApp.isClosingConfirmationEnabled = true;
-            webApp.MainButton.textColor = enabledTextColor;
-        }
-    };
-
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.isVisible = true;
-            if (hasDataChanged) {
-                enableButton();
-            } else {
-                disableButton();
-            }
-            // console.log("updating onSubmit");
-        }
-    }, [webApp, hasDataChanged, style]);
-    useEffect(() => {
-        if (webApp?.initData) {
-            webApp.MainButton.offClick(onSubmit);
-            webApp.MainButton.onClick(onSubmit);
-        }
-    }, [webApp?.initData]);
-
     const [comments, setComments, commentsRef] = useStateRef<string>(
-        meetup.users.find((u) => u.user.id === user?.id)?.comments || ""
+        meetup.users.find((u) => u.user.id === userId)?.comments || ""
     );
     /**
      * Controlled component for the comments input
@@ -533,18 +535,24 @@ const MeetupPage = () => {
      * Helps to determine if the Indicate tab should be visible.
      * Should be live data!
      */
+
+    // indicate is always visible, UNLESS:
+    // 1) meetup is ended
+    // 2) meetup is full
     const indicateIsVisible =
-        webApp?.initData &&
         !liveMeetup.isEnded &&
         (liveMeetup.users.length <
             (liveMeetup.options?.limitNumberRespondents || 0) ||
-            liveMeetup.users.find((u) => u.user.id === user?.id));
+            liveMeetup.users.find((u) => u.user.id === userId));
     let cannotIndicateReason = "";
 
-    if (
-        liveMeetup.users.length >= liveMeetup.options.limitNumberRespondents &&
-        !liveMeetup.users.find((u) => u.user.id === user?.id)
-    ) {
+    const hasNotReachedLimit =
+        (webApp?.initData || webUser) &&
+        (liveMeetup.users.length <
+            (liveMeetup.options?.limitNumberRespondents || 0) ||
+            liveMeetup.users.find((u) => u.user.id === userId));
+
+    if (!hasNotReachedLimit) {
         cannotIndicateReason =
             "The number of respondents has reached the limit set by the creator. You can no longer indicate your availability.";
     }
@@ -575,7 +583,7 @@ const MeetupPage = () => {
                     // if the slot is selected, we should always render it.
                     if (
                         liveMeetup.users
-                            .find((u) => u.user.id === user?.id)
+                            .find((u) => u.user.id === userId)
                             ?.selected.includes(slot)
                     ) {
                         // user selecetd this slot
@@ -607,6 +615,55 @@ const MeetupPage = () => {
             setTotalAllowedSlots(creatorAllowed);
         }
     }, [liveMeetup]);
+
+    /** Handling stuff related to non-signed-in-users */
+    const randomName = `Anonymous ${capitalizeFirstLetter(
+        generateRandomAnonName()
+    )}`;
+    const [tempName, setTempName] = useState<string>(
+        webUser ? webUser.first_name : ""
+    );
+
+    /**
+     * Submits the availability data to the server.
+     */
+    const onSubmitWebUser = async () => {
+        console.log("onsubmit");
+
+        // if not logged in, as either anon or actual, log them in
+        let tWebUser: IMeetupUser;
+        if (!webUser) {
+            console.log("logging them in...");
+            let user = await signInWithoutUsername(tempName);
+            tWebUser = {
+                id: user.user.uid,
+                type: "temp",
+                first_name: tempName,
+                last_name: "",
+            } as IMeetupUser;
+        } else {
+            tWebUser = {
+                id: webUser.id,
+                type: webUser.type,
+                first_name: webUser.first_name || tempName,
+                last_name: webUser.last_name || "",
+            } as IMeetupUser;
+        }
+        console.log({ tWebUser, meetupId });
+
+        await updateAvailability(
+            meetupId,
+            tWebUser,
+            {
+                datesSelected: datesRef.current,
+                timesSelected: timesRef.current.filter((t) =>
+                    datesRef.current.includes(removeTime(t))
+                ),
+            },
+            commentsRef.current
+        );
+        setHasDataChanged(false);
+    };
 
     return (
         <Stack spacing={4}>
@@ -707,6 +764,32 @@ const MeetupPage = () => {
                                     value={comments}
                                     onChange={commentsOnChange}
                                 />
+                                <Divider />
+                                {/* This section is for web users only; let them input a name if they don't have one. */}
+                                {(!webUser || !webUser.first_name) && (
+                                    <Box>
+                                        <Input
+                                            placeholder={"Your name (required)"}
+                                            onChange={(e) =>
+                                                setTempName(e.target.value)
+                                            }
+                                            value={tempName}
+                                        />
+                                    </Box>
+                                )}
+                                {!user && (
+                                    <Center>
+                                        <Button
+                                            isDisabled={
+                                                !hasDataChanged || !tempName
+                                            }
+                                            colorScheme="blue"
+                                            onClick={onSubmitWebUser}
+                                        >
+                                            Submit
+                                        </Button>
+                                    </Center>
+                                )}
                             </Stack>
                         </TabPanel>
                     )}

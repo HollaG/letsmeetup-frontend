@@ -465,33 +465,44 @@ const Create = () => {
                             Unmodified settings will be set to their default.
                         </HelperText>
                     </Box>
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text>
-                                {" "}
-                                Send a notification when number of users hits:{" "}
-                            </Text>
-                            <HelperText> Default: No notification </HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <NumberInput
-                                    width="72px"
-                                    value={notificationThreshold}
-                                    onChange={(e) => {
-                                        setNotificationThreshold(parseInt(e));
-                                    }}
-                                    min={1}
-                                >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            </InputGroup>
-                        </Box>
-                    </Flex>
+                    {user && (
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <Text>
+                                    {" "}
+                                    Send a notification when number of users
+                                    hits:{" "}
+                                </Text>
+                                <HelperText>
+                                    {" "}
+                                    Default: No notification{" "}
+                                </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <NumberInput
+                                        width="72px"
+                                        value={notificationThreshold}
+                                        onChange={(e) => {
+                                            setNotificationThreshold(
+                                                parseInt(e)
+                                            );
+                                        }}
+                                        min={1}
+                                    >
+                                        <NumberInputField />
+                                        <NumberInputStepper>
+                                            <NumberIncrementStepper />
+                                            <NumberDecrementStepper />
+                                        </NumberInputStepper>
+                                    </NumberInput>
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    )}
 
                     <Flex justifyContent={"space-between"} alignItems="center">
                         <Box>
@@ -562,9 +573,9 @@ const Create = () => {
                             <InputGroup size="sm">
                                 <NumberInput
                                     width="72px"
-                                    value={limitNumberRespondents}
+                                    value={limitPerSlot}
                                     onChange={(e) => {
-                                        setLimitNumberRespondents(parseInt(e));
+                                        setLimitPerSlot(parseInt(e));
                                     }}
                                     min={1}
                                 >

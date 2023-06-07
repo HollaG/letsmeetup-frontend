@@ -9,7 +9,7 @@ import {
 
 export type IWebUser = User;
 
-export const WebUserContext = createContext<IMeetupUser | null>(null);
+export const WebUserContext = createContext<IMeetupUser | null | false>(false);
 
 const ANONYMOUS_NAMES =
     "alligator, anteater, armadillo, auroch, axolotl, badger, bat, bear, beaver, blobfish, buffalo, camel, chameleon, cheetah, chipmunk, chinchilla, chupacabra, cormorant, coyote, crow, dingo, dinosaur, dog, dolphin, dragon, duck, dumbo octopus, elephant, ferret, fox, frog, giraffe, goose, gopher, grizzly, hamster, hedgehog, hippo, hyena, jackal, jackalope, ibex, ifrit, iguana, kangaroo, kiwi, koala, kraken, lemur, leopard, liger, lion, llama, manatee, mink, monkey, moose, narwhal, nyan cat, orangutan, otter, panda, penguin, platypus, python, pumpkin, quagga, quokka, rabbit, raccoon, rhino, sheep, shrew, skunk, slow loris, squirrel, tiger, turtle, unicorn, walrus, wolf, wolverine, wombat".split(
@@ -22,12 +22,18 @@ const generateAnonName = (seed: string) => {
     return ANONYMOUS_NAMES[index];
 };
 
+export const generateRandomAnonName = () => {
+    const index = Math.floor(Math.random() * ANONYMOUS_NAMES.length);
+    return ANONYMOUS_NAMES[index];
+};
+
 export const WebUserProvider = ({
     children,
 }: {
     children: React.ReactNode;
 }) => {
-    const [user, setUser] = useState<IMeetupUser | null>(null);
+    // false represents the Loading state. null represents the Logged Out state
+    const [user, setUser] = useState<IMeetupUser | null | false>(false);
 
     // listen to auth changes
     useEffect(() => {
@@ -76,6 +82,6 @@ export const WebUserProvider = ({
 
 export const useWebUser = () => useContext(WebUserContext);
 
-function capitalizeFirstLetter(string: string) {
+export function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }

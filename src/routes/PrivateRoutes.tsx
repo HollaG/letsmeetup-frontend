@@ -12,6 +12,12 @@ const PrivateRoutes = () => {
     const headingTo = encodeURIComponent(location.pathname);
 
     console.log(user || webUser ? "USER LOGGED" : "NOT LOGGED");
+
+    // https://stackoverflow.com/questions/76377550/login-page-is-displayed-when-i-refresh-homepage-in-react-with-firebase-auth
+    if (!user && webUser === false) {
+        console.log("returning loading");
+        return <> Loading... </>;
+    }
     return user || webUser ? (
         <Outlet />
     ) : (

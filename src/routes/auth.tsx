@@ -43,6 +43,11 @@ const AuthPage = () => {
     );
 };
 
+/**
+ * Directly sends the user to the login page
+ */
+const skipSignIn = () => {};
+
 function LoginCard() {
     return (
         <Flex
@@ -66,7 +71,7 @@ function LoginCard() {
                     p={8}
                 >
                     <Stack spacing={4}>
-                        <Button onClick={signInWithoutUsername}>
+                        <Button onClick={() => signInWithoutUsername()}>
                             {" "}
                             Skip sign in{" "}
                         </Button>

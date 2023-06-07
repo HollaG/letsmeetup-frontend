@@ -18,6 +18,10 @@ import {
     Container,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { signOut } from "firebase/auth";
+import { signOutWithoutUsername } from "../../firebase/auth/anonymous";
+import { useWebUser } from "../../context/WebAuthProvider";
+import { useTelegram } from "../../context/TelegramProvider";
 
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
@@ -37,6 +41,8 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const webUser = useWebUser();
+    const { user } = useTelegram();
     return (
         <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
             <Container maxWidth="1000px">
@@ -57,42 +63,51 @@ export default function Nav() {
                                 )}
                             </Button>
 
-                            <Menu>
-                                <MenuButton
-                                    as={Button}
-                                    rounded={"full"}
-                                    variant={"link"}
-                                    cursor={"pointer"}
-                                    minW={0}
-                                >
-                                    <Avatar
-                                        size={"sm"}
-                                        src={
-                                            "https://avatars.dicebear.com/api/male/username.svg"
-                                        }
-                                    />
-                                </MenuButton>
-                                <MenuList alignItems={"center"}>
-                                    <br />
-                                    <Center>
+                            {(webUser || user) && (
+                                <Menu>
+                                    <MenuButton
+                                        as={Button}
+                                        rounded={"full"}
+                                        variant={"link"}
+                                        cursor={"pointer"}
+                                        minW={0}
+                                    >
                                         <Avatar
-                                            size={"2xl"}
+                                            size={"sm"}
                                             src={
                                                 "https://avatars.dicebear.com/api/male/username.svg"
                                             }
                                         />
-                                    </Center>
-                                    <br />
-                                    <Center>
-                                        <p>Username</p>
-                                    </Center>
-                                    <br />
-                                    <MenuDivider />
-                                    <MenuItem>Your Servers</MenuItem>
-                                    <MenuItem>Account Settings</MenuItem>
-                                    <MenuItem>Logout</MenuItem>
-                                </MenuList>
-                            </Menu>
+                                    </MenuButton>
+                                    <MenuList alignItems={"center"}>
+                                        <br />
+                                        <Center>
+                                            <Avatar
+                                                size={"2xl"}
+                                                src={
+                                                    "https://avatars.dicebear.com/api/male/username.svg"
+                                                }
+                                            />
+                                        </Center>
+                                        <br />
+                                        <Center>
+                                            <p>
+                                                {webUser && webUser.first_name}
+                                            </p>
+                                        </Center>
+                                        <br />
+                                        <MenuDivider />
+                                        <MenuItem>Your Servers</MenuItem>
+                                        <MenuItem>Account Settings</MenuItem>
+                                        <MenuItem
+                                            onClick={signOutWithoutUsername}
+                                        >
+                                            Logout
+                                        </MenuItem>
+                                    </MenuList>
+                                </Menu>
+                            )}
+                            {!(webUser || user) && <Button> Sign in</Button>}
                         </Stack>
                     </Flex>
                 </Flex>

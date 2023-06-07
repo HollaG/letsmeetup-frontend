@@ -32,6 +32,7 @@ import TimeContainer, {
     create30MinuteIncrements,
 } from "../../components/Time/TimeContainer";
 import { useTelegram } from "../../context/TelegramProvider";
+import { useWebUser } from "../../context/WebAuthProvider";
 import {
     create,
     Meetup,
@@ -65,7 +66,9 @@ const MeetupEditPage = () => {
     );
 
     const { user, webApp, style } = useTelegram();
+    const webUser = useWebUser();
 
+    const userId = user?.id || (webUser && webUser?.id) || "";
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
         useStateRef<boolean>(false);
 
@@ -440,7 +443,7 @@ const MeetupEditPage = () => {
     };
 
     if (!user || !loadedMeetup) {
-        if (user?.id !== loadedMeetup?.creator.id) {
+        if (userId !== loadedMeetup?.creator.id) {
             return <>You do not have access to edit this meetup</>;
         }
     }

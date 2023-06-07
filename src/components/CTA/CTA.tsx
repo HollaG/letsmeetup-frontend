@@ -7,7 +7,10 @@ import {
     Button,
     Icon,
     IconProps,
+    Link as NavLink,
 } from "@chakra-ui/react";
+
+import { Link } from "react-router-dom";
 
 export default function CallToActionWithIllustration() {
     return (
@@ -33,15 +36,17 @@ export default function CallToActionWithIllustration() {
                     again. Keep track of everyone's availability in one place.
                 </Text>
                 <Stack spacing={6} direction={"row"}>
-                    <Button
-                        rounded={"full"}
-                        px={6}
-                        colorScheme={"blue"}
-                        bg={"blue.400"}
-                        _hover={{ bg: "blue.500" }}
-                    >
-                        Get started
-                    </Button>
+                    <NavLink as={Link} to="/create">
+                        <Button
+                            rounded={"full"}
+                            px={6}
+                            colorScheme={"blue"}
+                            bg={"blue.400"}
+                            _hover={{ bg: "blue.500" }}
+                        >
+                            Get started
+                        </Button>
+                    </NavLink>
                     <Button rounded={"full"} px={6}>
                         Learn more
                     </Button>
