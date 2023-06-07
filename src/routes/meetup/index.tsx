@@ -170,6 +170,7 @@ const MeetupPage = () => {
         useStateRef(false);
 
     /** ----------------- TELEGRAM INTEGRATION ----------------- */
+
     let { user, webApp, style } = useTelegram();
 
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
