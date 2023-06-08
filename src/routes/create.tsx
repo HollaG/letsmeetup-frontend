@@ -29,6 +29,7 @@ import {
     NumberInput,
     NumberInputField,
     NumberInputStepper,
+    SimpleGrid,
     Stack,
     Switch,
     Text,
@@ -417,7 +418,7 @@ const Create = () => {
 
     return (
         <Stack spacing={4} justifyContent="center" alignItems={"center"}>
-            <Container id="container-details" p={0}>
+            <Container id="container-details" p={0} maxW="1000px">
                 <Stack>
                     <Heading fontSize={"xl"}>🎉Create a new event </Heading>
                     <Input
@@ -436,7 +437,8 @@ const Create = () => {
                 </Stack>
             </Container>
 
-            <Container id="container-dates" p={0}>
+            <SimpleGrid columns={{ base: 1, md: 2 }}></SimpleGrid>
+            <Container id="container-dates" p={0} maxW="1000px">
                 <Stack>
                     <Box>
                         <Heading fontSize={"xl"} pt={6}>
@@ -450,16 +452,19 @@ const Create = () => {
                             drag to select.
                         </HelperText>
                     </Box>
-
+                    {/* <Center>
+                        <Container justifyContent="center"> */}
                     <CalendarContainer
                         datesSelected={datesRef.current}
                         setDatesSelected={setDatesSelected}
                         onStop={onStop}
                     />
+                    {/* </Container>
+                    </Center> */}
                 </Stack>
             </Container>
 
-            <Container id="container-timings" p={0}>
+            <Container id="container-timings" p={0} maxW="1000px">
                 <Stack>
                     <Heading fontSize={"xl"} pt={6}>
                         {" "}
@@ -500,7 +505,7 @@ const Create = () => {
                 </Stack>{" "}
             </Container>
 
-            <Container id="container-settings" p={0}>
+            <Container id="container-settings" p={0} maxW="1000px">
                 {" "}
                 <Stack>
                     <Box>
@@ -638,7 +643,7 @@ const Create = () => {
             </Container>
 
             {!user && !webUser && (
-                <Container id="container-user" p={0}>
+                <Container id="container-user" p={0} maxW="1000px">
                     <Stack>
                         <Heading fontSize={"xl"} pt={6}>
                             👤 User settings
@@ -676,7 +681,7 @@ const Create = () => {
                     </Stack>
                 </Container>
             )}
-            <Container id="container-submit" p={0}>
+            <Container id="container-submit" p={0} maxW="1000px">
                 {!user && (
                     <Center>
                         <Button
