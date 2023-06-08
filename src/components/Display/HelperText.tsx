@@ -8,7 +8,7 @@ import { useTelegram } from "../../context/TelegramProvider";
  * @param param0 the text to display
  * @returns
  */
-const HelperText = ({ children }: { children: ReactNode }) => {
+const HelperText = ({ children }: { children: ReactNode | ReactNode[] }) => {
     const _color = useColorModeValue("gray.700", "gray.300");
     const { style } = useTelegram();
 

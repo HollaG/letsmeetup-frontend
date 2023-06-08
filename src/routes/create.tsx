@@ -172,6 +172,7 @@ const Create = () => {
             selectionMap: {},
             messages: [],
             isEnded: false,
+            last_updated: new Date(),
             options: {
                 notificationThreshold:
                     notificationThresholdRef.current || Number.MAX_VALUE,
@@ -381,6 +382,7 @@ const Create = () => {
             selectionMap: {},
             messages: [],
             isEnded: false,
+            last_updated: new Date(),
             options: {
                 notificationThreshold:
                     notificationThresholdRef.current || Number.MAX_VALUE,

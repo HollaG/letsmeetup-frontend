@@ -28,6 +28,7 @@ import MeetupEditPage from "./routes/meetup/edit";
 import AuthPage from "./routes/auth";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import { WebUserProvider } from "./context/WebAuthProvider";
+import MeetupsPage from "./routes/meetups";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -83,6 +84,10 @@ const router = createHashRouter([
                     {
                         path: "/webapp",
                         element: <WebApp />,
+                    },
+                    {
+                        path: "/meetups",
+                        element: <MeetupsPage />,
                     },
                 ],
             },

@@ -79,7 +79,14 @@ export default function Nav() {
                                         <Avatar
                                             size={"sm"}
                                             src={
-                                                "https://avatars.dicebear.com/api/male/username.svg"
+                                                webUser
+                                                    ? webUser.photo_url
+                                                    : user?.photo_url
+                                            }
+                                            name={
+                                                webUser
+                                                    ? webUser.first_name
+                                                    : user?.first_name
                                             }
                                         />
                                     </MenuButton>
@@ -89,7 +96,14 @@ export default function Nav() {
                                             <Avatar
                                                 size={"2xl"}
                                                 src={
-                                                    "https://avatars.dicebear.com/api/male/username.svg"
+                                                    webUser
+                                                        ? webUser.photo_url
+                                                        : user?.photo_url
+                                                }
+                                                name={
+                                                    webUser
+                                                        ? webUser.first_name
+                                                        : user?.first_name
                                                 }
                                             />
                                         </Center>
@@ -101,8 +115,13 @@ export default function Nav() {
                                         </Center>
                                         <br />
                                         <MenuDivider />
-                                        <MenuItem>Your Servers</MenuItem>
-                                        <MenuItem>Account Settings</MenuItem>
+                                        <MenuItem>
+                                            <NavLink as={Link} to="/meetups">
+                                                {" "}
+                                                Your Meetups
+                                            </NavLink>{" "}
+                                        </MenuItem>
+                                        {/* <MenuItem>Account Settings</MenuItem> */}
                                         <MenuItem
                                             onClick={signOutWithoutUsername}
                                         >
@@ -111,7 +130,11 @@ export default function Nav() {
                                     </MenuList>
                                 </Menu>
                             )}
-                            {!(webUser || user) && <Button> Sign in</Button>}
+                            {!(webUser || user) && (
+                                <NavLink as={Link} to="/auth">
+                                    <Button colorScheme="blue"> Sign in</Button>{" "}
+                                </NavLink>
+                            )}
                         </Stack>
                     </Flex>
                 </Flex>
