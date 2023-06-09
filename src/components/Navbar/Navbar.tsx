@@ -68,6 +68,25 @@ export default function Nav() {
                             </Button>
 
                             {(webUser || user) && (
+                                <Center>
+                                    <NavLink as={Link} to="/meetups">
+                                        <Avatar
+                                            size={"sm"}
+                                            src={
+                                                webUser
+                                                    ? webUser.photo_url
+                                                    : user?.photo_url
+                                            }
+                                            name={
+                                                webUser
+                                                    ? webUser.first_name
+                                                    : user?.first_name
+                                            }
+                                        />
+                                    </NavLink>
+                                </Center>
+                            )}
+                            {/* {(webUser || user) && (
                                 <Menu>
                                     <MenuButton
                                         as={Button}
@@ -93,19 +112,21 @@ export default function Nav() {
                                     <MenuList alignItems={"center"}>
                                         <br />
                                         <Center>
-                                            <Avatar
-                                                size={"2xl"}
-                                                src={
-                                                    webUser
-                                                        ? webUser.photo_url
-                                                        : user?.photo_url
-                                                }
-                                                name={
-                                                    webUser
-                                                        ? webUser.first_name
-                                                        : user?.first_name
-                                                }
-                                            />
+                                            <NavLink as={Link}>
+                                                <Avatar
+                                                    size={"2xl"}
+                                                    src={
+                                                        webUser
+                                                            ? webUser.photo_url
+                                                            : user?.photo_url
+                                                    }
+                                                    name={
+                                                        webUser
+                                                            ? webUser.first_name
+                                                            : user?.first_name
+                                                    }
+                                                />
+                                            </NavLink>
                                         </Center>
                                         <br />
                                         <Center>
@@ -121,7 +142,7 @@ export default function Nav() {
                                                 Your Meetups
                                             </NavLink>{" "}
                                         </MenuItem>
-                                        {/* <MenuItem>Account Settings</MenuItem> */}
+                                        
                                         <MenuItem
                                             onClick={signOutWithoutUsername}
                                         >
@@ -129,7 +150,7 @@ export default function Nav() {
                                         </MenuItem>
                                     </MenuList>
                                 </Menu>
-                            )}
+                            )} */}
                             {!(webUser || user) && (
                                 <NavLink as={Link} to="/auth">
                                     <Button colorScheme="blue"> Sign in</Button>{" "}
