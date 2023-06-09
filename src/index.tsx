@@ -40,9 +40,10 @@ async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
  * React-router routes for handling viewing, creating, and home page
  *
  * Github doesn't support createBrowserRouter
+ * Telegram Web App doesn't support BrowserRouter either.
  * @see https://stackoverflow.com/questions/71984401/react-router-not-working-with-github-pages
  */
-const router = createBrowserRouter([
+const router = createHashRouter([
     {
         path: "/",
         element: <Layout />,
@@ -61,8 +62,15 @@ const router = createBrowserRouter([
                 element: <Create />,
             },
             {
+                path: "/meetup/:meetupId/*",
+                element: <MeetupPage />,
+
+                loader,
+            },
+            {
                 path: "/meetup/:meetupId",
                 element: <MeetupPage />,
+
                 loader,
             },
         ],
@@ -107,8 +115,6 @@ root.render(
                 <WebUserProvider>
                     <RouterProvider router={router} />
                 </WebUserProvider>
-                {/* <App /> */}
-                {/* </RouterProvider> */}
             </TelegramProvider>
         </ChakraProvider>
     </React.StrictMode>

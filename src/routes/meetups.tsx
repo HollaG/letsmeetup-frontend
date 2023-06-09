@@ -13,15 +13,18 @@ import {
     Divider,
     Flex,
     Link as NavLink,
+    Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import HelperText from "../components/Display/HelperText";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
 import { getUserMeetups, Meetup } from "../firebase/db/repositories/meetups";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
 import { format } from "date-fns/esm";
+import { signOut } from "firebase/auth";
+import { signOutAll } from "../firebase/auth";
 const MeetupsPage = () => {
     const { user } = useTelegram();
     const webUser = useWebUser();
@@ -39,10 +42,20 @@ const MeetupsPage = () => {
         if (meetupUser)
             getUserMeetups(meetupUser.id).then(setMeetups).catch(console.error);
     }, [meetupUser]);
+
+    const navigate = useNavigate();
+
     if (!meetupUser) {
         console.log("not allowed");
         return <> Loading... </>;
     }
+
+    const handleSignOut = () => {
+        navigate("/");
+        signOutAll();
+    };
+
+    console.log(meetupUser);
 
     return (
         // <SimpleGrid columns={2}>
@@ -74,6 +87,15 @@ const MeetupsPage = () => {
                             <Text fontWeight="semibold"> Account type</Text>
                             <Text> {meetupUser?.type}</Text>
                         </Box>
+
+                        <Button
+                            size="sm"
+                            onClick={handleSignOut}
+                            colorScheme="blue"
+                        >
+                            {" "}
+                            Sign out{" "}
+                        </Button>
                     </Stack>
                 </Center>
             </GridItem>
