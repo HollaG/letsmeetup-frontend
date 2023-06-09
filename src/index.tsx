@@ -42,7 +42,7 @@ async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
  * Github doesn't support createBrowserRouter
  * @see https://stackoverflow.com/questions/71984401/react-router-not-working-with-github-pages
  */
-const router = createHashRouter([
+const router = createBrowserRouter([
     {
         path: "/",
         element: <Layout />,

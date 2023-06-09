@@ -20,10 +20,21 @@ import {
     NumberIncrementStepper,
     NumberInputField,
     NumberInputStepper,
+    Button,
+    Center,
+    useToast,
+    useDisclosure,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    Link as NavLink,
 } from "@chakra-ui/react";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { isMobile } from "react-device-detect";
-import { useLoaderData, useParams } from "react-router-dom";
+import { Link, useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import { removeDate } from ".";
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
@@ -148,6 +159,110 @@ const MeetupEditPage = () => {
     ]);
 
     const [_, setHasUserSubmitted, hasUserSubmittedRef] = useStateRef(false);
+    const toast = useToast();
+
+    /**
+     * Submits the updated data to the server.
+     *
+     * @returns Promise
+     */
+    const submitUpdate = () => {
+        let newSelectionMap = structuredClone(loadedMeetup.selectionMap);
+        // if the creator changed from a full day to a non-full day or vice versa,
+        let newUsers: UserAvailabilityData[] = structuredClone(
+            loadedMeetup.users
+        );
+        if (isFullDayRef.current !== loadedMeetup.isFullDay) {
+            // remove all the timeslots
+            // remove all the selectionMap
+            newSelectionMap = {};
+            newUsers = [];
+        } else {
+            // if there are any times set in the old selectionMap as keys that are NOT in the new timeslots / new dates, remove them
+            if (isFullDayRef.current) {
+                // the meetup was a full day.
+                for (let dateStr in loadedMeetup.selectionMap) {
+                    if (!datesRef.current.includes(dateStr)) {
+                        delete newSelectionMap[dateStr];
+                    }
+                }
+
+                for (let userData of newUsers) {
+                    userData.selected = userData.selected.filter((s) =>
+                        datesRef.current.includes(s)
+                    );
+                }
+            } else {
+                // the meetup was a time one
+                for (let dateTimeStr in loadedMeetup.selectionMap) {
+                    if (!timesRef.current.includes(dateTimeStr)) {
+                        delete newSelectionMap[dateTimeStr];
+                    }
+                }
+                for (let userData of newUsers) {
+                    console.log("before", userData.selected);
+                    userData.selected = userData.selected.filter((s) =>
+                        timesRef.current.includes(s)
+                    );
+                    console.log("after", userData.selected);
+                }
+            }
+        }
+
+        // filter the users to remove those who have no more items selected
+        newUsers = newUsers.filter((u) => u.selected.length !== 0);
+
+        // special: if the number of new users drops below the notification limit, set notified to false
+        if (newUsers.length < loadedMeetup.options.notificationThreshold) {
+            loadedMeetup.notified = false;
+        }
+
+        const MeetupData: Meetup = {
+            ...loadedMeetup,
+            title: titleRef.current,
+            description: descriptionRef.current,
+            // date_created: new Date(),
+            // creator: {
+            //     id: user!.id,
+            //     first_name: user!.first_name,
+            //     username: user!.username,
+            //     photo_url: user!.photo_url || "",
+            // },
+            isFullDay: isFullDayRef.current,
+            timeslots: isFullDayRef.current ? [] : timesRef.current,
+            dates: datesRef.current,
+            // users: [],
+            // notified: false,
+            selectionMap: newSelectionMap,
+            // messages: [],
+            // isEnded: false,
+            options: {
+                notificationThreshold:
+                    notificationThresholdRef.current ?? Number.MAX_VALUE,
+
+                limitNumberRespondents:
+                    limitNumberRespondentsRef.current ?? Number.MAX_VALUE,
+                limitPerSlot: limitPerSlotRef.current ?? Number.MAX_VALUE,
+                limitSlotsPerRespondent:
+                    limitSlotsPerRespondentRef.current ?? Number.MAX_VALUE,
+            },
+            users: newUsers,
+            // creatorInfoMessageId: 0,
+        };
+
+        console.log({ MeetupData });
+
+        return update(meetupId, MeetupData)
+            .then((res) => {
+                disableButton();
+                // TODO: update the loaded meetup
+                setUserCanSubmit(false);
+                loadedMeetup = res;
+            })
+            .catch((e) => {
+                alert(e);
+            });
+    };
 
     /**
      *
@@ -166,122 +281,8 @@ const MeetupEditPage = () => {
         if (!userCanSubmitRef.current || hasUserSubmittedRef.current) {
             return console.log("can't submit!");
         }
-        const submitUpdate = () => {
-            let newSelectionMap = structuredClone(loadedMeetup.selectionMap);
-            // if the creator changed from a full day to a non-full day or vice versa,
-            let newUsers: UserAvailabilityData[] = structuredClone(
-                loadedMeetup.users
-            );
-            if (isFullDayRef.current !== loadedMeetup.isFullDay) {
-                // remove all the timeslots
-                // remove all the selectionMap
-                newSelectionMap = {};
-                newUsers = [];
-            } else {
-                // if there are any times set in the old selectionMap as keys that are NOT in the new timeslots / new dates, remove them
-                if (isFullDayRef.current) {
-                    // the meetup was a full day.
-                    for (let dateStr in loadedMeetup.selectionMap) {
-                        if (!datesRef.current.includes(dateStr)) {
-                            delete newSelectionMap[dateStr];
-                        }
-                    }
 
-                    for (let userData of newUsers) {
-                        userData.selected = userData.selected.filter((s) =>
-                            datesRef.current.includes(s)
-                        );
-                    }
-                } else {
-                    // the meetup was a time one
-                    for (let dateTimeStr in loadedMeetup.selectionMap) {
-                        if (!timesRef.current.includes(dateTimeStr)) {
-                            delete newSelectionMap[dateTimeStr];
-                        }
-                    }
-                    for (let userData of newUsers) {
-                        console.log("before", userData.selected);
-                        userData.selected = userData.selected.filter((s) =>
-                            timesRef.current.includes(s)
-                        );
-                        console.log("after", userData.selected);
-                    }
-                }
-            }
-
-            // filter the users to remove those who have no more items selected
-            newUsers = newUsers.filter((u) => u.selected.length !== 0);
-
-            // special: if the number of new users drops below the notification limit, set notified to false
-            if (newUsers.length < loadedMeetup.options.notificationThreshold) {
-                loadedMeetup.notified = false;
-            }
-
-            const MeetupData: Meetup = {
-                ...loadedMeetup,
-                title: titleRef.current,
-                description: descriptionRef.current,
-                // date_created: new Date(),
-                // creator: {
-                //     id: user!.id,
-                //     first_name: user!.first_name,
-                //     username: user!.username,
-                //     photo_url: user!.photo_url || "",
-                // },
-                isFullDay: isFullDayRef.current,
-                timeslots: isFullDayRef.current ? [] : timesRef.current,
-                dates: datesRef.current,
-                // users: [],
-                // notified: false,
-                selectionMap: newSelectionMap,
-                // messages: [],
-                // isEnded: false,
-                options: {
-                    notificationThreshold:
-                        notificationThresholdRef.current ?? Number.MAX_VALUE,
-
-                    limitNumberRespondents:
-                        limitNumberRespondentsRef.current ?? Number.MAX_VALUE,
-                    limitPerSlot: limitPerSlotRef.current ?? Number.MAX_VALUE,
-                    limitSlotsPerRespondent:
-                        limitSlotsPerRespondentRef.current ?? Number.MAX_VALUE,
-                },
-                users: newUsers,
-                // creatorInfoMessageId: 0,
-            };
-
-            console.log({ MeetupData });
-
-            update(meetupId, MeetupData)
-                .then((res) => {
-                    disableButton();
-                    // TODO: update the loaded meetup
-                    setUserCanSubmit(false);
-                    loadedMeetup = res;
-                })
-                .catch((e) => {
-                    alert(e);
-                });
-
-            // create(MeetupData)
-            //     .then((res) => {
-            //         // send the ID back to Telegram
-            //         // webApp?.sendData(res.id)
-            //         // webApp?.close()
-            //         const newDocId = res.id;
-            //         webApp?.switchInlineQuery(titleRef.current, [
-            //             "users",
-            //             "groups",
-            //             "channels",
-            //             "bots",
-            //         ]);
-            //         webApp?.close();
-            //     })
-            //     .catch((e) => {
-            //         alert("somme error!!");
-            //     });
-        };
-        if (webApp) {
+        if (user && webApp) {
             if (loadedMeetup.isFullDay !== isFullDayRef.current) {
                 webApp.showPopup(
                     {
@@ -307,10 +308,57 @@ const MeetupEditPage = () => {
             } else {
                 submitUpdate();
             }
+        } else {
+            if (loadedMeetup.isFullDay !== isFullDayRef.current) {
+                // show popup
+                onOpen();
+            } else {
+                submitUpdate()
+                    .then(() => {
+                        toast({
+                            title: "Meetup updated!",
+                            description: "Your meetup has been updated.",
+                            status: "success",
+                            duration: 3000,
+                        });
+                    })
+                    .catch((e) => {
+                        toast({
+                            title: "Error",
+                            description: e.toString(),
+                            status: "error",
+                            duration: 8000,
+                        });
+                    });
+            }
         }
 
         return;
     }, [webApp]);
+
+    /**
+     * For when the user confirms destructive action
+     */
+    const onConfirm = () => {
+        submitUpdate()
+            .then(() => {
+                toast({
+                    title: "Meetup updated!",
+                    description: "Your meetup has been updated.",
+                    status: "success",
+                    duration: 3000,
+                });
+                onClose();
+            })
+            .catch((e) => {
+                toast({
+                    title: "Error",
+                    description: e.toString(),
+                    status: "error",
+                    duration: 8000,
+                });
+            });
+    };
 
     /**
      * Initialize button at bottom of screen
@@ -442,6 +490,41 @@ const MeetupEditPage = () => {
         }
     };
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
+
+    const AlertEditType = (
+        <AlertDialog
+            isOpen={isOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={onClose}
+        >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Warning: Irreversible action!
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                        Changing the meetup type from a full-day to a part-day
+                        meetup will reset everyone's selections! <br />
+                        <br />
+                        This action cannot be undone.
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                        <Button ref={cancelRef} onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button colorScheme="red" onClick={onConfirm} ml={3}>
+                            Change type
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+        </AlertDialog>
+    );
+
     if (!user || !loadedMeetup) {
         if (userId !== loadedMeetup?.creator.id) {
             return <>You do not have access to edit this meetup</>;
@@ -451,7 +534,18 @@ const MeetupEditPage = () => {
     return (
         <FormControl>
             <Stack spacing={4}>
-                <Heading fontSize={"xl"}> Edit event </Heading>
+                <Flex alignItems={"baseline"}>
+                    <Heading fontSize={"xl"}> Edit event </Heading>
+                    <NavLink
+                        ml={1}
+                        as={Link}
+                        to={`/meetup/${meetupId}`}
+                        fontSize="sm"
+                    >
+                        {" "}
+                        (back to event){" "}
+                    </NavLink>
+                </Flex>
                 <Input
                     id="title"
                     placeholder="Event title (required)"
@@ -540,34 +634,36 @@ const MeetupEditPage = () => {
                     Please note that changing any 'limit' setting will NOT
                     remove users who have already indicated!
                 </Alert>
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Text>
-                            {" "}
-                            Send a notification when number of users hits:{" "}
-                        </Text>
-                        <HelperText> Default: No notification </HelperText>
-                    </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={notificationThreshold}
-                                onChange={(e) => {
-                                    setNotificationThreshold(parseInt(e));
-                                    setUserCanSubmit(true);
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
+                {user && (
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text>
+                                {" "}
+                                Send a notification when number of users hits:{" "}
+                            </Text>
+                            <HelperText> Default: No notification </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <NumberInput
+                                    width="72px"
+                                    value={notificationThreshold}
+                                    onChange={(e) => {
+                                        setNotificationThreshold(parseInt(e));
+                                        setUserCanSubmit(true);
+                                    }}
+                                    min={1}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+                )}
 
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
@@ -652,7 +748,20 @@ const MeetupEditPage = () => {
                         </InputGroup>
                     </Box>
                 </Flex>
+                {!user && (
+                    <Center>
+                        <Button
+                            colorScheme={"blue"}
+                            isDisabled={!userCanSubmit}
+                            onClick={onSubmit}
+                        >
+                            {" "}
+                            Edit event{" "}
+                        </Button>
+                    </Center>
+                )}
             </Stack>
+            {AlertEditType}
         </FormControl>
     );
 };

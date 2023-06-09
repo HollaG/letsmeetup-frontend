@@ -872,6 +872,7 @@ const MeetupPage = () => {
                                     <NavLink
                                         as={Link}
                                         to={`/meetup/${meetupId}/edit`}
+                                        w="100%"
                                     >
                                         {" "}
                                         Edit{" "}
