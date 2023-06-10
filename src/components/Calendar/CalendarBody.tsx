@@ -36,12 +36,6 @@ export type CalendarBodyProps = {
     allowedDates?: string[];
 };
 
-// Color values
-const DARK__UNSELECTABLE_TEXT_COLOR = "gray.600";
-const LIGHT__UNSELECTABLE_TEXT_COLOR = "gray.400";
-const DARK__SELECTED_DATE_COLOR = "blue.800";
-const LIGHT__SELECTED_DATE_COLOR = "blue.200";
-
 const CalendarBody = ({
     drawnDays,
     datesSelected,

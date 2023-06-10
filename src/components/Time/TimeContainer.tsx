@@ -416,15 +416,9 @@ const TimeContainer = ({
         setPreviousTimesSelected([]);
     };
 
-    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
-    const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
-    const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
-    const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
+    const _btnColor = useColorModeValue("purple.200", "purple.700");
 
     const btnColor = style?.button_color || _btnColor;
-    const disabledBtnColor = style?.secondary_bg_color || _disabledBtnColor;
-    const enabledTextColor = style?.button_text_color || _enabledTextColor;
-    const disabledTextColor = style?.text_color || _disabledTextColor;
 
     return (
         <Stack>

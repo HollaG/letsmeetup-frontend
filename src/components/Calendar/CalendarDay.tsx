@@ -10,8 +10,8 @@ import { dateEncoder, dateParser } from "./CalendarContainer";
 const DARK__UNSELECTABLE_TEXT_COLOR = "gray.600";
 const DARK__UNSELECTABLE_CURRENT_DAY_TEXT_COLOR = "gray.500";
 const LIGHT__UNSELECTABLE_TEXT_COLOR = "gray.400";
-const DARK__SELECTED_DATE_COLOR = "blue.800";
-const LIGHT__SELECTED_DATE_COLOR = "blue.200";
+const DARK__SELECTED_DATE_COLOR = "purple.800";
+const LIGHT__SELECTED_DATE_COLOR = "purple.200";
 /**
  * The props for the CalendarDay component.
  * @param children the text to display in the day

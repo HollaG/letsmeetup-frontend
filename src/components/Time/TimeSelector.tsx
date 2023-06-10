@@ -102,7 +102,7 @@ const TimeSelector = ({
     allowedTimes,
 }: TimeSelectorProps) => {
     const cellOutlineColor = useColorModeValue("gray.200", "gray.800");
-    const _cellSelectedColor = useColorModeValue("blue.200", "blue.800");
+    const _cellSelectedColor = useColorModeValue("purple.200", "purple.800");
     const cellUnselectedColor = useColorModeValue("gray.100", "gray.900");
 
     const { style } = useTelegram();
@@ -203,7 +203,6 @@ const TimeSelector = ({
             <Flex justifyContent="end">
                 <Button
                     size="xs"
-                    colorScheme="telegram"
                     // backgroundColor={style?.button_color}
                     // sx={{
                     //     ":hover": {

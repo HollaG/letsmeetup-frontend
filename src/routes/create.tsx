@@ -309,7 +309,7 @@ const Create = () => {
     };
 
     // Handle the colors changing
-    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _btnColor = useColorModeValue("purple.200", "purple.700");
     const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
@@ -688,7 +688,7 @@ const Create = () => {
                                 </Flex>
                             </Flex>
                             <Button
-                                colorScheme="blue"
+                                colorScheme="purple"
                                 size="sm"
                                 onClick={onOpen}
                             >
@@ -715,7 +715,7 @@ const Create = () => {
                 {!user && (
                     <Center>
                         <Button
-                            colorScheme={"blue"}
+                            colorScheme="purple"
                             isDisabled={!userCanSubmit}
                             onClick={webUserSubmit}
                             isLoading={isSubmitting}
