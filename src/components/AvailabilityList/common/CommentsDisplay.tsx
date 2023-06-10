@@ -24,17 +24,43 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                     .filter((user) => user.comments)
                     .map((user, i) => (
                         <Box key={i}>
-                            <Link
-                                href={
-                                    user.user.type === "telegram"
-                                        ? `https://t.me/${
-                                              (user.user as ITelegramUser)
-                                                  .username
-                                          }`
-                                        : ""
-                                }
-                                isExternal
-                            >
+                            {user.user.type === "telegram" ? (
+                                <Link
+                                    href={`https://t.me/${
+                                        (user.user as ITelegramUser).username
+                                    }`}
+                                    isExternal
+                                >
+                                    <Flex alignItems="center">
+                                        <Avatar
+                                            name={`${user.user.first_name} ${user.user.last_name}`}
+                                            src={user.user.photo_url}
+                                            size="xs"
+                                        />
+                                        <Text
+                                            ml={2}
+                                            fontSize="md"
+                                            fontWeight={"bold"}
+                                        >
+                                            {" "}
+                                            {user.user.first_name}
+                                        </Text>
+                                        {user.user.type === "telegram" && (
+                                            <Text
+                                                ml={2}
+                                                fontSize="md"
+                                                fontWeight={"light"}
+                                            >
+                                                @
+                                                {
+                                                    (user.user as ITelegramUser)
+                                                        .username
+                                                }
+                                            </Text>
+                                        )}
+                                    </Flex>
+                                </Link>
+                            ) : (
                                 <Flex alignItems="center">
                                     <Avatar
                                         name={`${user.user.first_name} ${user.user.last_name}`}
@@ -63,7 +89,7 @@ const CommentsDisplay = ({ meetup }: { meetup: Meetup }) => {
                                         </Text>
                                     )}
                                 </Flex>
-                            </Link>
+                            )}
 
                             {/* <br /> */}
                             <Text fontWeight="light">{user.comments}</Text>

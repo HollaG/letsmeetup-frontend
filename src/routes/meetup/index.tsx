@@ -670,14 +670,14 @@ const MeetupPage = () => {
             let user = await signInWithoutUsername(tempName);
             tWebUser = {
                 id: user.user.uid,
-                type: "temp",
+                type: "Guest",
                 first_name: tempName,
                 last_name: "",
             } as IMeetupUser;
         } else {
             tWebUser = {
                 id: webUser.id,
-                type: webUser.type,
+                type: webUser.type || "Guest",
                 first_name: webUser.first_name || tempName,
                 last_name: webUser.last_name || "",
             } as IMeetupUser;

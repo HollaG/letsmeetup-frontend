@@ -55,7 +55,10 @@ import { useWebUser } from "../context/WebAuthProvider";
 import { auth } from "../firebase";
 import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { create, Meetup } from "../firebase/db/repositories/meetups";
-import { IMeetupUser } from "../firebase/db/repositories/users";
+import {
+    createIfNotExists,
+    IMeetupUser,
+} from "../firebase/db/repositories/users";
 import { ITelegramUser } from "../types/telegram";
 import { TimeSelection } from "../types/types";
 import { LoginCard, LoginInfo } from "./auth";
@@ -190,7 +193,8 @@ const Create = () => {
 
         // for users through telegram
         if (user) {
-            create(MeetupData)
+            createIfNotExists(telegramUser)
+                .then(() => create(MeetupData))
                 .then((res) => {
                     // send the ID back to Telegram
                     // webApp?.sendData(res.id)
@@ -205,7 +209,7 @@ const Create = () => {
                     webApp?.close();
                 })
                 .catch((e) => {
-                    alert("somme error!!");
+                    alert("somme error!!" + e.toString());
                 });
         } else {
         }
@@ -354,14 +358,14 @@ const Create = () => {
             let user = await signInWithoutUsername(newUserName);
             tWebUser = {
                 id: user.user.uid,
-                type: "temp",
+                type: "Guest",
                 first_name: newUserName,
                 last_name: "",
             } as IMeetupUser;
         } else {
             tWebUser = {
                 id: webUser.id,
-                type: webUser.type,
+                type: webUser.type || "Guest",
                 first_name: webUser.first_name,
                 last_name: webUser.last_name || "",
             } as IMeetupUser;
@@ -650,14 +654,20 @@ const Create = () => {
                         <Heading fontSize={"xl"} pt={6}>
                             👤 User settings
                         </Heading>
-                        <Alert status="info">
-                            <AlertIcon />
-                            <Flex flexDir="column">
-                                <AlertTitle>
-                                    We notice you're not signed in!
-                                </AlertTitle>
-                                Create an account now to have access to features
-                                such as meetup editing.
+                        <Alert
+                            status="info"
+                            display="flex"
+                            justifyContent="space-between"
+                        >
+                            <Flex alignItems="center">
+                                <AlertIcon />
+                                <Flex flexDir="column">
+                                    <AlertTitle>
+                                        We notice you're not signed in!
+                                    </AlertTitle>
+                                    Create an account now to have access to
+                                    features such as meetup editing.
+                                </Flex>
                             </Flex>
                             <Button
                                 colorScheme="blue"

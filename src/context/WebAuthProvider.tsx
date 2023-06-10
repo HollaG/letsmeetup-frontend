@@ -47,7 +47,9 @@ export const WebUserProvider = ({
                 first_name: user.displayName || "",
                 email: user?.email || "",
                 photo_url: user?.photoURL || "",
-                type: user.providerData.map((a) => a.providerId).join(","),
+                type:
+                    user.providerData.map((a) => a.providerId).join(",") ||
+                    "Guest",
                 // last_name: user.displayName ? user.displayName.split(" ").slice(1, -1).join(" ") : "",
             };
 
@@ -83,7 +85,9 @@ export const WebUserProvider = ({
                 first_name: user.displayName || "",
                 email: user?.email || "",
                 photo_url: user?.photoURL || "",
-                type: user.providerData.map((a) => a.providerId).join(","),
+                type:
+                    user.providerData.map((a) => a.providerId).join(",") ||
+                    "Guest",
                 // last_name: user.displayName ? user.displayName.split(" ").slice(1, -1).join(" ") : "",
             };
 
