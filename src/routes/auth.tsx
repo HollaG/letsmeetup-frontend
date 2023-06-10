@@ -31,6 +31,10 @@ import { useWebUser } from "../context/WebAuthProvider";
 import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { createAccountEmail, signInEmail } from "../firebase/auth/email";
 import { signInWithGoogle } from "../firebase/auth/google";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../utils/toasts.utils";
 
 const AuthPage = () => {
     const webUser = useWebUser();
@@ -125,6 +129,7 @@ export function LoginInfo() {
         }
 
         try {
+            setIsSubmitting(true);
             const acct = await createAccountEmail(
                 newEmail,
                 newPassword,
@@ -135,7 +140,7 @@ export function LoginInfo() {
                 title: "Account created.",
                 description:
                     "You have been signed in! You can now create your meetup.",
-                status: "success",
+                ...SUCCESS_TOAST_OPTIONS,
             });
         } catch (e: any) {
             if (e.toString().includes("invalid-email")) {
@@ -143,29 +148,29 @@ export function LoginInfo() {
                     title: "Error creating account!",
                     description:
                         "The provided email is invalid. Please provide a valid email address.",
-                    status: "error",
-                    duration: 9000,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             } else if (e.toString().includes("email-already-in-use")) {
                 toast({
                     title: "Error creating account!",
                     description:
                         "This email already exists. Please sign in instead.",
-                    status: "error",
-                    duration: 9000,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             } else
                 toast({
                     title: "Unexpected error",
                     description: e.toString(),
-                    status: "error",
-                    duration: 9000,
+                    ...ERROR_TOAST_OPTIONS,
                 });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const signIn = async () => {
         try {
+            setIsSubmitting(true);
             await signInEmail(returningEmail, returningPassword);
         } catch (e: any) {
             console.log({ e });
@@ -183,12 +188,15 @@ export function LoginInfo() {
                 toast({
                     title: "Unexpected error",
                     description: e.toString(),
-                    status: "error",
-                    duration: 9000,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             }
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     return (
         <Tabs variant="soft-rounded" isFitted>
@@ -199,68 +207,77 @@ export function LoginInfo() {
 
             <TabPanels>
                 <TabPanel>
-                    <Stack spacing={4}>
-                        <FormControl
-                            id="email"
-                            isRequired
-                            isInvalid={returningEmailIncorrect}
-                        >
-                            <FormLabel>Email</FormLabel>
-                            <Input
-                                value={returningEmail}
-                                onChange={(e) => {
-                                    setReturningEmail(e.target.value);
-                                    setReturningEmailIncorrect(false);
-                                }}
-                                type="email"
-                            />
-                            {!returningEmailIncorrect ? (
-                                <FormHelperText>
-                                    Please enter the email you signed up with.
-                                </FormHelperText>
-                            ) : (
-                                <FormErrorMessage>
-                                    Email does not exist, please sign up first!
-                                </FormErrorMessage>
-                            )}
-                        </FormControl>
-                        <FormControl
-                            id="password"
-                            isRequired
-                            isInvalid={returningPasswordIncorrect}
-                        >
-                            <FormLabel>Password</FormLabel>
-                            <Input
-                                value={returningPassword}
-                                onChange={(e) => {
-                                    setReturningPassword(e.target.value);
-                                    setReturningPasswordIncorrect(false);
-                                }}
-                                type="password"
-                            />
-                            {!returningPasswordIncorrect ? (
-                                <FormHelperText>
-                                    Your password must be at least 6 characters
-                                    long.
-                                </FormHelperText>
-                            ) : (
-                                <FormErrorMessage>
-                                    Your password is incorrect!
-                                </FormErrorMessage>
-                            )}
-                        </FormControl>
+                    <form>
+                        <Stack spacing={4}>
+                            <FormControl
+                                id="email"
+                                isRequired
+                                isInvalid={returningEmailIncorrect}
+                            >
+                                <FormLabel>Email</FormLabel>
+                                <Input
+                                    value={returningEmail}
+                                    onChange={(e) => {
+                                        setReturningEmail(e.target.value);
+                                        setReturningEmailIncorrect(false);
+                                    }}
+                                    type="email"
+                                />
+                                {!returningEmailIncorrect ? (
+                                    <FormHelperText>
+                                        Please enter the email you signed up
+                                        with.
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Email does not exist, please sign up
+                                        first!
+                                    </FormErrorMessage>
+                                )}
+                            </FormControl>
+                            <FormControl
+                                id="password"
+                                isRequired
+                                isInvalid={returningPasswordIncorrect}
+                            >
+                                <FormLabel>Password</FormLabel>
+                                <Input
+                                    value={returningPassword}
+                                    onChange={(e) => {
+                                        setReturningPassword(e.target.value);
+                                        setReturningPasswordIncorrect(false);
+                                    }}
+                                    type="password"
+                                />
+                                {!returningPasswordIncorrect ? (
+                                    <FormHelperText>
+                                        Your password must be at least 6
+                                        characters long.
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Your password is incorrect!
+                                    </FormErrorMessage>
+                                )}
+                            </FormControl>
 
-                        <Stack>
-                            <Button colorScheme={"blue"} onClick={signIn}>
-                                Sign in
-                            </Button>
+                            <Stack>
+                                <Button
+                                    colorScheme={"blue"}
+                                    onClick={signIn}
+                                    isLoading={isSubmitting}
+                                    type="submit"
+                                >
+                                    Sign in
+                                </Button>
+                            </Stack>
+
+                            <Divider />
+                            <Center>
+                                <GoogleButton onClick={signInWithGoogle} />
+                            </Center>
                         </Stack>
-
-                        <Divider />
-                        <Center>
-                            <GoogleButton onClick={signInWithGoogle} />
-                        </Center>
-                    </Stack>
+                    </form>
                 </TabPanel>
                 <TabPanel>
                     <Stack spacing={4}>
@@ -368,6 +385,7 @@ export function LoginInfo() {
                                 colorScheme={"blue"}
                                 onClick={onCreateAccount}
                                 isDisabled={!canCreate}
+                                isLoading={isSubmitting}
                             >
                                 Sign up
                             </Button>

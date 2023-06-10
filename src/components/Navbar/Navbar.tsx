@@ -40,11 +40,19 @@ const MenuNavLink = ({ children }: { children: ReactNode }) => (
     </NavLink>
 );
 
+/**
+ * Component only renders when the user is NOT visiting from Telegram.
+ * This means that `user` will always be null
+ *
+ * @returns Navbar
+ */
 export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const webUser = useWebUser();
     const { user } = useTelegram();
+
+    console.log({ webUser });
     return (
         <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
             <Container maxWidth="1000px">
@@ -86,74 +94,16 @@ export default function Nav() {
                                     </NavLink>
                                 </Center>
                             )}
-                            {/* {(webUser || user) && (
-                                <Menu>
-                                    <MenuButton
-                                        as={Button}
-                                        rounded={"full"}
-                                        variant={"link"}
-                                        cursor={"pointer"}
-                                        minW={0}
-                                    >
-                                        <Avatar
-                                            size={"sm"}
-                                            src={
-                                                webUser
-                                                    ? webUser.photo_url
-                                                    : user?.photo_url
-                                            }
-                                            name={
-                                                webUser
-                                                    ? webUser.first_name
-                                                    : user?.first_name
-                                            }
-                                        />
-                                    </MenuButton>
-                                    <MenuList alignItems={"center"}>
-                                        <br />
-                                        <Center>
-                                            <NavLink as={Link}>
-                                                <Avatar
-                                                    size={"2xl"}
-                                                    src={
-                                                        webUser
-                                                            ? webUser.photo_url
-                                                            : user?.photo_url
-                                                    }
-                                                    name={
-                                                        webUser
-                                                            ? webUser.first_name
-                                                            : user?.first_name
-                                                    }
-                                                />
-                                            </NavLink>
-                                        </Center>
-                                        <br />
-                                        <Center>
-                                            <p>
-                                                {webUser && webUser.first_name}
-                                            </p>
-                                        </Center>
-                                        <br />
-                                        <MenuDivider />
-                                        <MenuItem>
-                                            <NavLink as={Link} to="/meetups">
-                                                {" "}
-                                                Your Meetups
-                                            </NavLink>{" "}
-                                        </MenuItem>
-                                        
-                                        <MenuItem
-                                            onClick={signOutWithoutUsername}
-                                        >
-                                            Logout
-                                        </MenuItem>
-                                    </MenuList>
-                                </Menu>
-                            )} */}
+
                             {!(webUser || user) && (
                                 <NavLink as={Link} to="/auth">
-                                    <Button colorScheme="blue"> Sign in</Button>{" "}
+                                    <Button
+                                        isLoading={webUser === false}
+                                        colorScheme="blue"
+                                    >
+                                        {" "}
+                                        Sign in
+                                    </Button>{" "}
                                 </NavLink>
                             )}
                         </Stack>

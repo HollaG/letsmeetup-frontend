@@ -37,6 +37,7 @@ import {
     useColorMode,
     useColorModeValue,
     useDisclosure,
+    useToast,
 } from "@chakra-ui/react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -61,6 +62,10 @@ import {
 } from "../firebase/db/repositories/users";
 import { ITelegramUser } from "../types/telegram";
 import { TimeSelection } from "../types/types";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../utils/toasts.utils";
 import { LoginCard, LoginInfo } from "./auth";
 
 const Create = () => {
@@ -349,65 +354,78 @@ const Create = () => {
 
     const [newUserName, setNewUserName] = useState<string>("");
 
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    const toast = useToast();
     const webUserSubmit = async () => {
-        console.log("trying to submit");
-        console.log(webUser);
-        let tWebUser: IMeetupUser;
-        if (!webUser) {
-            console.log("logging them in...");
-            let user = await signInWithoutUsername(newUserName);
-            tWebUser = {
-                id: user.user.uid,
-                type: "Guest",
-                first_name: newUserName,
-                last_name: "",
-            } as IMeetupUser;
-        } else {
-            tWebUser = {
-                id: webUser.id,
-                type: webUser.type || "Guest",
-                first_name: webUser.first_name,
-                last_name: webUser.last_name || "",
-            } as IMeetupUser;
+        try {
+            console.log("trying to submit");
+            console.log(webUser);
+            let tWebUser: IMeetupUser;
+
+            setIsSubmitting(true);
+            if (!webUser) {
+                let user = await signInWithoutUsername(newUserName);
+                tWebUser = {
+                    id: user.user.uid,
+                    type: "Guest",
+                    first_name: newUserName,
+                    last_name: "",
+                } as IMeetupUser;
+            } else {
+                tWebUser = {
+                    id: webUser.id,
+                    type: webUser.type || "Guest",
+                    first_name: webUser.first_name,
+                    last_name: webUser.last_name || "",
+                } as IMeetupUser;
+            }
+
+            const MeetupData: Meetup = {
+                title: titleRef.current,
+                description: descriptionRef.current,
+                date_created: new Date(),
+                creator: tWebUser,
+                isFullDay: isFullDayRef.current,
+                timeslots: isFullDayRef.current ? [] : timesRef.current,
+                dates: datesRef.current,
+                users: [],
+                notified: false,
+                selectionMap: {},
+                messages: [],
+                isEnded: false,
+                last_updated: new Date(),
+                options: {
+                    notificationThreshold:
+                        notificationThresholdRef.current || Number.MAX_VALUE,
+
+                    limitNumberRespondents:
+                        limitNumberRespondentsRef.current || Number.MAX_VALUE,
+                    limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
+                    limitSlotsPerRespondent:
+                        limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+                },
+                creatorInfoMessageId: 0,
+            };
+
+            console.log(MeetupData);
+
+            const meetup = await create(MeetupData);
+            toast({
+                title: "Meetup created",
+                description: "Your meetup has been created",
+                ...SUCCESS_TOAST_OPTIONS,
+            });
+            navigate(`/meetup/${meetup.id}`);
+        } catch (e: any) {
+            toast({
+                title: "Error creating meetup",
+                description: e.toString(),
+                ...ERROR_TOAST_OPTIONS,
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        console.log({ tWebUser });
-
-        const MeetupData: Meetup = {
-            title: titleRef.current,
-            description: descriptionRef.current,
-            date_created: new Date(),
-            creator: tWebUser,
-            isFullDay: isFullDayRef.current,
-            timeslots: isFullDayRef.current ? [] : timesRef.current,
-            dates: datesRef.current,
-            users: [],
-            notified: false,
-            selectionMap: {},
-            messages: [],
-            isEnded: false,
-            last_updated: new Date(),
-            options: {
-                notificationThreshold:
-                    notificationThresholdRef.current || Number.MAX_VALUE,
-
-                limitNumberRespondents:
-                    limitNumberRespondentsRef.current || Number.MAX_VALUE,
-                limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
-                limitSlotsPerRespondent:
-                    limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
-            },
-            creatorInfoMessageId: 0,
-        };
-
-        console.log(MeetupData);
-
-        create(MeetupData).then((meetup) => {
-            // redirect to the meetup page
-            console.log("redirecting to meetup page");
-            console.log(meetup);
-            return navigate(`/meetup/${meetup.id}`);
-        });
     };
 
     const cancelRef = useRef<HTMLButtonElement>(null);
@@ -700,6 +718,7 @@ const Create = () => {
                             colorScheme={"blue"}
                             isDisabled={!userCanSubmit}
                             onClick={webUserSubmit}
+                            isLoading={isSubmitting}
                         >
                             {" "}
                             Create event{" "}

@@ -32,7 +32,7 @@ import {
     AlertDialogOverlay,
     Link as NavLink,
 } from "@chakra-ui/react";
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Link, useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
@@ -51,6 +51,10 @@ import {
     UserAvailabilityData,
 } from "../../firebase/db/repositories/meetups";
 import { TimeSelection } from "../../types/types";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../../utils/toasts.utils";
 
 const MeetupEditPage = () => {
     let { meetupId } = useParams<{
@@ -264,6 +268,7 @@ const MeetupEditPage = () => {
             });
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     /**
      *
      * The submit handler when a user clicks Telegram's MainButton.
@@ -282,6 +287,8 @@ const MeetupEditPage = () => {
             return console.log("can't submit!");
         }
 
+        setIsSubmitting(true);
+
         if (user && webApp) {
             if (loadedMeetup.isFullDay !== isFullDayRef.current) {
                 webApp.showPopup(
@@ -299,14 +306,46 @@ const MeetupEditPage = () => {
                             // setHasUserSubmitted(true);
 
                             // update the old selectionMap to remove any timings that are now outside of the selected dates and timeslots
-                            submitUpdate();
+                            submitUpdate()
+                                .catch((e) => {
+                                    webApp.showPopup({
+                                        title: "Error",
+                                        message: e.toString(),
+                                        buttons: [
+                                            {
+                                                id: "ok",
+                                                text: "OK",
+                                                type: "cancel",
+                                            },
+                                        ],
+                                    });
+                                })
+                                .finally(() => {
+                                    setIsSubmitting(false);
+                                });
                         } else {
                             return;
                         }
                     }
                 );
             } else {
-                submitUpdate();
+                submitUpdate()
+                    .catch((e) =>
+                        webApp.showPopup({
+                            title: "Error",
+                            message: e.toString(),
+                            buttons: [
+                                {
+                                    id: "ok",
+                                    text: "OK",
+                                    type: "cancel",
+                                },
+                            ],
+                        })
+                    )
+                    .finally(() => {
+                        setIsSubmitting(false);
+                    });
             }
         } else {
             if (loadedMeetup.isFullDay !== isFullDayRef.current) {
@@ -318,17 +357,18 @@ const MeetupEditPage = () => {
                         toast({
                             title: "Meetup updated!",
                             description: "Your meetup has been updated.",
-                            status: "success",
-                            duration: 3000,
+                            ...SUCCESS_TOAST_OPTIONS,
                         });
                     })
                     .catch((e) => {
                         toast({
                             title: "Error",
                             description: e.toString(),
-                            status: "error",
-                            duration: 8000,
+                            ...ERROR_TOAST_OPTIONS,
                         });
+                    })
+                    .finally(() => {
+                        setIsSubmitting(false);
                     });
             }
         }
@@ -345,8 +385,7 @@ const MeetupEditPage = () => {
                 toast({
                     title: "Meetup updated!",
                     description: "Your meetup has been updated.",
-                    status: "success",
-                    duration: 3000,
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
                 onClose();
             })
@@ -354,8 +393,7 @@ const MeetupEditPage = () => {
                 toast({
                     title: "Error",
                     description: e.toString(),
-                    status: "error",
-                    duration: 8000,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             });
     };
@@ -535,7 +573,7 @@ const MeetupEditPage = () => {
         <FormControl>
             <Stack spacing={4}>
                 <Flex alignItems={"baseline"}>
-                    <Heading fontSize={"xl"}> Edit event </Heading>
+                    <Heading fontSize={"xl"}> Edit meetup </Heading>
                     <NavLink
                         ml={1}
                         as={Link}
@@ -543,7 +581,7 @@ const MeetupEditPage = () => {
                         fontSize="sm"
                     >
                         {" "}
-                        (back to event){" "}
+                        (back to meetup){" "}
                     </NavLink>
                 </Flex>
                 <Input
@@ -754,9 +792,12 @@ const MeetupEditPage = () => {
                             colorScheme={"blue"}
                             isDisabled={!userCanSubmit}
                             onClick={onSubmit}
+                            isLoading={isSubmitting}
+                            w="240px"
                         >
-                            {" "}
-                            Edit event{" "}
+                            {userCanSubmit
+                                ? "Save your changes"
+                                : "No changes since last save"}
                         </Button>
                     </Center>
                 )}
