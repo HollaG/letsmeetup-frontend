@@ -1,4 +1,15 @@
-import { Stack, Flex, Button, Grid, Text, ChakraProps } from "@chakra-ui/react";
+import {
+    Stack,
+    Flex,
+    Button,
+    Grid,
+    Text,
+    ChakraProps,
+    SimpleGrid,
+    Box,
+    Center,
+    IconButton,
+} from "@chakra-ui/react";
 import SelectionArea from "@viselect/react";
 import {
     addDays,
@@ -11,6 +22,7 @@ import {
     subMonths,
 } from "date-fns";
 import { CSSProperties, useEffect, useState } from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
 import GeneralCalendarBody from "./GeneralCalendarBody";
@@ -49,6 +61,7 @@ const GeneralCalendar = ({
 }: GeneralCalendarProps) => {
     const currentMonthNum = new Date().getMonth();
     const [drawnDays, setDrawnDays] = useState<DrawnDayProps[]>([]);
+    const [drawnDays2, setDrawnDays2] = useState<DrawnDayProps[]>([]);
 
     const firstDateInMonth = parse(
         `${1}-${currentMonthNum + 1}-${new Date().getFullYear()}`,
@@ -78,63 +91,70 @@ const GeneralCalendar = ({
     useEffect(() => {
         const d = new Date();
 
-        const currentMonthNum = selectedDate.getMonth();
-        const currentYearNum = selectedDate.getFullYear();
+        const getDrawnDays = (
+            selectedDate: Date,
+            drawOverflow: boolean = true
+        ) => {
+            const currentMonthNum = selectedDate.getMonth();
+            const currentYearNum = selectedDate.getFullYear();
 
-        // construct the first row
-        // get the dayOfWeek for the first day in this month
-        const firstDateInMonth = parse(
-            `${1}-${currentMonthNum + 1}-${currentYearNum}`,
-            "d-MM-yyyy",
-            new Date()
-        );
-        const firstDayInMonth = firstDateInMonth.getDay();
+            // construct the first row
+            // get the dayOfWeek for the first day in this month
+            const firstDateInMonth = parse(
+                `${1}-${currentMonthNum + 1}-${currentYearNum}`,
+                "d-MM-yyyy",
+                new Date()
+            );
+            const firstDayInMonth = firstDateInMonth.getDay();
 
-        // Construct the array like so:
-        let tempArray: DrawnDayProps[] = [];
+            // Construct the array like so:
+            let tempArray: DrawnDayProps[] = [];
 
-        let lookBackDays = firstDayInMonth; // The number of days to go 'backwards' because we need to fill up the calendar rows
+            let lookBackDays = firstDayInMonth; // The number of days to go 'backwards' because we need to fill up the calendar rows
 
-        let lbd = firstDateInMonth;
-        while (lookBackDays > 0) {
-            lookBackDays = lookBackDays - 1;
-            lbd = subDays(lbd, 1);
+            let lbd = firstDateInMonth;
+            while (lookBackDays > 0) {
+                lookBackDays = lookBackDays - 1;
+                lbd = subDays(lbd, 1);
 
-            tempArray.push({
-                date: lbd,
-                children: <>{format(lbd, "d")}</>,
-            });
-        }
+                tempArray.push({
+                    date: lbd,
+                    children: drawOverflow ? <>{format(lbd, "d")}</> : "",
+                });
+            }
 
-        // because we go backwards, we need to reverse the array
-        tempArray = tempArray.reverse();
+            // because we go backwards, we need to reverse the array
+            tempArray = tempArray.reverse();
 
-        // add the rest of the days in this month
-        let lfd = firstDateInMonth;
-        while (lfd.getMonth() == currentMonthNum) {
-            // while we're in the current month
-            tempArray.push({
-                date: lfd,
-                children: <>{format(lfd, "d")}</>,
-            });
-            lfd = addDays(lfd, 1);
-        }
+            // add the rest of the days in this month
+            let lfd = firstDateInMonth;
+            while (lfd.getMonth() == currentMonthNum) {
+                // while we're in the current month
+                tempArray.push({
+                    date: lfd,
+                    children: <>{format(lfd, "d")}</>,
+                });
+                lfd = addDays(lfd, 1);
+            }
 
-        // add the 'overflow' days
-        while (tempArray.length % 7 != 0) {
-            tempArray.push({
-                date: lfd,
-                children: <>{format(lfd, "d")}</>,
-            });
-            lfd = addDays(lfd, 1);
-        }
+            // add the 'overflow' days
+            while (tempArray.length % 7 != 0) {
+                tempArray.push({
+                    date: lfd,
+                    children: drawOverflow ? <>{format(lfd, "d")}</> : "",
+                });
+                lfd = addDays(lfd, 1);
+            }
 
-        setDrawnDays(tempArray);
+            return tempArray;
+        };
+        setDrawnDays(getDrawnDays(selectedDate, false));
+        setDrawnDays2(getDrawnDays(addMonths(selectedDate, 1), false)); // todo: change 1 to the next month with data
     }, [selectedDate]);
 
     return (
         <Stack data-testid="calendar-component">
-            <Flex justifyContent={"center"}>
+            {/* <Flex justifyContent={"center"}>
                 <Button
                     size="xs"
                     isDisabled={!_canGoLeft}
@@ -157,22 +177,86 @@ const GeneralCalendar = ({
                     {" "}
                     &gt;{" "}
                 </Button>
-            </Flex>
+            </Flex> */}
 
-            <Grid
-                templateColumns="repeat(7, 1fr)"
-                gap={0}
-                data-testid="select-container-calendar"
-            >
-                <CalendarHeader />
-                <GeneralCalendarBody
-                    getColor={getColor}
-                    getProperties={getProperties}
-                    getTextColor={getTextColor}
-                    onClick={onClick}
-                    drawnDays={drawnDays}
-                />
-            </Grid>
+            <SimpleGrid columns={{ base: 1, md: 2 }}>
+                <Box>
+                    <Center>
+                        <IconButton
+                            size="xs"
+                            isDisabled={!_canGoLeft}
+                            onClick={goLeft}
+                            aria-label="Previous month"
+                            icon={<FaChevronLeft />}
+                        />
+                        <Text
+                            data-testid="month-display"
+                            mx={4}
+                            width="80px"
+                            textAlign={"center"}
+                            fontWeight="bold"
+                        >
+                            {" "}
+                            {format(selectedDate, "MMM yyyy")}
+                        </Text>
+                    </Center>
+
+                    <Box px={8} pt={4}>
+                        <Grid
+                            templateColumns="repeat(7, 1fr)"
+                            gap={0}
+                            // data-testid="select-container-calendar"
+                        >
+                            <CalendarHeader />
+                            <GeneralCalendarBody
+                                getColor={getColor}
+                                getProperties={getProperties}
+                                getTextColor={getTextColor}
+                                onClick={onClick}
+                                drawnDays={drawnDays}
+                            />
+                        </Grid>
+                    </Box>
+                </Box>
+                <Box>
+                    <Center>
+                        <Text
+                            data-testid="month-display"
+                            mx={4}
+                            width="80px"
+                            textAlign={"center"}
+                            fontWeight="bold"
+                        >
+                            {" "}
+                            {format(addMonths(selectedDate, 1), "MMM yyyy")}
+                        </Text>
+                        <IconButton
+                            size="xs"
+                            isDisabled={!_canGoRight}
+                            onClick={goRight}
+                            aria-label="Next month"
+                            icon={<FaChevronRight />}
+                        />
+                    </Center>
+
+                    <Box px={8} pt={4}>
+                        <Grid
+                            templateColumns="repeat(7, 1fr)"
+                            gap={0}
+                            // data-testid="select-container-calendar"
+                        >
+                            <CalendarHeader />
+                            <GeneralCalendarBody
+                                getColor={getColor}
+                                getProperties={getProperties}
+                                getTextColor={getTextColor}
+                                onClick={onClick}
+                                drawnDays={drawnDays2}
+                            />
+                        </Grid>
+                    </Box>
+                </Box>
+            </SimpleGrid>
         </Stack>
     );
 };

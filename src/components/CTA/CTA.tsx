@@ -58,8 +58,8 @@ export default function CallToActionWithIllustration({
                             "linear-gradient(270deg, rgba(255,87,87,1) 0%, rgba(140,82,255,1) 100%)"
                         }
                         sx={{
-                            "-webkit-background-clip": "text",
-                            "-webkit-text-fill-color": "transparent",
+                            WebKitBackGroundClip: "text",
+                            WebkitTextFillColor: "transparent",
                         }}
                     >
                         scheduling{" "}
@@ -70,8 +70,8 @@ export default function CallToActionWithIllustration({
                             "linear-gradient(90deg, rgba(255,87,87,1) 0%, rgba(140,82,255,1) 100%)"
                         }
                         sx={{
-                            "-webkit-background-clip": "text",
-                            "-webkit-text-fill-color": "transparent",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
                         }}
                     >
                         made easy

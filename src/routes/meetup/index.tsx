@@ -724,10 +724,14 @@ const MeetupPage = () => {
 
     const ViewComponent = (
         <Stack spacing={4} justifyContent="left">
-            <Heading fontSize="lg"> Others' availability </Heading>
-            <Center>
-                <ColorExplainer numTotal={liveMeetupRef.current.users.length} />
-            </Center>
+            <Box height="40px">
+                <Heading fontSize="lg"> Others' availability </Heading>
+                <Center>
+                    <ColorExplainer
+                        numTotal={liveMeetupRef.current.users.length}
+                    />
+                </Center>
+            </Box>
             <CalendarDisplay
                 meetup={liveMeetupRef.current}
                 _rerender={_rerender}
@@ -973,7 +977,7 @@ const MeetupPage = () => {
                         {indicateIsVisible && (
                             <TabPanel p={1}>
                                 <Stack spacing={4} justifyContent="left">
-                                    <Box>
+                                    <Box height="32px">
                                         <Heading fontSize={"lg"}>
                                             📅 Select your available dates{" "}
                                         </Heading>

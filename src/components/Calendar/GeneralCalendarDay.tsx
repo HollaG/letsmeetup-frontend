@@ -153,7 +153,7 @@ const GeneralCalendarDay = ({
     // return "unset";
     // };
 
-    return (
+    return children ? (
         <Box
             {...(getProperties ? getProperties(date) : {})}
             width="100%"
@@ -170,6 +170,15 @@ const GeneralCalendarDay = ({
                     {children}{" "}
                 </Text>
             </Square>
+        </Box>
+    ) : (
+        <Box width="100%">
+            <Square
+                size="36px"
+                mx="auto"
+                borderRadius={"99999px"}
+                // minW={getWidth()}
+            ></Square>
         </Box>
     );
 };
