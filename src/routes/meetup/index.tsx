@@ -77,6 +77,8 @@ import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
 } from "../../utils/toasts.utils";
+import { FcShare } from "react-icons/fc";
+import { FaShare } from "react-icons/fa";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -185,7 +187,7 @@ const MeetupPage = () => {
 
     // console.log({ meetup });
 
-    const _btnColor = useColorModeValue("#90CDF4", "#2C5282");
+    const _btnColor = useColorModeValue("purple.200", "purple.700");
     const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
@@ -819,6 +821,8 @@ const MeetupPage = () => {
             });
     };
 
+    const tabTextColor = useColorModeValue("gray.800", "white");
+
     const AlertDelete = (
         <AlertDialog
             isOpen={isDeleteOpen}
@@ -852,6 +856,12 @@ const MeetupPage = () => {
         </AlertDialog>
     );
 
+    const shareWeb = () => {
+        navigator.share({
+            url: `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`,
+        });
+    };
+
     return (
         <Stack spacing={4}>
             {cannotIndicateReason && (
@@ -869,7 +879,7 @@ const MeetupPage = () => {
             <Flex
                 direction="row"
                 justifyContent="space-between"
-                alignItems="center"
+                // alignItems="center"
             >
                 <Stack>
                     <Heading fontSize={"xl"}> {meetup.title} </Heading>
@@ -879,13 +889,22 @@ const MeetupPage = () => {
                     </Text>
                 </Stack>
                 {showActions && (
-                    <Box>
+                    <Stack>
+                        <Button
+                            size="sm"
+                            rightIcon={<FaShare />}
+                            onClick={shareWeb}
+                        >
+                            {" "}
+                            Share{" "}
+                        </Button>
                         <Menu size={"sm"}>
                             <MenuButton
                                 as={Button}
                                 rightIcon={<ChevronDownIcon />}
                                 size="sm"
-                                colorScheme="blue"
+                                colorScheme="purple"
+                                variant="outline"
                             >
                                 Actions
                             </MenuButton>
@@ -915,19 +934,20 @@ const MeetupPage = () => {
                                 </MenuItem>
                             </MenuList>
                         </Menu>
-                    </Box>
+                    </Stack>
                 )}
             </Flex>
             <Divider />
 
             {indicateIsVisible && (
-                <Tabs isFitted variant="unstyled">
+                <Tabs isFitted variant="soft-rounded">
                     <TabList>
                         {indicateIsVisible && (
                             <Tab
                                 _selected={{
-                                    bg: disabledBtnColor,
+                                    bg: btnColor,
                                 }}
+                                textColor={tabTextColor}
                             >
                                 {" "}
                                 Select your availability{" "}
@@ -935,19 +955,20 @@ const MeetupPage = () => {
                         )}
                         <Tab
                             _selected={{
-                                bg: disabledBtnColor,
+                                bg: btnColor,
                             }}
+                            textColor={tabTextColor}
                         >
                             {" "}
                             View others' availability{" "}
                         </Tab>
                     </TabList>
-                    <TabIndicator
+                    {/* <TabIndicator
                         mt="-1.5px"
                         height="2px"
                         bg={btnColor}
                         borderRadius="1px"
-                    />
+                    /> */}
                     <TabPanels>
                         {indicateIsVisible && (
                             <TabPanel p={1}>
@@ -1027,7 +1048,7 @@ const MeetupPage = () => {
                                                 isDisabled={
                                                     !hasDataChanged || !tempName
                                                 }
-                                                colorScheme="blue"
+                                                colorScheme="purple"
                                                 onClick={onSubmitWebUser}
                                                 isLoading={isSubmitting}
                                                 w="240px"

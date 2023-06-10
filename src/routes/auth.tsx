@@ -25,12 +25,17 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import GoogleButton from "react-google-button";
+import { FaFacebook, FaGithub, FaMicrosoft } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { Navigate, redirect } from "react-router-dom";
 import HelperText from "../components/Display/HelperText";
 import { useWebUser } from "../context/WebAuthProvider";
 import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { createAccountEmail, signInEmail } from "../firebase/auth/email";
+import { signInWithFacebook } from "../firebase/auth/facebook";
+import { signInWithGithub } from "../firebase/auth/github";
 import { signInWithGoogle } from "../firebase/auth/google";
+import { signInWithMicrosoft } from "../firebase/auth/microsoft";
 import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
@@ -263,7 +268,7 @@ export function LoginInfo() {
 
                             <Stack>
                                 <Button
-                                    colorScheme={"blue"}
+                                    colorScheme="purple"
                                     onClick={signIn}
                                     isLoading={isSubmitting}
                                     type="submit"
@@ -273,9 +278,46 @@ export function LoginInfo() {
                             </Stack>
 
                             <Divider />
-                            <Center>
-                                <GoogleButton onClick={signInWithGoogle} />
-                            </Center>
+                            <Button
+                                w={"full"}
+                                variant={"outline"}
+                                leftIcon={<FcGoogle />}
+                                onClick={signInWithGoogle}
+                            >
+                                <Center>
+                                    <Text>Sign in with Google</Text>
+                                </Center>
+                            </Button>
+                            {/* <Button
+                                w={"full"}
+                                colorScheme={"facebook"}
+                                leftIcon={<FaFacebook />}
+                                onClick={signInWithFacebook}
+                            >
+                                <Center>
+                                    <Text>Continue with Facebook</Text>
+                                </Center>
+                            </Button> */}
+                            <Button
+                                w={"full"}
+                                colorScheme={"gray"}
+                                leftIcon={<FaMicrosoft />}
+                                onClick={signInWithMicrosoft}
+                            >
+                                <Center>
+                                    <Text>Sign in with Microsoft</Text>
+                                </Center>
+                            </Button>
+                            <Button
+                                w={"full"}
+                                colorScheme={"purple"}
+                                leftIcon={<FaGithub />}
+                                onClick={signInWithGithub}
+                            >
+                                <Center>
+                                    <Text>Sign in with Github</Text>
+                                </Center>
+                            </Button>
                         </Stack>
                     </form>
                 </TabPanel>
@@ -382,7 +424,7 @@ export function LoginInfo() {
                         </Flex>
                         <Stack spacing={10}>
                             <Button
-                                colorScheme={"blue"}
+                                colorScheme="purple"
                                 onClick={onCreateAccount}
                                 isDisabled={!canCreate}
                                 isLoading={isSubmitting}
@@ -391,12 +433,48 @@ export function LoginInfo() {
                             </Button>
                         </Stack>
                         <Divider />
-                        <Center>
-                            <GoogleButton
-                                label="Sign up with Google"
-                                onClick={signInWithGoogle}
-                            />
-                        </Center>
+                        <Button
+                            w={"full"}
+                            variant={"outline"}
+                            leftIcon={<FcGoogle />}
+                            onClick={signInWithGoogle}
+                        >
+                            <Center>
+                                <Text>Sign up with Google</Text>
+                            </Center>
+                        </Button>
+                        {/* <Button
+                                w={"full"}
+                                colorScheme={"facebook"}
+                                leftIcon={<FaFacebook />}
+                                onClick={signInWithFacebook}
+                            >
+                                <Center>
+                                    <Text>Continue with Facebook</Text>
+                                </Center>
+                            </Button> */}
+                        <Button
+                            w={"full"}
+                            colorScheme={"gray"}
+                            leftIcon={<FaMicrosoft />}
+                            onClick={signInWithMicrosoft}
+                            variant="outline"
+                        >
+                            <Center>
+                                <Text>Sign up with Microsoft</Text>
+                            </Center>
+                        </Button>
+                        <Button
+                            w={"full"}
+                            colorScheme={"purple"}
+                            leftIcon={<FaGithub />}
+                            onClick={signInWithGithub}
+                            variant="outline"
+                        >
+                            <Center>
+                                <Text>Sign up with Github</Text>
+                            </Center>
+                        </Button>
                     </Stack>
                 </TabPanel>
             </TabPanels>

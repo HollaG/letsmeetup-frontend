@@ -98,7 +98,7 @@ const MeetupsPage = () => {
                         <Button
                             size="sm"
                             onClick={handleSignOut}
-                            colorScheme="blue"
+                            colorScheme="purple"
                         >
                             {" "}
                             Sign out{" "}
@@ -114,7 +114,7 @@ const MeetupsPage = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <NavLink as={Link} to="/create">
-                        <Button colorScheme={"blue"} ml={2}>
+                        <Button colorScheme="purple" ml={2}>
                             {" "}
                             New event{" "}
                         </Button>

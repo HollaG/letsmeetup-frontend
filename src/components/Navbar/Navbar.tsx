@@ -16,6 +16,7 @@ import {
     useColorMode,
     Center,
     Container,
+    Image,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
@@ -54,7 +55,12 @@ export default function Nav() {
 
     console.log({ webUser });
     return (
-        <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+        <Box
+            bg={useColorModeValue("purple.50", "gray.900")}
+            boxShadow="rgba(0, 0, 0, 0.1) 0px 4px 13px -3px"
+            // borderBottom={'1px solid rgb(210, 210, 210)'}
+            px={4}
+        >
             <Container maxWidth="1000px">
                 <Flex
                     h={16}
@@ -62,12 +68,28 @@ export default function Nav() {
                     justifyContent={"space-between"}
                 >
                     <NavLink as={Link} to="/">
-                        📅 MeetUp
+                        <Flex
+                            alignItems={"center"}
+                            // background="radial-gradient(circle, rgba(255,87,87,0.25) 0%, rgba(140,82,255,0.25) 100%)"
+                            // py={2}
+                            // px={3}
+                            // borderRadius="50%"
+                            // textColor={"white"}
+                            fontSize="md"
+                            fontWeight={"semiblod"}
+                        >
+                            <Image
+                                src={"/logo192.png"}
+                                width="36px"
+                                height="36px"
+                            />{" "}
+                            Look4Times
+                        </Flex>
                     </NavLink>
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={7}>
-                            <Button onClick={toggleColorMode}>
+                            <Button onClick={toggleColorMode} variant="ghost">
                                 {colorMode === "light" ? (
                                     <MoonIcon />
                                 ) : (
@@ -99,7 +121,8 @@ export default function Nav() {
                                 <NavLink as={Link} to="/auth">
                                     <Button
                                         isLoading={webUser === false}
-                                        colorScheme="blue"
+                                        colorScheme="purple"
+                                        variant="ghost"
                                     >
                                         {" "}
                                         Sign in

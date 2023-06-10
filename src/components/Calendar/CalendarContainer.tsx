@@ -385,7 +385,12 @@ const CalendarContainer = ({
                     {" "}
                     &lt;{" "}
                 </Button>
-                <Text data-testid="month-display" mx={4}>
+                <Text
+                    data-testid="month-display"
+                    mx={4}
+                    width="80px"
+                    textAlign={"center"}
+                >
                     {" "}
                     {format(selectedDate, "MMM yyyy")}
                 </Text>

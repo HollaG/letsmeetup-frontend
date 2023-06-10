@@ -789,7 +789,7 @@ const MeetupEditPage = () => {
                 {!user && (
                     <Center>
                         <Button
-                            colorScheme={"blue"}
+                            colorScheme="purple"
                             isDisabled={!userCanSubmit}
                             onClick={onSubmit}
                             isLoading={isSubmitting}
