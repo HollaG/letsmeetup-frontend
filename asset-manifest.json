@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/letsmeetup-frontend/static/css/main.d8997abe.css",
-    "main.js": "/letsmeetup-frontend/static/js/main.d3dd069a.js",
+    "main.js": "/letsmeetup-frontend/static/js/main.ac87f8a6.js",
     "static/js/787.73da76ac.chunk.js": "/letsmeetup-frontend/static/js/787.73da76ac.chunk.js",
     "index.html": "/letsmeetup-frontend/index.html",
     "main.d8997abe.css.map": "/letsmeetup-frontend/static/css/main.d8997abe.css.map",
-    "main.d3dd069a.js.map": "/letsmeetup-frontend/static/js/main.d3dd069a.js.map",
+    "main.ac87f8a6.js.map": "/letsmeetup-frontend/static/js/main.ac87f8a6.js.map",
     "787.73da76ac.chunk.js.map": "/letsmeetup-frontend/static/js/787.73da76ac.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d8997abe.css",
-    "static/js/main.d3dd069a.js"
+    "static/js/main.ac87f8a6.js"
   ]
 }
