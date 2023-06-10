@@ -73,6 +73,10 @@ import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
 
 import { Link } from "react-router-dom";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../../utils/toasts.utils";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -657,45 +661,63 @@ const MeetupPage = () => {
 
     const toast = useToast();
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     /**
      * Submits the availability data to the server.
      */
     const onSubmitWebUser = async () => {
         console.log("onsubmit");
+        if (!hasDataChanged || !tempName) return;
+        try {
+            setIsSubmitting(true);
+            // if not logged in, as either anon or actual, log them in
+            let tWebUser: IMeetupUser;
+            if (!webUser) {
+                console.log("logging them in...");
+                let user = await signInWithoutUsername(tempName);
+                tWebUser = {
+                    id: user.user.uid,
+                    type: "Guest",
+                    first_name: tempName,
+                    last_name: "",
+                } as IMeetupUser;
+            } else {
+                tWebUser = {
+                    id: webUser.id,
+                    type: webUser.type || "Guest",
+                    first_name: webUser.first_name || tempName,
+                    last_name: webUser.last_name || "",
+                } as IMeetupUser;
+            }
+            console.log({ tWebUser, meetupId });
 
-        // if not logged in, as either anon or actual, log them in
-        let tWebUser: IMeetupUser;
-        if (!webUser) {
-            console.log("logging them in...");
-            let user = await signInWithoutUsername(tempName);
-            tWebUser = {
-                id: user.user.uid,
-                type: "Guest",
-                first_name: tempName,
-                last_name: "",
-            } as IMeetupUser;
-        } else {
-            tWebUser = {
-                id: webUser.id,
-                type: webUser.type || "Guest",
-                first_name: webUser.first_name || tempName,
-                last_name: webUser.last_name || "",
-            } as IMeetupUser;
+            await updateAvailability(
+                meetupId,
+                tWebUser,
+                {
+                    datesSelected: datesRef.current,
+                    timesSelected: timesRef.current.filter((t) =>
+                        datesRef.current.includes(removeTime(t))
+                    ),
+                },
+                commentsRef.current
+            );
+            toast({
+                title: "Availability updated!",
+                description: "Your availability has been updated.",
+                ...SUCCESS_TOAST_OPTIONS,
+            });
+        } catch (e: any) {
+            console.log(e);
+            toast({
+                title: "Error updating availability",
+                description: e.toString(),
+                ...ERROR_TOAST_OPTIONS,
+            });
+        } finally {
+            setHasDataChanged(false);
+            setIsSubmitting(false);
         }
-        console.log({ tWebUser, meetupId });
-
-        await updateAvailability(
-            meetupId,
-            tWebUser,
-            {
-                datesSelected: datesRef.current,
-                timesSelected: timesRef.current.filter((t) =>
-                    datesRef.current.includes(removeTime(t))
-                ),
-            },
-            commentsRef.current
-        );
-        setHasDataChanged(false);
     };
 
     const ViewComponent = (
@@ -737,14 +759,14 @@ const MeetupPage = () => {
                     title: "Meetup ended",
                     description:
                         "The meetup has been ended. Users can no longer indicate their availability.",
-                    status: "success",
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
             })
             .catch((e) => {
                 toast({
                     title: "Error ending meetup",
                     description: e.toString(),
-                    status: "error",
+                    ...ERROR_TOAST_OPTIONS,
                 });
             });
     };
@@ -759,14 +781,14 @@ const MeetupPage = () => {
                     title: "Meetup resumed",
                     description:
                         "The meetup has been resumed. Users can continue indicating their availability.",
-                    status: "success",
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
             })
             .catch((e) => {
                 toast({
                     title: "Error resuming meetup",
                     description: e.toString(),
-                    status: "error",
+                    ...ERROR_TOAST_OPTIONS,
                 });
             });
     };
@@ -781,17 +803,17 @@ const MeetupPage = () => {
                 toast({
                     title: "Meetup deleted",
                     description: "The meetup has been deleted.",
-                    status: "success",
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
 
-                // redirect back to home page
-                navigate("/");
+                // redirect back to user meetups page
+                navigate("/meetups");
             })
             .catch((e) => {
                 toast({
                     title: "Error deleting meetup",
                     description: e.toString(),
-                    status: "error",
+                    ...ERROR_TOAST_OPTIONS,
                 });
                 onDeleteClose();
             });
@@ -1007,8 +1029,12 @@ const MeetupPage = () => {
                                                 }
                                                 colorScheme="blue"
                                                 onClick={onSubmitWebUser}
+                                                isLoading={isSubmitting}
+                                                w="240px"
                                             >
-                                                Submit
+                                                {hasDataChanged
+                                                    ? "Save your changes"
+                                                    : "No changes since last save"}
                                             </Button>
                                         </Center>
                                     )}
