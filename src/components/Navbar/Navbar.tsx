@@ -88,7 +88,7 @@ export default function Nav() {
                     </NavLink>
 
                     <Flex alignItems={"center"}>
-                        <Stack direction={"row"} spacing={7}>
+                        <Stack direction={"row"} spacing={5}>
                             <Button onClick={toggleColorMode} variant="ghost">
                                 {colorMode === "light" ? (
                                     <MoonIcon />
