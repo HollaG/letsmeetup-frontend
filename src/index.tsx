@@ -28,6 +28,7 @@ import MeetupEditPage from "./routes/meetup/edit";
 import AuthPage from "./routes/auth";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import { WebUserProvider } from "./context/WebAuthProvider";
+import MeetupsPage from "./routes/meetups";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -41,7 +42,7 @@ async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
  * Github doesn't support createBrowserRouter
  * @see https://stackoverflow.com/questions/71984401/react-router-not-working-with-github-pages
  */
-const router = createHashRouter([
+const router = createBrowserRouter([
     {
         path: "/",
         element: <Layout />,
@@ -83,6 +84,10 @@ const router = createHashRouter([
                     {
                         path: "/webapp",
                         element: <WebApp />,
+                    },
+                    {
+                        path: "/meetups",
+                        element: <MeetupsPage />,
                     },
                 ],
             },

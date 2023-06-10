@@ -11,6 +11,7 @@ import {
     doc,
     getDoc,
     deleteDoc,
+    orderBy,
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
 import { swapDateTimeStr } from "../../../routes/meetup";
@@ -49,7 +50,7 @@ export type Meetup = {
     }[];
     isEnded: boolean;
     creatorInfoMessageId: number;
-
+    last_updated: Date;
     options: {
         notificationThreshold: number;
         limitPerSlot: number;
@@ -67,9 +68,13 @@ export type UserAvailabilityData = {
     // first_name: string;
 };
 
-// retrieve all todos
-export const all = async (): Promise<Array<Meetup>> => {
-    const q = query(collection(db, COLLECTION_NAME));
+// retrieve all meetups of the user
+export const getUserMeetups = async (id: string): Promise<Array<Meetup>> => {
+    const q = query(
+        collection(db, COLLECTION_NAME),
+        orderBy("last_updated", "desc"),
+        where("creator.id", "==", id)
+    );
     const data: Array<any> = [];
 
     const querySnapshot = await getDocs(q);
@@ -105,7 +110,10 @@ export const create = async (meetup: Meetup): Promise<Meetup> | never => {
 export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
     const docRef = doc(db, COLLECTION_NAME, id);
     try {
-        const updated = await updateDoc(docRef, { ...meetup });
+        const updated = await updateDoc(docRef, {
+            ...meetup,
+            last_updated: new Date(),
+        });
         return {
             id: docRef.id,
             ...meetup,
@@ -227,6 +235,7 @@ export const updateAvailability = async (
         const updated = await updateDoc(docRef, {
             users: newAvailabilityData,
             selectionMap: newMap,
+            last_updated: new Date(),
         });
         return {
             id: docRef.id,
@@ -250,7 +259,7 @@ export const updateAvailability = async (
 export const endMeetup = async (id: string, isEnded: boolean = true) => {
     const docRef = doc(db, COLLECTION_NAME, id);
     try {
-        return await updateDoc(docRef, { isEnded });
+        return await updateDoc(docRef, { isEnded, last_updated: new Date() });
     } catch (e) {
         console.log(e);
         throw e;
