@@ -34,9 +34,16 @@ const MeetupsPage = () => {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
 
-    const f = meetups.filter((m) =>
-        m.title.toLowerCase().includes(searchQuery.toLowerCase().trim())
-    );
+    // filter and put all the ended meetups at the end
+    const f = meetups
+        .filter((m) =>
+            m.title.toLowerCase().includes(searchQuery.toLowerCase().trim())
+        )
+        .sort((a, b) => {
+            if (a.isEnded && !b.isEnded) return 1;
+            if (!a.isEnded && b.isEnded) return -1;
+            return 0;
+        });
 
     useEffect(() => {
         if (meetupUser)
@@ -67,7 +74,7 @@ const MeetupsPage = () => {
         //         {" "}
         //     </Box>{" "}
         // </SimpleGrid>
-        <Grid templateColumns={{ base: "1fr", md: "256px 1fr" }}>
+        <Grid templateColumns={{ base: "1fr", md: "256px 1fr" }} p={0}>
             <GridItem justifyContent="center" mb={8}>
                 <Center>
                     <Stack justifyContent="center">
@@ -100,11 +107,19 @@ const MeetupsPage = () => {
                 </Center>
             </GridItem>
             <GridItem>
-                <Input
-                    placeholder="Search for a meetup..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Flex>
+                    <Input
+                        placeholder="Search for a meetup..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <NavLink as={Link} to="/create">
+                        <Button colorScheme={"blue"} ml={2}>
+                            {" "}
+                            New event{" "}
+                        </Button>
+                    </NavLink>
+                </Flex>
                 {/* <Heading mt={5}> Your meetups </Heading> */}
                 <Stack mt={10} spacing={10} divider={<Divider />}>
                     {f.map((meetup, i) => (
@@ -183,7 +198,7 @@ const MeetupsPage = () => {
                                         (
                                             meetup.date_created as any as Timestamp
                                         ).toDate(),
-                                        "EEEE, d MMMM yyyy hh:mm aaa"
+                                        "EEEE, d MMMM yyyy h:mm aaa"
                                     )}
                                 </HelperText>
                             </Stack>
