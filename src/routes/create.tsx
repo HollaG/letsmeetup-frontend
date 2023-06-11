@@ -39,6 +39,7 @@ import {
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
+import { addYears, format, parse } from "date-fns";
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -111,6 +112,8 @@ const Create = () => {
         setLimitSlotsPerRespondent,
         limitSlotsPerRespondentRef,
     ] = useStateRef<number>();
+
+    const [endAt, setEndAt, endAtRef] = useStateRef<string>("");
 
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
@@ -191,6 +194,9 @@ const Create = () => {
                 limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
                 limitSlotsPerRespondent:
                     limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+                endAt: endAtRef.current
+                    ? parse(endAtRef.current, "yyyy-MM-dd", new Date())
+                    : addYears(new Date(), 1),
             },
             creatorInfoMessageId: 0,
         };
@@ -403,6 +409,9 @@ const Create = () => {
                     limitPerSlot: limitPerSlotRef.current || Number.MAX_VALUE,
                     limitSlotsPerRespondent:
                         limitSlotsPerRespondentRef.current || Number.MAX_VALUE,
+                    endAt: endAtRef.current
+                        ? parse(endAtRef.current, "yyyy-MM-dd", new Date())
+                        : addYears(new Date(), 1),
                 },
                 creatorInfoMessageId: 0,
             };
@@ -440,118 +449,153 @@ const Create = () => {
     }, []);
 
     return (
-        <Stack
-            spacing={16}
-            justifyContent="center"
-            alignItems={"center"}
-            // divider={<Divider />}
-        >
-            <Container id="container-dates" p={0} maxW="1000px">
-                <Stack>
-                    <Box>
-                        <Heading fontSize={"2xl"}>
-                            {" "}
-                            📅 When do you want your meetup?
-                        </Heading>
+        <form>
+            <Stack
+                spacing={16}
+                justifyContent="center"
+                alignItems={"center"}
+                // divider={<Divider />}
+            >
+                <Container id="container-dates" p={0} maxW="1000px">
+                    <Stack>
+                        <Box>
+                            <Heading fontSize={"2xl"}>
+                                {" "}
+                                📅 When do you want your meetup?
+                            </Heading>
 
-                        <HelperText>
-                            {" "}
-                            {isMobile ? "Touch / Touch" : "Click / click"} and
-                            drag to select.
-                        </HelperText>
-                    </Box>
-                    {/* <Center>
+                            <HelperText>
+                                {" "}
+                                {isMobile
+                                    ? "Touch / Touch"
+                                    : "Click / click"}{" "}
+                                and drag to select.
+                            </HelperText>
+                        </Box>
+                        {/* <Center>
                         <Container justifyContent="center"> */}
-                    {/* <Box>
+                        {/* <Box>
                         <Box maxWidth={"500px"} mx={"auto"}> */}
-                    <CalendarContainer
-                        datesSelected={datesRef.current}
-                        setDatesSelected={setDatesSelected}
-                        onStop={onStop}
-                    />
-                    {/* </Box>
+                        <CalendarContainer
+                            datesSelected={datesRef.current}
+                            setDatesSelected={setDatesSelected}
+                            onStop={onStop}
+                        />
+                        {/* </Box>
                     </Box> */}
 
-                    {/* </Container>
+                        {/* </Container>
                     </Center> */}
-                </Stack>
-            </Container>
+                    </Stack>
+                </Container>
 
-            <Container id="container-timings" p={0} maxW="1000px">
-                <Stack mb={2}>
-                    <Heading fontSize={"2xl"}>
-                        {" "}
-                        🕔 What times do you want to have it on?
-                    </Heading>
-                    <Flex direction={"row"} justifyContent="space-between">
-                        <Text> Set as full day </Text>
-                        <Switch
-                            isChecked={isFullDay}
-                            onChange={(e) => {
-                                setIsFullDay(e.target.checked);
-                            }}
-                            // colorScheme={"#ffffff"}
-                            sx={{
-                                "span.chakra-switch__track[data-checked]": {
-                                    backgroundColor: btnColor,
-                                },
-                                // "span.chakra-switch__track:not([data-checked])": {
-                                //     backgroundColor:
-                                //         style?.secondary_bg_color,
-                                // },
-                            }}
-                        />
-                    </Flex>
-                </Stack>
-                <Collapse in={!isFullDay}>
-                    <TimeContainer
-                        datesSelected={datesRef.current}
-                        setTimesSelected={setTimesSelected}
-                        timesSelected={timesRef.current}
-                        setPristine={setPristine}
-                        pristine={pristine}
-                        endMin={endMin}
-                        setTime={setTime}
-                        timeRef={timeRef}
-                        startMin={startMin}
-                    />
-                </Collapse>
-            </Container>
-
-            <Container id="container-settings" p={0} maxW="1000px">
-                {" "}
-                <Stack>
-                    <Box>
+                <Container id="container-timings" p={0} maxW="1000px">
+                    <Stack mb={2}>
                         <Heading fontSize={"2xl"}>
-                            ⚙️ Customize your meetup
+                            {" "}
+                            🕔 What times do you want to have it on?
                         </Heading>
-                        <HelperText>
-                            Unmodified settings will be set to their default.
-                        </HelperText>
-                    </Box>
-                    {user && (
+                        <Flex direction={"row"} justifyContent="space-between">
+                            <Text> Set as full day </Text>
+                            <Switch
+                                isChecked={isFullDay}
+                                onChange={(e) => {
+                                    setIsFullDay(e.target.checked);
+                                }}
+                                // colorScheme={"#ffffff"}
+                                sx={{
+                                    "span.chakra-switch__track[data-checked]": {
+                                        backgroundColor: btnColor,
+                                    },
+                                    // "span.chakra-switch__track:not([data-checked])": {
+                                    //     backgroundColor:
+                                    //         style?.secondary_bg_color,
+                                    // },
+                                }}
+                            />
+                        </Flex>
+                    </Stack>
+                    <Collapse in={!isFullDay}>
+                        <TimeContainer
+                            datesSelected={datesRef.current}
+                            setTimesSelected={setTimesSelected}
+                            timesSelected={timesRef.current}
+                            setPristine={setPristine}
+                            pristine={pristine}
+                            endMin={endMin}
+                            setTime={setTime}
+                            timeRef={timeRef}
+                            startMin={startMin}
+                        />
+                    </Collapse>
+                </Container>
+
+                <Container id="container-settings" p={0} maxW="1000px">
+                    {" "}
+                    <Stack>
+                        <Box>
+                            <Heading fontSize={"2xl"}>
+                                ⚙️ Customize your meetup
+                            </Heading>
+                            <HelperText>
+                                Unmodified settings will be set to their
+                                default.
+                            </HelperText>
+                        </Box>
+                        {user && (
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                            >
+                                <Box>
+                                    <Text>
+                                        {" "}
+                                        Send a notification when number of users
+                                        hits:{" "}
+                                    </Text>
+                                    <HelperText>
+                                        {" "}
+                                        Default: No notification{" "}
+                                    </HelperText>
+                                </Box>
+                                <Box>
+                                    <InputGroup size="sm">
+                                        <NumberInput
+                                            width="72px"
+                                            value={notificationThreshold}
+                                            onChange={(e) => {
+                                                setNotificationThreshold(
+                                                    parseInt(e)
+                                                );
+                                            }}
+                                            min={1}
+                                        >
+                                            <NumberInputField />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                    </InputGroup>
+                                </Box>
+                            </Flex>
+                        )}
+
                         <Flex
                             justifyContent={"space-between"}
                             alignItems="center"
                         >
                             <Box>
-                                <Text>
-                                    {" "}
-                                    Send a notification when number of users
-                                    hits:{" "}
-                                </Text>
-                                <HelperText>
-                                    {" "}
-                                    Default: No notification{" "}
-                                </HelperText>
+                                <Text> Limit the number of users to: </Text>
+                                <HelperText> Default: No limit</HelperText>
                             </Box>
                             <Box>
                                 <InputGroup size="sm">
                                     <NumberInput
                                         width="72px"
-                                        value={notificationThreshold}
+                                        value={limitNumberRespondents}
                                         onChange={(e) => {
-                                            setNotificationThreshold(
+                                            setLimitNumberRespondents(
                                                 parseInt(e)
                                             );
                                         }}
@@ -566,34 +610,8 @@ const Create = () => {
                                 </InputGroup>
                             </Box>
                         </Flex>
-                    )}
 
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text> Limit the number of users to: </Text>
-                            <HelperText> Default: No limit</HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <NumberInput
-                                    width="72px"
-                                    value={limitNumberRespondents}
-                                    onChange={(e) => {
-                                        setLimitNumberRespondents(parseInt(e));
-                                    }}
-                                    min={1}
-                                >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            </InputGroup>
-                        </Box>
-                    </Flex>
-
-                    {/* <Flex justifyContent={"space-between"} alignItems="center">
+                        {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text>
                             {" "}
@@ -625,108 +643,135 @@ const Create = () => {
                     </Box>
                 </Flex> */}
 
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text>
-                                {" "}
-                                Limit the number of users per slot to:{" "}
-                            </Text>
-                            <HelperText> Default: No limit </HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <NumberInput
-                                    width="72px"
-                                    value={limitPerSlot}
-                                    onChange={(e) => {
-                                        setLimitPerSlot(parseInt(e));
-                                    }}
-                                    min={1}
-                                >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            </InputGroup>
-                        </Box>
-                    </Flex>
-                </Stack>{" "}
-            </Container>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <Text>
+                                    {" "}
+                                    Limit the number of users per slot to:{" "}
+                                </Text>
+                                <HelperText> Default: No limit </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <NumberInput
+                                        width="72px"
+                                        value={limitPerSlot}
+                                        onChange={(e) => {
+                                            setLimitPerSlot(parseInt(e));
+                                        }}
+                                        min={1}
+                                    >
+                                        <NumberInputField />
+                                        <NumberInputStepper>
+                                            <NumberIncrementStepper />
+                                            <NumberDecrementStepper />
+                                        </NumberInputStepper>
+                                    </NumberInput>
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <Text> Automatically end meetup on:</Text>
+                                <HelperText>
+                                    {" "}
+                                    Default: 1 year from now{" "}
+                                </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <Input
+                                        type="date"
+                                        value={endAt}
+                                        onChange={(e) =>
+                                            setEndAt(e.target.value)
+                                        }
+                                        min={format(new Date(), "yyyy-MM-dd")}
+                                    />
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    </Stack>{" "}
+                </Container>
 
-            <Container id="container-details" p={0} maxW="1000px">
-                <Stack>
-                    <Heading fontSize={"2xl"}>
-                        🎉 Give your meetup a name!
-                    </Heading>
-                    <Input
-                        id="title"
-                        placeholder="Meetup title (required)"
-                        required
-                        value={title}
-                        onChange={onTitleChange}
-                        maxLength={256}
-                    />
-                    <Textarea
-                        id="description"
-                        placeholder="Meetup description (optional)"
-                        value={description}
-                        onChange={onDescriptionChange}
-                        maxLength={4096}
-                    />
-                </Stack>
-            </Container>
-            {!user && !webUser && (
-                <Container id="container-user" p={0} maxW="1000px">
+                <Container id="container-details" p={0} maxW="1000px">
                     <Stack>
                         <Heading fontSize={"2xl"}>
-                            👤 Just one last thing...
+                            🎉 Give your meetup a name!
                         </Heading>
-                        <Alert
-                            status="info"
-                            display="flex"
-                            justifyContent="space-between"
-                        >
-                            <Flex alignItems="center">
-                                <AlertIcon />
-                                <Flex flexDir="column">
-                                    <AlertTitle>
-                                        We notice you're not signed in!
-                                    </AlertTitle>
-                                    Create an account now to have access to
-                                    features such as meetup editing.
-                                </Flex>
-                            </Flex>
-                            <Button
-                                colorScheme="purple"
-                                size="sm"
-                                onClick={onOpen}
-                            >
-                                {" "}
-                                Sign in{" "}
-                            </Button>
-                        </Alert>
-
-                        <Text>
-                            Alternatively, just enter your name below to
-                            continue as a guest:{" "}
-                        </Text>
                         <Input
-                            placeholder="Your name (required)"
-                            value={newUserName}
-                            onChange={(e) => setNewUserName(e.target.value)}
-                            maxLength={128}
+                            id="title"
+                            placeholder="Meetup title (required)"
+                            required
+                            value={title}
+                            onChange={onTitleChange}
+                            maxLength={256}
                         />
-                        {/* <Divider />
-                        <Text> Or, create an account </Text> */}
+                        <Textarea
+                            id="description"
+                            placeholder="Meetup description (optional)"
+                            value={description}
+                            onChange={onDescriptionChange}
+                            maxLength={4096}
+                        />
                     </Stack>
                 </Container>
-            )}
-            <Container id="container-submit" p={0} maxW="1000px">
-                {!user && (
-                    <Center>
-                        {/* <Button
+                {!user && !webUser && (
+                    <Container id="container-user" p={0} maxW="1000px">
+                        <Stack>
+                            <Heading fontSize={"2xl"}>
+                                👤 Just one last thing...
+                            </Heading>
+                            <Alert
+                                status="info"
+                                display="flex"
+                                justifyContent="space-between"
+                            >
+                                <Flex alignItems="center">
+                                    <AlertIcon />
+                                    <Flex flexDir="column">
+                                        <AlertTitle>
+                                            We notice you're not signed in!
+                                        </AlertTitle>
+                                        Create an account now to have access to
+                                        features such as meetup editing.
+                                    </Flex>
+                                </Flex>
+                                <Button
+                                    colorScheme="purple"
+                                    size="sm"
+                                    onClick={onOpen}
+                                >
+                                    {" "}
+                                    Sign in{" "}
+                                </Button>
+                            </Alert>
+
+                            <Text>
+                                Alternatively, just enter your name below to
+                                continue as a guest:{" "}
+                            </Text>
+                            <Input
+                                placeholder="Your name (required)"
+                                value={newUserName}
+                                onChange={(e) => setNewUserName(e.target.value)}
+                                maxLength={128}
+                            />
+                            {/* <Divider />
+                        <Text> Or, create an account </Text> */}
+                        </Stack>
+                    </Container>
+                )}
+                <Container id="container-submit" p={0} maxW="1000px">
+                    {!user && (
+                        <Center>
+                            {/* <Button
                             colorScheme="purple"
                             isDisabled={!userCanSubmit}
                             onClick={webUserSubmit}
@@ -734,53 +779,57 @@ const Create = () => {
                         >
                             
                         </Button> */}
-                        <FancyButton
-                            props={{
-                                isDisabled: !userCanSubmit || !newUserName,
-                                onClick: webUserSubmit,
-                                isLoading: isSubmitting,
-                                w: "300px",
-                            }}
-                        >
-                            {userCanSubmit && newUserName
-                                ? "Create meetup  🚀"
-                                : "Please fill in all required fields"}
-                        </FancyButton>
-                    </Center>
-                )}
-            </Container>
-            <AlertDialog
-                isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
-                onClose={onClose}
-                size="xl"
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Create or sign in to your account
-                        </AlertDialogHeader>
-
-                        <AlertDialogBody>
-                            <LoginInfo />
-                        </AlertDialogBody>
-
-                        <AlertDialogFooter>
-                            <Button
-                                ref={cancelRef}
-                                onClick={onClose}
-                                variant="outline"
+                            <FancyButton
+                                props={{
+                                    isDisabled:
+                                        !userCanSubmit ||
+                                        (!newUserName && !webUser),
+                                    onClick: webUserSubmit,
+                                    isLoading: isSubmitting,
+                                    w: "300px",
+                                    type: "submit",
+                                }}
                             >
-                                Never mind, I'll continue as a guest
-                            </Button>
-                            {/* <Button colorScheme="red" onClick={() => {}} ml={3}>
+                                {userCanSubmit && (webUser || newUserName)
+                                    ? "Create meetup  🚀"
+                                    : "Please fill in all required fields"}
+                            </FancyButton>
+                        </Center>
+                    )}
+                </Container>
+                <AlertDialog
+                    isOpen={isOpen}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onClose}
+                    size="xl"
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                                Create or sign in to your account
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                <LoginInfo />
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button
+                                    ref={cancelRef}
+                                    onClick={onClose}
+                                    variant="outline"
+                                >
+                                    Never mind, I'll continue as a guest
+                                </Button>
+                                {/* <Button colorScheme="red" onClick={() => {}} ml={3}>
                                 Delete
                             </Button> */}
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
-        </Stack>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
+            </Stack>
+        </form>
     );
 };
 

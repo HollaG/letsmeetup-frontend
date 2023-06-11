@@ -32,6 +32,9 @@ import {
     AlertDialogOverlay,
     Link as NavLink,
 } from "@chakra-ui/react";
+import { format, parse } from "date-fns";
+import { addYears } from "date-fns/esm";
+import { Timestamp } from "firebase/firestore";
 import { useEffect, useCallback, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Link, useLoaderData, useParams } from "react-router-dom";
@@ -134,6 +137,13 @@ const MeetupEditPage = () => {
         loadedMeetup.options.limitSlotsPerRespondent === Number.MAX_VALUE
             ? undefined
             : loadedMeetup.options.limitSlotsPerRespondent
+    );
+
+    const [endAt, setEndAt, endAtRef] = useStateRef<string>(
+        format(
+            (loadedMeetup.options.endAt as any as Timestamp).toDate(),
+            "yyyy-MM-dd"
+        )
     );
 
     // handle the form state TODO: replace with useStateRef
@@ -250,6 +260,9 @@ const MeetupEditPage = () => {
                 limitPerSlot: limitPerSlotRef.current ?? Number.MAX_VALUE,
                 limitSlotsPerRespondent:
                     limitSlotsPerRespondentRef.current ?? Number.MAX_VALUE,
+                endAt: endAtRef.current
+                    ? parse(endAtRef.current, "yyyy-MM-dd", new Date())
+                    : addYears(new Date(), 1),
             },
             users: newUsers,
             // creatorInfoMessageId: 0,
@@ -791,6 +804,28 @@ const MeetupEditPage = () => {
                                         <NumberDecrementStepper />
                                     </NumberInputStepper>
                                 </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text> Automatically end meetup on:</Text>
+                            <HelperText>
+                                {" "}
+                                Default: 1 year from creation date{" "}
+                            </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <Input
+                                    type="date"
+                                    value={endAt}
+                                    onChange={(e) => {
+                                        setEndAt(e.target.value);
+                                        setUserCanSubmit(true);
+                                    }}
+                                    min={format(new Date(), "yyyy-MM-dd")}
+                                />
                             </InputGroup>
                         </Box>
                     </Flex>

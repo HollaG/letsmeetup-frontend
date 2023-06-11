@@ -80,6 +80,7 @@ import {
 import { FcShare } from "react-icons/fc";
 import { FaShare } from "react-icons/fa";
 import FancyButton from "../../components/Buttons/FancyButton";
+import { isBefore } from "date-fns/esm";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -606,6 +607,8 @@ const MeetupPage = () => {
      * Disallows slots if that slot has hit the max number of respondents
      *
      * Only for meetups that have the `limit per slot` option enabled
+     *
+     * Also ends meetups if the date has passed
      */
     useEffect(() => {
         const creatorAllowed = liveMeetup.isFullDay
@@ -651,6 +654,20 @@ const MeetupPage = () => {
             setTotalAllowedSlots(allowedAfterPerSlotLimitHit);
         } else {
             setTotalAllowedSlots(creatorAllowed);
+        }
+
+        if (
+            isBefore(liveMeetup.options.endAt, new Date()) &&
+            !liveMeetup.isEnded
+        ) {
+            // end the meetup
+            endMeetup(meetupId).catch((e) => {
+                toast({
+                    title: "Error ending meetup",
+                    description: e.toString(),
+                    ...ERROR_TOAST_OPTIONS,
+                });
+            });
         }
     }, [liveMeetup]);
 
@@ -868,86 +885,99 @@ const MeetupPage = () => {
     };
 
     return (
-        <Stack spacing={4}>
-            {cannotIndicateReason && (
-                <Alert status="error">
-                    <AlertIcon />
-                    {cannotIndicateReason}
-                </Alert>
-            )}
-            {warningMessage && (
-                <Alert status="warning">
-                    <AlertIcon />
-                    {warningMessage}
-                </Alert>
-            )}
-            <Flex
-                direction="row"
-                justifyContent="space-between"
-                // alignItems="center"
-            >
-                <Stack>
-                    <Heading fontSize={"xl"}> {meetup.title} </Heading>
-                    {meetup.description && <Text> {meetup.description} </Text>}
-                    <Text fontWeight="light" fontStyle="italic">
-                        by {meetup.creator.first_name}
-                    </Text>
-                </Stack>
-                {showActions && (
-                    <Stack>
-                        <Button
-                            size="sm"
-                            rightIcon={<FaShare />}
-                            onClick={shareWeb}
-                        >
-                            {" "}
-                            Share{" "}
-                        </Button>
-                        <Menu size={"sm"}>
-                            <MenuButton
-                                as={Button}
-                                rightIcon={<ChevronDownIcon />}
-                                size="sm"
-                                colorScheme="purple"
-                                variant="outline"
-                            >
-                                Actions
-                            </MenuButton>
-                            <MenuList>
-                                <MenuItem>
-                                    <NavLink
-                                        as={Link}
-                                        to={`/meetup/${meetupId}/edit`}
-                                        w="100%"
-                                    >
-                                        {" "}
-                                        Edit{" "}
-                                    </NavLink>
-                                </MenuItem>
-                                {liveMeetup.isEnded ? (
-                                    <MenuItem onClick={resumeMeetup}>
-                                        {" "}
-                                        Resume meetup{" "}
-                                    </MenuItem>
-                                ) : (
-                                    <MenuItem onClick={_endMeetup}>
-                                        Mark as ended
-                                    </MenuItem>
-                                )}
-                                <MenuItem onClick={beginDeleteMeetup}>
-                                    Delete
-                                </MenuItem>
-                            </MenuList>
-                        </Menu>
-                    </Stack>
+        <form>
+            <Stack spacing={4}>
+                {cannotIndicateReason && (
+                    <Alert status="error">
+                        <AlertIcon />
+                        {cannotIndicateReason}
+                    </Alert>
                 )}
-            </Flex>
-            <Divider />
+                {warningMessage && (
+                    <Alert status="warning">
+                        <AlertIcon />
+                        {warningMessage}
+                    </Alert>
+                )}
+                <Flex
+                    direction="row"
+                    justifyContent="space-between"
+                    // alignItems="center"
+                >
+                    <Stack>
+                        <Heading fontSize={"xl"}> {meetup.title} </Heading>
+                        {meetup.description && (
+                            <Text> {meetup.description} </Text>
+                        )}
+                        <Text fontWeight="light" fontStyle="italic">
+                            by {meetup.creator.first_name}
+                        </Text>
+                    </Stack>
+                    {showActions && (
+                        <Stack>
+                            <Button
+                                size="sm"
+                                rightIcon={<FaShare />}
+                                onClick={shareWeb}
+                            >
+                                {" "}
+                                Share{" "}
+                            </Button>
+                            <Menu size={"sm"}>
+                                <MenuButton
+                                    as={Button}
+                                    rightIcon={<ChevronDownIcon />}
+                                    size="sm"
+                                    colorScheme="purple"
+                                    variant="outline"
+                                >
+                                    Actions
+                                </MenuButton>
+                                <MenuList>
+                                    <MenuItem>
+                                        <NavLink
+                                            as={Link}
+                                            to={`/meetup/${meetupId}/edit`}
+                                            w="100%"
+                                        >
+                                            {" "}
+                                            Edit{" "}
+                                        </NavLink>
+                                    </MenuItem>
+                                    {liveMeetup.isEnded ? (
+                                        <MenuItem onClick={resumeMeetup}>
+                                            {" "}
+                                            Resume meetup{" "}
+                                        </MenuItem>
+                                    ) : (
+                                        <MenuItem onClick={_endMeetup}>
+                                            Mark as ended
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem onClick={beginDeleteMeetup}>
+                                        Delete
+                                    </MenuItem>
+                                </MenuList>
+                            </Menu>
+                        </Stack>
+                    )}
+                </Flex>
+                <Divider />
 
-            {indicateIsVisible && (
-                <Tabs isFitted variant="soft-rounded">
-                    <TabList>
-                        {indicateIsVisible && (
+                {indicateIsVisible && (
+                    <Tabs isFitted variant="soft-rounded">
+                        <TabList>
+                            {indicateIsVisible && (
+                                <Tab
+                                    _selected={{
+                                        bg: btnColor,
+                                    }}
+                                    textColor={tabTextColor}
+                                >
+                                    {" "}
+                                    Select your availability{" "}
+                                </Tab>
+                            )}
                             <Tab
                                 _selected={{
                                     bg: btnColor,
@@ -955,129 +985,132 @@ const MeetupPage = () => {
                                 textColor={tabTextColor}
                             >
                                 {" "}
-                                Select your availability{" "}
+                                View others' availability{" "}
                             </Tab>
-                        )}
-                        <Tab
-                            _selected={{
-                                bg: btnColor,
-                            }}
-                            textColor={tabTextColor}
-                        >
-                            {" "}
-                            View others' availability{" "}
-                        </Tab>
-                    </TabList>
-                    {/* <TabIndicator
+                        </TabList>
+                        {/* <TabIndicator
                         mt="-1.5px"
                         height="2px"
                         bg={btnColor}
                         borderRadius="1px"
                     /> */}
-                    <TabPanels>
-                        {indicateIsVisible && (
-                            <TabPanel p={1}>
-                                <Stack spacing={4} justifyContent="left">
-                                    <Box height="40px">
-                                        <Heading fontSize={"lg"}>
-                                            📅 Select your available dates{" "}
-                                        </Heading>
-                                        <HelperText>
-                                            {" "}
-                                            {isMobile
-                                                ? "Touch / Touch"
-                                                : "Click / click"}{" "}
-                                            and drag to select.
-                                        </HelperText>
-                                    </Box>
-                                    <CalendarContainer
-                                        datesSelected={datesSelected}
-                                        setDatesSelected={setDatesSelected}
-                                        startDate={startDate}
-                                        endDate={endDate}
-                                        allowedDates={
-                                            meetup.isFullDay
-                                                ? totalAllowedSlots
-                                                : meetup.dates
-                                        }
-                                        onStop={onStopDate}
-                                        onBeforeStart={onBeforeStartDate}
-                                    />
-                                    {!meetup.isFullDay && (
-                                        <>
-                                            <TimeSelector
-                                                classNameGenerator={
-                                                    classNameGenerator
-                                                }
-                                                datesSelected={
-                                                    staticDatesSelected
-                                                }
-                                                deselectAll={deselectAllTimes}
-                                                endMin={endMin}
-                                                startMin={startMin}
-                                                isSelectedCell={isSelectedCell}
-                                                selectAll={selectAllTimes}
-                                                timesSelected={timesRef.current}
-                                                onBeforeStart={
-                                                    onBeforeStartTime
-                                                }
-                                                onMove={onMoveTime}
-                                                allowedTimes={totalAllowedSlots}
-                                                onStop={onStopTime}
-                                            />
-                                        </>
-                                    )}
-                                    <Input
-                                        placeholder="Add your comments (optional)"
-                                        value={comments}
-                                        onChange={commentsOnChange}
-                                    />
-                                    <Divider />
-                                    {/* This section is for web users only; let them input a name if they don't have one. */}
-                                    {(!webUser || !webUser.first_name) && (
-                                        <Box>
-                                            <Input
-                                                placeholder={
-                                                    "Your name (required)"
-                                                }
-                                                onChange={(e) =>
-                                                    setTempName(e.target.value)
-                                                }
-                                                value={tempName}
-                                            />
-                                        </Box>
-                                    )}
-                                    {!user && (
-                                        <Center>
-                                            <FancyButton
-                                                props={{
-                                                    isDisabled:
-                                                        !hasDataChanged ||
-                                                        !tempName,
-
-                                                    onClick: onSubmitWebUser,
-                                                    isLoading: isSubmitting,
-                                                    w: "300px",
-                                                }}
-                                            >
+                        <TabPanels>
+                            {indicateIsVisible && (
+                                <TabPanel p={1}>
+                                    <Stack spacing={4} justifyContent="left">
+                                        <Box height="40px">
+                                            <Heading fontSize={"lg"}>
+                                                📅 Select your available dates{" "}
+                                            </Heading>
+                                            <HelperText>
                                                 {" "}
-                                                {hasDataChanged
-                                                    ? "Save your changes 📝"
-                                                    : "No changes since last save"}{" "}
-                                            </FancyButton>
-                                        </Center>
-                                    )}
-                                </Stack>
-                            </TabPanel>
-                        )}
-                        <TabPanel p={1}>{ViewComponent}</TabPanel>
-                    </TabPanels>
-                </Tabs>
-            )}
-            {!indicateIsVisible && ViewComponent}
+                                                {isMobile
+                                                    ? "Touch / Touch"
+                                                    : "Click / click"}{" "}
+                                                and drag to select.
+                                            </HelperText>
+                                        </Box>
+                                        <CalendarContainer
+                                            datesSelected={datesSelected}
+                                            setDatesSelected={setDatesSelected}
+                                            startDate={startDate}
+                                            endDate={endDate}
+                                            allowedDates={
+                                                meetup.isFullDay
+                                                    ? totalAllowedSlots
+                                                    : meetup.dates
+                                            }
+                                            onStop={onStopDate}
+                                            onBeforeStart={onBeforeStartDate}
+                                        />
+                                        {!meetup.isFullDay && (
+                                            <>
+                                                <TimeSelector
+                                                    classNameGenerator={
+                                                        classNameGenerator
+                                                    }
+                                                    datesSelected={
+                                                        staticDatesSelected
+                                                    }
+                                                    deselectAll={
+                                                        deselectAllTimes
+                                                    }
+                                                    endMin={endMin}
+                                                    startMin={startMin}
+                                                    isSelectedCell={
+                                                        isSelectedCell
+                                                    }
+                                                    selectAll={selectAllTimes}
+                                                    timesSelected={
+                                                        timesRef.current
+                                                    }
+                                                    onBeforeStart={
+                                                        onBeforeStartTime
+                                                    }
+                                                    onMove={onMoveTime}
+                                                    allowedTimes={
+                                                        totalAllowedSlots
+                                                    }
+                                                    onStop={onStopTime}
+                                                />
+                                            </>
+                                        )}
+                                        <Input
+                                            placeholder="Add your comments (optional)"
+                                            value={comments}
+                                            onChange={commentsOnChange}
+                                        />
+                                        <Divider />
+                                        {/* This section is for web users only; let them input a name if they don't have one. */}
+                                        {(!webUser || !webUser.first_name) && (
+                                            <Box>
+                                                <Input
+                                                    placeholder={
+                                                        "Your name (required)"
+                                                    }
+                                                    onChange={(e) =>
+                                                        setTempName(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    value={tempName}
+                                                />
+                                            </Box>
+                                        )}
+                                        {!user && (
+                                            <Center>
+                                                <FancyButton
+                                                    props={{
+                                                        isDisabled:
+                                                            !hasDataChanged ||
+                                                            !tempName,
 
-            {AlertDelete}
-        </Stack>
+                                                        onClick:
+                                                            onSubmitWebUser,
+                                                        isLoading: isSubmitting,
+                                                        w: "300px",
+                                                        type: "submit",
+                                                    }}
+                                                >
+                                                    {" "}
+                                                    {hasDataChanged
+                                                        ? "Save your changes 📝"
+                                                        : "No changes since last save"}{" "}
+                                                </FancyButton>
+                                            </Center>
+                                        )}
+                                    </Stack>
+                                </TabPanel>
+                            )}
+                            <TabPanel p={1}>{ViewComponent}</TabPanel>
+                        </TabPanels>
+                    </Tabs>
+                )}
+                {!indicateIsVisible && ViewComponent}
+
+                {AlertDelete}
+            </Stack>
+        </form>
     );
 };
 

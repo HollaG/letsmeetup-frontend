@@ -56,6 +56,7 @@ export type Meetup = {
         limitPerSlot: number;
         limitNumberRespondents: number;
         limitSlotsPerRespondent: number;
+        endAt: Date;
     };
 };
 
