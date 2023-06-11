@@ -480,17 +480,17 @@ const MeetupEditPage = () => {
      */
     const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
     const onStop = () => {
-        if (pristineRef.current) {
-            const flat = create30MinuteIncrements(
-                timeRef.current[0],
-                timeRef.current[1]
-            );
-            setTimesSelected(
-                flat.flatMap((time) =>
-                    datesRef.current.map((date) => `${time}::${date}`)
-                )
-            );
-        }
+        // if (pristineRef.current) {
+        //     const flat = create30MinuteIncrements(
+        //         timeRef.current[0],
+        //         timeRef.current[1]
+        //     );
+        //     setTimesSelected(
+        //         flat.flatMap((time) =>
+        //             datesRef.current.map((date) => `${time}::${date}`)
+        //         )
+        //     );
+        // }
     };
 
     // Handle the colors changing

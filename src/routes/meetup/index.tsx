@@ -1101,13 +1101,13 @@ const MeetupPage = () => {
                                 </TabPanel>
                             )}
                             <TabPanel p={1}>
-                                <ViewComponent liveMeetupRef={liveMeetupRef} />
+                                <ViewComponent liveMeetup={liveMeetup} />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
                 )}
                 {!indicateIsVisible && (
-                    <ViewComponent liveMeetupRef={liveMeetupRef} />
+                    <ViewComponent liveMeetup={liveMeetup} />
                 )}
 
                 {AlertDelete}
@@ -1119,23 +1119,23 @@ const MeetupPage = () => {
 export default MeetupPage;
 
 const ViewComponent = React.memo(
-    ({ liveMeetupRef }: { liveMeetupRef: any }) => (
+    ({ liveMeetup }: { liveMeetup: Meetup }) => (
         <Stack spacing={4} justifyContent="left">
             <Box height="40px">
                 <Heading fontSize="lg"> Others' availability </Heading>
                 <Center>
-                    <ColorExplainer
-                        numTotal={liveMeetupRef.current.users.length}
-                    />
+                    <ColorExplainer numTotal={liveMeetup.users.length} />
                 </Center>
             </Box>
-            <CalendarDisplay meetup={liveMeetupRef.current} />
-            {!liveMeetupRef.isFullDay && (
-                <ByTimeList meetup={liveMeetupRef.current} />
-            )}
-            {liveMeetupRef.isFullDay && (
-                <ByDateList meetup={liveMeetupRef.current} />
-            )}
+            <CalendarDisplay meetup={liveMeetup} />
+            {!liveMeetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
+            {liveMeetup.isFullDay && <ByDateList meetup={liveMeetup} />}
         </Stack>
-    )
+    ),
+    (prevProps, nextProps) => {
+        return (
+            prevProps.liveMeetup.last_updated ===
+            nextProps.liveMeetup.last_updated
+        );
+    }
 );
