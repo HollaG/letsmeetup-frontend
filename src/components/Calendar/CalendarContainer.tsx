@@ -162,10 +162,14 @@ const CalendarContainer = ({
     onBeforeStart,
 }: CalendarContainerProps) => {
     const [singleDrawnDays, setSingleDrawnDays] = useState<CalendarDayProps[]>(
-        []
+        getDrawnDays(new Date(), true)
     );
-    const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
-    const [drawnDays2, setDrawnDays2] = useState<CalendarDayProps[]>([]);
+    const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>(
+        getDrawnDays(new Date(), false)
+    );
+    const [drawnDays2, setDrawnDays2] = useState<CalendarDayProps[]>(
+        getDrawnDays(addMonths(new Date(), 1), false)
+    );
     const { user, webApp } = useTelegram();
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
 
