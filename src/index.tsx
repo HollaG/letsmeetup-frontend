@@ -32,6 +32,8 @@ import MeetupsPage from "./routes/meetups";
 
 import "@fontsource/lexend";
 import "@fontsource/inter";
+import TermsPage from "./routes/policies/terms";
+import PrivacyPage from "./routes/policies/privacy";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -75,6 +77,14 @@ const router = createHashRouter([
                 element: <MeetupPage />,
 
                 loader,
+            },
+            {
+                path: "/policies/terms",
+                element: <TermsPage />,
+            },
+            {
+                path: "/policies/privacy",
+                element: <PrivacyPage />,
             },
         ],
     },

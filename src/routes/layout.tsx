@@ -1,5 +1,6 @@
 import { Box, Center, Container } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
+import Footer from "../components/Footer/Footer";
 import Nav from "../components/Navbar/Navbar";
 import { useTelegram } from "../context/TelegramProvider";
 
@@ -12,12 +13,15 @@ const Layout = () => {
     const { user } = useTelegram();
     console.log(user);
     return (
-        <Box minHeight={"1500px"} pb={6}>
-            {!user && <Nav />}
-            <Container mt={3} maxW="1000px">
-                <Outlet />
-            </Container>
-        </Box>
+        <>
+            <Box minHeight={"1500px"} pb={6}>
+                {!user && <Nav />}
+                <Container mt={3} maxW="1000px">
+                    <Outlet />
+                </Container>
+            </Box>
+            <Footer />
+        </>
     );
 };
 
