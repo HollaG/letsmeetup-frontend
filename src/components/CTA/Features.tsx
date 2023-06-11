@@ -6,10 +6,12 @@ import {
     Text,
     Stack,
     Flex,
-    Link,
+    Link as NavLink,
+    Button,
 } from "@chakra-ui/react";
 import { FcAssistant, FcEngineering } from "react-icons/fc";
 import { FaTelegram } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 interface FeatureProps {
     title: string;
@@ -57,6 +59,16 @@ export default function SimpleThreeColumns({
                         <br /> Share a link and let them indicate. It's as easy
                         as that!
                     </Text>
+                    <NavLink
+                        as={Link}
+                        to="/meetup/MPwSU7Z4ebZOuzVcwLOR"
+                        fontFamily="Zilla Slab"
+                        fontSize={"lg"}
+                    >
+                        <Button fontWeight="600" size="lg" variant="ghost">
+                            Try it out ⟶
+                        </Button>
+                    </NavLink>
                 </Feature>
                 <Feature
                     icon={<Icon as={FcEngineering} w={10} h={10} />}
@@ -67,6 +79,16 @@ export default function SimpleThreeColumns({
                         problem! <br /> <br />
                         You can customise your meetup to your needs and more.
                     </Text>{" "}
+                    <NavLink
+                        as={Link}
+                        to="/meetup/OZDYuUHbAOtFNkfRlYJl"
+                        fontFamily="Zilla Slab"
+                        fontSize={"lg"}
+                    >
+                        <Button fontWeight="600" size="lg" variant="ghost">
+                            See an example ⟶
+                        </Button>
+                    </NavLink>
                 </Feature>
                 <Feature
                     icon={
@@ -84,12 +106,22 @@ export default function SimpleThreeColumns({
                         create and manage your meetups without leaving Telegram!{" "}
                         <br /> <br />
                         Simply interact with the bot{" "}
-                        <Link isExternal href="https://t.me/look4timesbot">
+                        <NavLink isExternal href="https://t.me/look4timesbot">
                             {" "}
                             @look4timesbot{" "}
-                        </Link>{" "}
+                        </NavLink>{" "}
                         to get started!
                     </Text>
+                    <NavLink
+                        fontFamily="Zilla Slab"
+                        fontSize={"lg"}
+                        isExternal
+                        href="https://t.me/look4timesbot"
+                    >
+                        <Button fontWeight="600" size="lg" variant="ghost">
+                            Get started ⟶
+                        </Button>
+                    </NavLink>
                 </Feature>
             </SimpleGrid>
         </Box>
