@@ -114,6 +114,8 @@ export function LoginInfo() {
     const [newFirstName, setNewFirstName] = useState("");
     const [newLastName, setNewLastName] = useState("");
 
+    const [touchedNewFirstName, setTouchedNewFirstName] = useState(false);
+
     const emailIsValid = newEmail.includes("@");
     const passwordIsValid = newPassword.trim().length >= 6;
     const confirmSameAsNew = newConfirmPassword === newPassword;
@@ -321,128 +323,145 @@ export function LoginInfo() {
                     </form>
                 </TabPanel>
                 <TabPanel>
-                    <Stack spacing={4}>
-                        <FormControl
-                            id="new-email"
-                            isRequired
-                            isInvalid={!(newEmail === "" || emailIsValid)}
-                        >
-                            <FormLabel>Email</FormLabel>
-                            <Input
-                                value={newEmail}
-                                onChange={(e) => setNewEmail(e.target.value)}
-                                type="email"
-                            />
-                            {newEmail === "" || emailIsValid ? (
-                                <FormHelperText>
-                                    Your email will be used to sign in in
-                                    future.
-                                </FormHelperText>
-                            ) : (
-                                <FormErrorMessage>
-                                    Email is invalid!
-                                </FormErrorMessage>
-                            )}
-                        </FormControl>
-                        <FormControl
-                            id="new-password"
-                            isRequired
-                            isInvalid={!(newPassword === "" || passwordIsValid)}
-                        >
-                            <FormLabel>Password</FormLabel>
-                            <Input
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                type="password"
-                            />
-                            {newPassword === "" || passwordIsValid ? (
-                                <FormHelperText>
-                                    Your password must be at least 6 characters
-                                    long.
-                                </FormHelperText>
-                            ) : (
-                                <FormErrorMessage>
-                                    Password does not meet requirements!
-                                </FormErrorMessage>
-                            )}
-                        </FormControl>
-                        <FormControl
-                            id="new-confirm-password"
-                            isRequired
-                            isInvalid={
-                                !(newConfirmPassword === "" || confirmSameAsNew)
-                            }
-                        >
-                            <FormLabel>Confirm Password</FormLabel>
-                            <Input
-                                value={newConfirmPassword}
-                                onChange={(e) =>
-                                    setNewConfirmPassword(e.target.value)
-                                }
-                                type="password"
-                            />
-                            {newConfirmPassword === "" || confirmSameAsNew ? (
-                                <FormHelperText>
-                                    Please re-type your password.
-                                </FormHelperText>
-                            ) : (
-                                <FormErrorMessage>
-                                    Passwords do not match!
-                                </FormErrorMessage>
-                            )}
-                        </FormControl>
-                        <Flex flexDir={"row"}>
+                    <form>
+                        <Stack spacing={4}>
                             <FormControl
-                                mr={1}
-                                id="new-firstname"
+                                id="new-email"
                                 isRequired
-                                isInvalid={newFirstName.trim() === ""}
+                                isInvalid={!(newEmail === "" || emailIsValid)}
                             >
-                                <FormLabel>First Name</FormLabel>
+                                <FormLabel>Email</FormLabel>
                                 <Input
-                                    value={newFirstName}
+                                    value={newEmail}
                                     onChange={(e) =>
-                                        setNewFirstName(e.target.value)
+                                        setNewEmail(e.target.value)
                                     }
-                                    type="text"
+                                    type="email"
                                 />
-                                {/* <HelperText></HelperText> */}
+                                {newEmail === "" || emailIsValid ? (
+                                    <FormHelperText>
+                                        Your email will be used to sign in in
+                                        future.
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Email is invalid!
+                                    </FormErrorMessage>
+                                )}
                             </FormControl>
-                            <FormControl ml={1} id="new-lastname">
-                                <FormLabel>Last Name</FormLabel>
-                                <Input
-                                    value={newLastName}
-                                    onChange={(e) =>
-                                        setNewLastName(e.target.value)
-                                    }
-                                    type="text"
-                                    placeholder="Optional"
-                                />
-                                {/* <HelperText></HelperText> */}
-                            </FormControl>{" "}
-                        </Flex>
-                        <Stack spacing={10}>
-                            <Button
-                                colorScheme="purple"
-                                onClick={onCreateAccount}
-                                isDisabled={!canCreate}
-                                isLoading={isSubmitting}
+                            <FormControl
+                                id="new-password"
+                                isRequired
+                                isInvalid={
+                                    !(newPassword === "" || passwordIsValid)
+                                }
                             >
-                                Sign up
+                                <FormLabel>Password</FormLabel>
+                                <Input
+                                    value={newPassword}
+                                    onChange={(e) =>
+                                        setNewPassword(e.target.value)
+                                    }
+                                    type="password"
+                                />
+                                {newPassword === "" || passwordIsValid ? (
+                                    <FormHelperText>
+                                        Your password must be at least 6
+                                        characters long.
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Your password must be at least 6
+                                        characters long!
+                                    </FormErrorMessage>
+                                )}
+                            </FormControl>
+                            <FormControl
+                                id="new-confirm-password"
+                                isRequired
+                                isInvalid={
+                                    !(
+                                        newConfirmPassword === "" ||
+                                        confirmSameAsNew
+                                    )
+                                }
+                            >
+                                <FormLabel>Confirm Password</FormLabel>
+                                <Input
+                                    value={newConfirmPassword}
+                                    onChange={(e) =>
+                                        setNewConfirmPassword(e.target.value)
+                                    }
+                                    type="password"
+                                />
+                                {newConfirmPassword === "" ||
+                                confirmSameAsNew ? (
+                                    <FormHelperText>
+                                        Please re-type your password.
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Passwords do not match!
+                                    </FormErrorMessage>
+                                )}
+                            </FormControl>
+                            <Flex flexDir={"row"}>
+                                <FormControl
+                                    mr={1}
+                                    id="new-firstname"
+                                    isRequired
+                                    isInvalid={
+                                        newFirstName.trim() === "" &&
+                                        touchedNewFirstName
+                                    }
+                                >
+                                    <FormLabel>First Name</FormLabel>
+                                    <Input
+                                        value={newFirstName}
+                                        onChange={(e) => {
+                                            setNewFirstName(e.target.value);
+                                            setTouchedNewFirstName(true);
+                                        }}
+                                        type="text"
+                                    />
+                                    {/* <HelperText></HelperText> */}
+                                </FormControl>
+                                <FormControl ml={1} id="new-lastname">
+                                    <FormLabel>Last Name</FormLabel>
+                                    <Input
+                                        value={newLastName}
+                                        onChange={(e) =>
+                                            setNewLastName(e.target.value)
+                                        }
+                                        type="text"
+                                        placeholder="Optional"
+                                    />
+                                    {/* <HelperText></HelperText> */}
+                                </FormControl>{" "}
+                            </Flex>
+                            <Stack spacing={10}>
+                                <Button
+                                    colorScheme="purple"
+                                    onClick={onCreateAccount}
+                                    isDisabled={!canCreate}
+                                    isLoading={isSubmitting}
+                                    type="submit"
+                                >
+                                    Sign up
+                                </Button>
+                            </Stack>
+                            <Divider />
+                            <Button
+                                w={"full"}
+                                variant={"outline"}
+                                leftIcon={<FcGoogle />}
+                                onClick={signInWithGoogle}
+                            >
+                                <Center>
+                                    <Text>Sign up with Google</Text>
+                                </Center>
                             </Button>
-                        </Stack>
-                        <Divider />
-                        <Button
-                            w={"full"}
-                            variant={"outline"}
-                            leftIcon={<FcGoogle />}
-                            onClick={signInWithGoogle}
-                        >
-                            <Center>
-                                <Text>Sign up with Google</Text>
-                            </Center>
-                        </Button>
-                        {/* <Button
+                            {/* <Button
                                 w={"full"}
                                 colorScheme={"facebook"}
                                 leftIcon={<FaFacebook />}
@@ -452,29 +471,30 @@ export function LoginInfo() {
                                     <Text>Continue with Facebook</Text>
                                 </Center>
                             </Button> */}
-                        <Button
-                            w={"full"}
-                            colorScheme={"gray"}
-                            leftIcon={<FaMicrosoft />}
-                            onClick={signInWithMicrosoft}
-                            variant="outline"
-                        >
-                            <Center>
-                                <Text>Sign up with Microsoft</Text>
-                            </Center>
-                        </Button>
-                        <Button
-                            w={"full"}
-                            colorScheme={"purple"}
-                            leftIcon={<FaGithub />}
-                            onClick={signInWithGithub}
-                            variant="outline"
-                        >
-                            <Center>
-                                <Text>Sign up with Github</Text>
-                            </Center>
-                        </Button>
-                    </Stack>
+                            <Button
+                                w={"full"}
+                                colorScheme={"gray"}
+                                leftIcon={<FaMicrosoft />}
+                                onClick={signInWithMicrosoft}
+                                variant="outline"
+                            >
+                                <Center>
+                                    <Text>Sign up with Microsoft</Text>
+                                </Center>
+                            </Button>
+                            <Button
+                                w={"full"}
+                                colorScheme={"purple"}
+                                leftIcon={<FaGithub />}
+                                onClick={signInWithGithub}
+                                variant="outline"
+                            >
+                                <Center>
+                                    <Text>Sign up with Github</Text>
+                                </Center>
+                            </Button>
+                        </Stack>
+                    </form>
                 </TabPanel>
             </TabPanels>
         </Tabs>
