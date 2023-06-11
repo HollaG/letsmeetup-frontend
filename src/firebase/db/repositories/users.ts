@@ -11,9 +11,10 @@ import {
     doc,
     getDoc,
     setDoc,
+    deleteDoc,
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
-import { Meetup } from "./meetups";
+import { deleteUserMeetups, Meetup } from "./meetups";
 
 export type WebUser = {
     type: string;
@@ -59,6 +60,18 @@ export const createIfNotExists = async (
         } as IMeetupUser;
     } catch (e) {
         console.log(e);
+        throw e;
+    }
+};
+
+export const deleteData = async (id: string) => {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        await deleteUserMeetups(id);
+        await deleteDoc(docRef);
+
+        return true;
+    } catch (e) {
         throw e;
     }
 };

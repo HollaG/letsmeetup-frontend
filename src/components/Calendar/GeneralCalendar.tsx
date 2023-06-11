@@ -117,9 +117,15 @@ const GeneralCalendar = ({
     getProperties,
 }: GeneralCalendarProps) => {
     const currentMonthNum = new Date().getMonth();
-    const [singleDrawnDays, setSingleDrawnDays] = useState<DrawnDayProps[]>([]);
-    const [drawnDays, setDrawnDays] = useState<DrawnDayProps[]>([]);
-    const [drawnDays2, setDrawnDays2] = useState<DrawnDayProps[]>([]);
+    const [singleDrawnDays, setSingleDrawnDays] = useState<DrawnDayProps[]>(
+        getDrawnDays(new Date(), true)
+    );
+    const [drawnDays, setDrawnDays] = useState<DrawnDayProps[]>(
+        getDrawnDays(new Date(), false)
+    );
+    const [drawnDays2, setDrawnDays2] = useState<DrawnDayProps[]>(
+        getDrawnDays(addMonths(new Date(), 1), false)
+    );
 
     const [showDual] = useMediaQuery("(min-width: 825px)");
 

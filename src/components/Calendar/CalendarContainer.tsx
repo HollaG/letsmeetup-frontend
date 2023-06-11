@@ -140,8 +140,6 @@ const getDrawnDays = (selectedDate: Date, drawOverflow: boolean) => {
         });
         lfd = addDays(lfd, 1);
     }
-
-    console.log(drawOverflow, "in getDrawnDays");
     return tempArray;
 };
 
@@ -187,7 +185,6 @@ const CalendarContainer = ({
 
     useEffect(() => {
         const d = new Date();
-
         if (showDual) {
             setDrawnDays(getDrawnDays(selectedDate, false));
             setDrawnDays2(getDrawnDays(addMonths(selectedDate, 1), false));

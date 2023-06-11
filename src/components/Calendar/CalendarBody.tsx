@@ -47,7 +47,6 @@ const CalendarBody = ({
     allowedDates,
 }: CalendarBodyProps) => {
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
-    console.log("rerendered body");
     return (
         <>
             {drawnDays.map((d, i) => (
@@ -87,7 +86,7 @@ const CalendarBody = ({
 
 export default React.memo(CalendarBody, (prevProps, nextProps) => {
     // only update the body if the dates selected or the drawn days have changed
-    console.log(prevProps.drawOverflow, nextProps.drawOverflow);
+
     const res =
         prevProps.datesSelected.length === nextProps.datesSelected.length &&
         prevProps.drawnDays.length === nextProps.drawnDays.length &&

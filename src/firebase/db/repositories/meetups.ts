@@ -56,6 +56,7 @@ export type Meetup = {
         limitPerSlot: number;
         limitNumberRespondents: number;
         limitSlotsPerRespondent: number;
+        endAt: Date;
     };
 };
 
@@ -93,7 +94,6 @@ export const getUserMeetups = async (id: string): Promise<Array<Meetup>> => {
 
 // create a Meetup
 export const create = async (meetup: Meetup): Promise<Meetup> | never => {
-    console.log("Creating!");
     const dbRef = collection(db, COLLECTION_NAME);
     try {
         const docRef = await addDoc(dbRef, meetup);
@@ -146,9 +146,6 @@ export const updateAvailability = async (
     },
     comments: string = ""
 ): Promise<Meetup | null> => {
-    console.log("--------------------");
-    console.log(datesSelected, timesSelected, comments);
-
     if (!user) return null;
     const docRef = doc(db, COLLECTION_NAME, id);
     const oldMeetup = (await getDoc(docRef)).data() as Meetup;
@@ -229,8 +226,6 @@ export const updateAvailability = async (
         });
     }
 
-    console.log({ newMap });
-
     try {
         const updated = await updateDoc(docRef, {
             users: newAvailabilityData,
@@ -272,6 +267,24 @@ export const deleteMeetup = async (id: string) => {
         return await deleteDoc(docRef);
     } catch (e) {
         console.log(e);
+        throw e;
+    }
+};
+
+export const deleteUserMeetups = async (id: string) => {
+    try {
+        const docs = query(
+            collection(db, COLLECTION_NAME),
+            where("creator.id", "==", id)
+        );
+
+        for (const doc of (await getDocs(docs)).docs) {
+            await deleteMeetup(doc.id);
+        }
+
+        return true;
+    } catch (e) {
+        console.log("error deleting");
         throw e;
     }
 };

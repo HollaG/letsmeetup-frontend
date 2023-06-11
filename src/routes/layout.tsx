@@ -11,7 +11,6 @@ import { useTelegram } from "../context/TelegramProvider";
 const Layout = () => {
     // Only display navbar if user doesn't use Telegram webapp functionality
     const { user } = useTelegram();
-    console.log(user);
     return (
         <>
             <Box minHeight={"1500px"} pb={6}>

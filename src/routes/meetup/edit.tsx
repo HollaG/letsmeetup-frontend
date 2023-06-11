@@ -32,6 +32,9 @@ import {
     AlertDialogOverlay,
     Link as NavLink,
 } from "@chakra-ui/react";
+import { format, parse } from "date-fns";
+import { addYears } from "date-fns/esm";
+import { Timestamp } from "firebase/firestore";
 import { useEffect, useCallback, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { Link, useLoaderData, useParams } from "react-router-dom";
@@ -136,6 +139,13 @@ const MeetupEditPage = () => {
             : loadedMeetup.options.limitSlotsPerRespondent
     );
 
+    const [endAt, setEndAt, endAtRef] = useStateRef<string>(
+        format(
+            (loadedMeetup.options.endAt as any as Timestamp).toDate(),
+            "yyyy-MM-dd"
+        )
+    );
+
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
         if (datesSelected.length !== 0 && title !== "") {
@@ -154,7 +164,6 @@ const MeetupEditPage = () => {
         } else {
             setUserCanSubmit(false);
         }
-        // console.log(userCanSubmit);
     }, [
         datesSelected.length,
         timesSelected.length,
@@ -205,11 +214,9 @@ const MeetupEditPage = () => {
                     }
                 }
                 for (let userData of newUsers) {
-                    console.log("before", userData.selected);
                     userData.selected = userData.selected.filter((s) =>
                         timesRef.current.includes(s)
                     );
-                    console.log("after", userData.selected);
                 }
             }
         }
@@ -250,12 +257,13 @@ const MeetupEditPage = () => {
                 limitPerSlot: limitPerSlotRef.current ?? Number.MAX_VALUE,
                 limitSlotsPerRespondent:
                     limitSlotsPerRespondentRef.current ?? Number.MAX_VALUE,
+                endAt: endAtRef.current
+                    ? parse(endAtRef.current, "yyyy-MM-dd", new Date())
+                    : addYears(new Date(), 1),
             },
             users: newUsers,
             // creatorInfoMessageId: 0,
         };
-
-        console.log({ MeetupData });
 
         return update(meetupId, MeetupData)
             .then((res) => {
@@ -444,13 +452,11 @@ const MeetupEditPage = () => {
             } else {
                 disableButton();
             }
-            console.log("updating onSubmit");
         }
     }, [webApp, userCanSubmit, style]);
 
     useEffect(() => {
         if (webApp?.initData) {
-            console.log("Bound the submit!");
             webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp?.initData]);
@@ -474,17 +480,17 @@ const MeetupEditPage = () => {
      */
     const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
     const onStop = () => {
-        if (pristineRef.current) {
-            const flat = create30MinuteIncrements(
-                timeRef.current[0],
-                timeRef.current[1]
-            );
-            setTimesSelected(
-                flat.flatMap((time) =>
-                    datesRef.current.map((date) => `${time}::${date}`)
-                )
-            );
-        }
+        // if (pristineRef.current) {
+        //     const flat = create30MinuteIncrements(
+        //         timeRef.current[0],
+        //         timeRef.current[1]
+        //     );
+        //     setTimesSelected(
+        //         flat.flatMap((time) =>
+        //             datesRef.current.map((date) => `${time}::${date}`)
+        //         )
+        //     );
+        // }
     };
 
     // Handle the colors changing
@@ -791,6 +797,28 @@ const MeetupEditPage = () => {
                                         <NumberDecrementStepper />
                                     </NumberInputStepper>
                                 </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text> Automatically end meetup on:</Text>
+                            <HelperText>
+                                {" "}
+                                Default: 1 year from creation date{" "}
+                            </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <Input
+                                    type="date"
+                                    value={endAt}
+                                    onChange={(e) => {
+                                        setEndAt(e.target.value);
+                                        setUserCanSubmit(true);
+                                    }}
+                                    min={format(new Date(), "yyyy-MM-dd")}
+                                />
                             </InputGroup>
                         </Box>
                     </Flex>

@@ -26,8 +26,6 @@ import { useTelegram } from "../../context/TelegramProvider";
 
 import { Link } from "react-router-dom";
 
-import "@fontsource/zilla-slab";
-
 const MenuNavLink = ({ children }: { children: ReactNode }) => (
     <NavLink
         px={2}
@@ -55,7 +53,6 @@ export default function Nav() {
     const webUser = useWebUser();
     const { user } = useTelegram();
 
-    console.log({ webUser });
     return (
         <Box
             bg={useColorModeValue("purple.50", "gray.900")}

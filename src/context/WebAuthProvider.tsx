@@ -63,7 +63,6 @@ export const WebUserProvider = ({
 
             if (user) setUser(meetupUser);
 
-            console.log({ meetupUser }, "detected");
             if (user) {
                 // add to db if not exist
                 createIfNotExists(JSON.parse(JSON.stringify(meetupUser))).catch(
@@ -77,7 +76,6 @@ export const WebUserProvider = ({
 
     // listen to name changes
     useEffect(() => {
-        console.log(" id token ");
         const unsubscribe = auth.onIdTokenChanged((user) => {
             if (!user) return;
             const meetupUser: IMeetupUser = {

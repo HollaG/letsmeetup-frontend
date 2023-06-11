@@ -46,7 +46,6 @@ const AuthPage = () => {
     const searchParams = new URLSearchParams(document.location.search);
     useEffect(() => {
         if (webUser) {
-            console.log("got web user", searchParams);
             // redirect to wherever they were going
             redirect("/");
         }
