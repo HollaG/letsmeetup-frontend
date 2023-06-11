@@ -421,32 +421,33 @@ const TimeContainer = ({
     const btnColor = style?.button_color || _btnColor;
 
     return (
-        <Stack>
-            <TimeRangeSelector
-                updateSelectionArea={updateSelectionArea}
-                startMin={startMin}
-                endMin={endMin}
-                setTime={setTime}
-            />
-
-            <Flex direction={"row"} justifyContent="space-between">
-                <Text> Set time per day </Text>
-                <Switch
-                    isChecked={showIndividualTimes}
-                    onChange={toggleIndividualTime}
-                    // https://github.com/chakra-ui/chakra-ui/discussions/6140
-                    sx={{
-                        "span.chakra-switch__track[data-checked]": {
-                            backgroundColor: btnColor,
-                        },
-                        // "span.chakra-switch__track:not([data-checked])": {
-                        //     backgroundColor:
-                        //         style?.secondary_bg_color,
-                        // },
-                    }}
+        <Box>
+            <Stack mb={2}>
+                <TimeRangeSelector
+                    updateSelectionArea={updateSelectionArea}
+                    startMin={startMin}
+                    endMin={endMin}
+                    setTime={setTime}
                 />
-            </Flex>
 
+                <Flex direction={"row"} justifyContent="space-between">
+                    <Text> Set time per day </Text>
+                    <Switch
+                        isChecked={showIndividualTimes}
+                        onChange={toggleIndividualTime}
+                        // https://github.com/chakra-ui/chakra-ui/discussions/6140
+                        sx={{
+                            "span.chakra-switch__track[data-checked]": {
+                                backgroundColor: btnColor,
+                            },
+                            // "span.chakra-switch__track:not([data-checked])": {
+                            //     backgroundColor:
+                            //         style?.secondary_bg_color,
+                            // },
+                        }}
+                    />
+                </Flex>
+            </Stack>
             <Collapse in={showIndividualTimes} unmountOnExit>
                 <TimeSelector
                     // arrayToGenerate={arrayToGenerate}
@@ -464,7 +465,7 @@ const TimeContainer = ({
                     onStop={onStop}
                 />
             </Collapse>
-        </Stack>
+        </Box>
     );
 };
 

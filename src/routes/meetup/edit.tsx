@@ -572,123 +572,154 @@ const MeetupEditPage = () => {
 
     return (
         <FormControl>
-            <Stack spacing={4}>
-                <Flex alignItems={"baseline"}>
-                    <Heading fontSize={"xl"}> Edit meetup </Heading>
-                    <NavLink
-                        ml={1}
-                        as={Link}
-                        to={`/meetup/${meetupId}`}
-                        fontSize="sm"
-                    >
+            <Stack spacing={16}>
+                <Stack>
+                    <Stack>
                         {" "}
-                        (back to meetup){" "}
-                    </NavLink>
-                </Flex>
-                <Input
-                    id="title"
-                    placeholder="Meetup title (required)"
-                    required
-                    value={title}
-                    onChange={onTitleChange}
-                />
-                <Textarea
-                    id="description"
-                    placeholder="Meetup description (optional)"
-                    value={description}
-                    onChange={onDescriptionChange}
-                />
-                <Box>
-                    <Heading fontSize={"xl"} pt={6}>
-                        {" "}
-                        Select the possible event dates{" "}
-                    </Heading>
+                        <Flex alignItems={"baseline"}>
+                            <Heading fontSize={"3xl"}> 📝 Edit meetup </Heading>
+                            <NavLink
+                                ml={1}
+                                as={Link}
+                                to={`/meetup/${meetupId}`}
+                                fontSize="sm"
+                            >
+                                {" "}
+                                (back to meetup){" "}
+                            </NavLink>
+                        </Flex>
+                    </Stack>
+                    <Box>
+                        <Heading fontSize={"2xl"} pt={6}>
+                            {" "}
+                            📅 When do you want your meetup?
+                        </Heading>
 
-                    <HelperText>
-                        {" "}
-                        {isMobile ? "Touch / Touch" : "Click / click"} and drag
-                        to select.
-                    </HelperText>
-                </Box>
-                <Alert status="warning">
-                    <AlertIcon />
-                    Please note that removing a date or time that people have
-                    indicated WILL remove their indication as well!
-                </Alert>
+                        <HelperText>
+                            {" "}
+                            {isMobile ? "Touch / Touch" : "Click / click"} and
+                            drag to select.
+                        </HelperText>
+                    </Box>
+                    <Alert status="warning">
+                        <AlertIcon />
+                        Please note that removing a date or time that people
+                        have indicated WILL remove their indication as well!
+                    </Alert>
 
-                <CalendarContainer
-                    datesSelected={datesRef.current}
-                    setDatesSelected={setDatesSelected}
-                    onStop={onStop}
-                />
-
-                <Heading fontSize={"xl"} pt={6}>
-                    {" "}
-                    Select the possible event timings{" "}
-                </Heading>
-                <Flex direction={"row"} justifyContent="space-between">
-                    <Text> Set as full day </Text>
-                    <Switch
-                        isChecked={isFullDay}
-                        onChange={(e) => {
-                            setIsFullDay(e.target.checked);
-                        }}
-                        // colorScheme={"#ffffff"}
-                        sx={{
-                            "span.chakra-switch__track[data-checked]": {
-                                backgroundColor: btnColor,
-                            },
-                            // "span.chakra-switch__track:not([data-checked])": {
-                            //     backgroundColor:
-                            //         style?.secondary_bg_color,
-                            // },
-                        }}
-                    />
-                </Flex>
-                <Collapse in={!isFullDay}>
-                    <TimeContainer
+                    <CalendarContainer
                         datesSelected={datesRef.current}
-                        setTimesSelected={setTimesSelected}
-                        timesSelected={timesRef.current}
-                        setPristine={setPristine}
-                        pristine={pristine}
-                        endMin={endMin}
-                        setTime={setTime}
-                        timeRef={timeRef}
-                        startMin={startMin}
-                        timeInitiallyOpen={!isFullDay}
+                        setDatesSelected={setDatesSelected}
+                        onStop={onStop}
                     />
-                </Collapse>
-
+                </Stack>
                 <Box>
-                    <Heading fontSize={"xl"} pt={6}>
-                        Advanced settings
-                    </Heading>
-                    <HelperText>
-                        Unmodified settings will be set to their default.
-                    </HelperText>
+                    <Stack mb={2}>
+                        <Heading fontSize={"2xl"}>
+                            {" "}
+                            🕔 What times do you want to have it on?
+                        </Heading>
+                        <Flex direction={"row"} justifyContent="space-between">
+                            <Text> Set as full day </Text>
+                            <Switch
+                                isChecked={isFullDay}
+                                onChange={(e) => {
+                                    setIsFullDay(e.target.checked);
+                                }}
+                                // colorScheme={"#ffffff"}
+                                sx={{
+                                    "span.chakra-switch__track[data-checked]": {
+                                        backgroundColor: btnColor,
+                                    },
+                                    // "span.chakra-switch__track:not([data-checked])": {
+                                    //     backgroundColor:
+                                    //         style?.secondary_bg_color,
+                                    // },
+                                }}
+                            />
+                        </Flex>
+                    </Stack>
+                    <Collapse in={!isFullDay}>
+                        <TimeContainer
+                            datesSelected={datesRef.current}
+                            setTimesSelected={setTimesSelected}
+                            timesSelected={timesRef.current}
+                            setPristine={setPristine}
+                            pristine={pristine}
+                            endMin={endMin}
+                            setTime={setTime}
+                            timeRef={timeRef}
+                            startMin={startMin}
+                            timeInitiallyOpen={!isFullDay}
+                        />
+                    </Collapse>
                 </Box>
-                <Alert status="warning">
-                    <AlertIcon />
-                    Please note that changing any 'limit' setting will NOT
-                    remove users who have already indicated!
-                </Alert>
-                {user && (
+                <Stack>
+                    <Box>
+                        <Heading fontSize={"2xl"}>
+                            ⚙️ Customize your meetup
+                        </Heading>
+                        <HelperText>
+                            Unmodified settings will be set to their default.
+                        </HelperText>
+                    </Box>
+                    <Alert status="warning">
+                        <AlertIcon />
+                        Please note that changing any 'limit' setting will NOT
+                        remove users who have already indicated!
+                    </Alert>
+                    {user && (
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <Text>
+                                    {" "}
+                                    Send a notification when number of users
+                                    hits:{" "}
+                                </Text>
+                                <HelperText>
+                                    {" "}
+                                    Default: No notification{" "}
+                                </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <NumberInput
+                                        width="72px"
+                                        value={notificationThreshold}
+                                        onChange={(e) => {
+                                            setNotificationThreshold(
+                                                parseInt(e)
+                                            );
+                                            setUserCanSubmit(true);
+                                        }}
+                                        min={1}
+                                    >
+                                        <NumberInputField />
+                                        <NumberInputStepper>
+                                            <NumberIncrementStepper />
+                                            <NumberDecrementStepper />
+                                        </NumberInputStepper>
+                                    </NumberInput>
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    )}
+
                     <Flex justifyContent={"space-between"} alignItems="center">
                         <Box>
-                            <Text>
-                                {" "}
-                                Send a notification when number of users hits:{" "}
-                            </Text>
-                            <HelperText> Default: No notification </HelperText>
+                            <Text> Limit the number of users to: </Text>
+                            <HelperText> Default: No limit</HelperText>
                         </Box>
                         <Box>
                             <InputGroup size="sm">
                                 <NumberInput
                                     width="72px"
-                                    value={notificationThreshold}
+                                    value={limitNumberRespondents}
                                     onChange={(e) => {
-                                        setNotificationThreshold(parseInt(e));
+                                        setLimitNumberRespondents(parseInt(e));
                                         setUserCanSubmit(true);
                                     }}
                                     min={1}
@@ -702,35 +733,8 @@ const MeetupEditPage = () => {
                             </InputGroup>
                         </Box>
                     </Flex>
-                )}
 
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Text> Limit the number of users to: </Text>
-                        <HelperText> Default: No limit</HelperText>
-                    </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={limitNumberRespondents}
-                                onChange={(e) => {
-                                    setLimitNumberRespondents(parseInt(e));
-                                    setUserCanSubmit(true);
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
-
-                {/* <Flex justifyContent={"space-between"} alignItems="center">
+                    {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
                         <Text>
                             {" "}
@@ -762,31 +766,53 @@ const MeetupEditPage = () => {
                     </Box>
                 </Flex> */}
 
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Text> Limit the number of users per slot to: </Text>
-                        <HelperText> Default: No limit </HelperText>
-                    </Box>
-                    <Box>
-                        <InputGroup size="sm">
-                            <NumberInput
-                                width="72px"
-                                value={limitPerSlot}
-                                onChange={(e) => {
-                                    setUserCanSubmit(true);
-                                    setLimitPerSlot(parseInt(e));
-                                }}
-                                min={1}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </InputGroup>
-                    </Box>
-                </Flex>
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Box>
+                            <Text>
+                                {" "}
+                                Limit the number of users per slot to:{" "}
+                            </Text>
+                            <HelperText> Default: No limit </HelperText>
+                        </Box>
+                        <Box>
+                            <InputGroup size="sm">
+                                <NumberInput
+                                    width="72px"
+                                    value={limitPerSlot}
+                                    onChange={(e) => {
+                                        setUserCanSubmit(true);
+                                        setLimitPerSlot(parseInt(e));
+                                    }}
+                                    min={1}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            </InputGroup>
+                        </Box>
+                    </Flex>
+                </Stack>
+                <Stack>
+                    <Heading fontSize={"2xl"}>
+                        🎉 Give your meetup a name so people know!{" "}
+                    </Heading>
+                    <Input
+                        id="title"
+                        placeholder="Meetup title (required)"
+                        required
+                        value={title}
+                        onChange={onTitleChange}
+                    />
+                    <Textarea
+                        id="description"
+                        placeholder="Meetup description (optional)"
+                        value={description}
+                        onChange={onDescriptionChange}
+                    />
+                </Stack>
                 {!user && (
                     <Center>
                         <FancyButton
@@ -798,7 +824,7 @@ const MeetupEditPage = () => {
                             }}
                         >
                             {userCanSubmit
-                                ? "Save your changes 🚀"
+                                ? "Save your changes 📝"
                                 : "No changes since last save"}
                         </FancyButton>
                     </Center>
