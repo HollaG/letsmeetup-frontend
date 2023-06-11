@@ -193,23 +193,25 @@ const CalendarContainer = ({
         if (!canGoLeft) return;
 
         setSelectedDate((prev) => subMonths(prev, 1));
+
+        // TODO: to keep the behaviour of the two calendars consistent, we don't skip months that are not in allowedDates.
         // skip months that are not in allowedDates.
         // check if `allowedDates` has any dates that are in the previous month
-        if (allowedDates) {
-            let hasOneDateInPreviousMonth = false;
-            const prevMonthNum = selectedDateRef.current.getMonth();
-            for (let allowedDate of allowedDates) {
-                const allowedDateObj = dateParser(allowedDate);
-                if (allowedDateObj.getMonth() == prevMonthNum) {
-                    hasOneDateInPreviousMonth = true;
-                    break;
-                }
-            }
-            if (hasOneDateInPreviousMonth) {
-            } else {
-                goLeft();
-            }
-        }
+        // if (allowedDates) {
+        //     let hasOneDateInPreviousMonth = false;
+        //     const prevMonthNum = selectedDateRef.current.getMonth();
+        //     for (let allowedDate of allowedDates) {
+        //         const allowedDateObj = dateParser(allowedDate);
+        //         if (allowedDateObj.getMonth() == prevMonthNum) {
+        //             hasOneDateInPreviousMonth = true;
+        //             break;
+        //         }
+        //     }
+        //     if (hasOneDateInPreviousMonth) {
+        //     } else {
+        //         goLeft();
+        //     }
+        // }
     };
 
     const goRight = async () => {
@@ -217,23 +219,24 @@ const CalendarContainer = ({
         if (!canGoRight) return;
         setSelectedDate((prev) => addMonths(prev, 1));
 
-        if (allowedDates) {
-            let hasOneDateInNextMonth = false;
-            // Use the ref object so that we get access to the already updated value
-            const prevMonthNum = selectedDateRef.current.getMonth();
-            for (let allowedDate of allowedDates) {
-                const allowedDateObj = dateParser(allowedDate);
-                if (allowedDateObj.getMonth() == prevMonthNum) {
-                    console.log("has one");
-                    hasOneDateInNextMonth = true;
-                    break;
-                }
-            }
-            if (hasOneDateInNextMonth) {
-            } else {
-                goRight();
-            }
-        }
+        // TODO: to keep the behaviour of the two calendars consistent, we don't skip months that are not in allowedDates.
+        // if (allowedDates) {
+        //     let hasOneDateInNextMonth = false;
+        //     // Use the ref object so that we get access to the already updated value
+        //     const prevMonthNum = selectedDateRef.current.getMonth();
+        //     for (let allowedDate of allowedDates) {
+        //         const allowedDateObj = dateParser(allowedDate);
+        //         if (allowedDateObj.getMonth() == prevMonthNum) {
+        //             console.log("has one");
+        //             hasOneDateInNextMonth = true;
+        //             break;
+        //         }
+        //     }
+        //     if (hasOneDateInNextMonth) {
+        //     } else {
+        //         goRight();
+        //     }
+        // }
     };
 
     const [isDragging, setIsDragging] = useState(false);
