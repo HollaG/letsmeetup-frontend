@@ -14,6 +14,7 @@ import {
     SimpleGrid,
     Stack,
     Text,
+    useMediaQuery,
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import {
@@ -31,6 +32,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FcPrevious } from "react-icons/fc";
 import useStateRef from "react-usestateref";
 import { useTelegram } from "../../context/TelegramProvider";
+import { GoLeftButton, GoRightButton } from "../Buttons/NavigationButtons";
 import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
 
@@ -87,6 +89,62 @@ type CalendarContainerProps = {
     onBeforeStart?: ({ event, selection }: SelectionEvent) => void;
 };
 
+const getDrawnDays = (selectedDate: Date, drawOverflow: boolean) => {
+    const currentMonthNum = selectedDate.getMonth();
+    const currentYearNum = selectedDate.getFullYear();
+
+    // construct the first row
+    // get the dayOfWeek for the first day in this month
+    const firstDateInMonth = parse(
+        `${1}-${currentMonthNum + 1}-${currentYearNum}`,
+        "d-MM-yyyy",
+        new Date()
+    );
+    const firstDayInMonth = firstDateInMonth.getDay();
+
+    // Construct the array like so:
+    let tempArray: CalendarDayProps[] = [];
+
+    let lookBackDays = firstDayInMonth; // The number of days to go 'backwards' because we need to fill up the calendar rows
+
+    let lbd = firstDateInMonth;
+    while (lookBackDays > 0) {
+        lookBackDays = lookBackDays - 1;
+        lbd = subDays(lbd, 1);
+
+        tempArray.push({
+            date: lbd,
+            text: drawOverflow ? format(lbd, "d") : "", // don't render dates that are not in this month if we are showing dual calendars
+        });
+    }
+
+    // because we go backwards, we need to reverse the array
+    tempArray = tempArray.reverse();
+
+    // add the rest of the days in this month
+    let lfd = firstDateInMonth;
+    while (lfd.getMonth() == currentMonthNum) {
+        // while we're in the current month
+        tempArray.push({
+            date: lfd,
+            text: format(lfd, "d"),
+        });
+        lfd = addDays(lfd, 1);
+    }
+
+    // add the 'overflow' days
+    while (tempArray.length % 7 != 0) {
+        tempArray.push({
+            date: lfd,
+            text: drawOverflow ? format(lfd, "d") : "", // don't render dates that are not in this month if we are showing dual calendars
+        });
+        lfd = addDays(lfd, 1);
+    }
+
+    console.log(drawOverflow, "in getDrawnDays");
+    return tempArray;
+};
+
 /**
  * Contains everything related to the calendar.
  *
@@ -103,6 +161,9 @@ const CalendarContainer = ({
     onStop,
     onBeforeStart,
 }: CalendarContainerProps) => {
+    const [singleDrawnDays, setSingleDrawnDays] = useState<CalendarDayProps[]>(
+        []
+    );
     const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
     const [drawnDays2, setDrawnDays2] = useState<CalendarDayProps[]>([]);
     const { user, webApp } = useTelegram();
@@ -122,68 +183,18 @@ const CalendarContainer = ({
     const [selectedDate, setSelectedDate, selectedDateRef] =
         useStateRef<Date>(initialDateSelected);
 
+    const [showDual] = useMediaQuery("(min-width: 825px)");
+
     useEffect(() => {
         const d = new Date();
 
-        const getDrawnDays = (selectedDate: Date) => {
-            const currentMonthNum = selectedDate.getMonth();
-            const currentYearNum = selectedDate.getFullYear();
-
-            // construct the first row
-            // get the dayOfWeek for the first day in this month
-            const firstDateInMonth = parse(
-                `${1}-${currentMonthNum + 1}-${currentYearNum}`,
-                "d-MM-yyyy",
-                new Date()
-            );
-            const firstDayInMonth = firstDateInMonth.getDay();
-
-            // Construct the array like so:
-            let tempArray: CalendarDayProps[] = [];
-
-            let lookBackDays = firstDayInMonth; // The number of days to go 'backwards' because we need to fill up the calendar rows
-
-            let lbd = firstDateInMonth;
-            while (lookBackDays > 0) {
-                lookBackDays = lookBackDays - 1;
-                lbd = subDays(lbd, 1);
-
-                tempArray.push({
-                    date: lbd,
-                    // text: format(lbd, "d"),
-                    text: "", // don't render dates that are not in this month
-                });
-            }
-
-            // because we go backwards, we need to reverse the array
-            tempArray = tempArray.reverse();
-
-            // add the rest of the days in this month
-            let lfd = firstDateInMonth;
-            while (lfd.getMonth() == currentMonthNum) {
-                // while we're in the current month
-                tempArray.push({
-                    date: lfd,
-                    text: format(lfd, "d"),
-                });
-                lfd = addDays(lfd, 1);
-            }
-
-            // add the 'overflow' days
-            while (tempArray.length % 7 != 0) {
-                tempArray.push({
-                    date: lfd,
-                    // text: format(lfd, "d"),
-                    text: "", // don't render dates that are not in this month
-                });
-                lfd = addDays(lfd, 1);
-            }
-            return tempArray;
-        };
-
-        setDrawnDays(getDrawnDays(selectedDate));
-        setDrawnDays2(getDrawnDays(addMonths(selectedDate, 1)));
-    }, [selectedDate]);
+        if (showDual) {
+            setDrawnDays(getDrawnDays(selectedDate, false));
+            setDrawnDays2(getDrawnDays(addMonths(selectedDate, 1), false));
+        } else {
+            setSingleDrawnDays(getDrawnDays(selectedDate, true));
+        }
+    }, [selectedDate, showDual]);
 
     const canGoLeft = isAfter(selectedDate, startDate);
     const canGoRight = isBefore(addMonths(selectedDate, 1), endDate);
@@ -391,18 +402,286 @@ const CalendarContainer = ({
 
     return (
         <Stack data-testid="calendar-component" w="100%">
+            {showDual ? (
+                <DualCalendar
+                    {...{
+                        _onStop,
+                        allowedDates,
+                        canGoLeft,
+                        canGoRight,
+                        datesSelected,
+
+                        endDate,
+                        goLeft,
+                        goRight,
+                        onMove,
+                        onStart,
+                        onTouchEnd,
+                        selectedDate,
+                        drawnDays,
+                        drawnDays2,
+                        startDate,
+                        tempBefStart,
+                    }}
+                />
+            ) : (
+                <SingleCalendar
+                    {...{
+                        _onStop,
+                        allowedDates,
+                        canGoLeft,
+                        canGoRight,
+                        datesSelected,
+
+                        endDate,
+                        goLeft,
+                        goRight,
+                        onMove,
+                        onStart,
+                        onTouchEnd,
+                        selectedDate,
+                        singleDrawnDays,
+                        startDate,
+                        tempBefStart,
+                    }}
+                />
+            )}
+        </Stack>
+    );
+};
+
+export default React.memo(CalendarContainer);
+
+const DualCalendar = React.memo(
+    ({
+        selectedDate,
+        canGoLeft,
+        canGoRight,
+        goLeft,
+        goRight,
+
+        drawnDays,
+        drawnDays2,
+        _onStop,
+        allowedDates,
+        datesSelected,
+        endDate,
+        onMove,
+        onStart,
+        onTouchEnd,
+        startDate,
+        tempBefStart,
+    }: {
+        selectedDate: Date;
+        canGoLeft: boolean;
+        goLeft: () => void;
+        canGoRight: boolean;
+        goRight: () => void;
+        onStart: (e: SelectionEvent) => void;
+        onMove: (e: SelectionEvent) => void;
+        _onStop: (e: SelectionEvent) => void;
+        tempBefStart: (e: SelectionEvent) => void;
+        onTouchEnd: (
+            e: React.TouchEvent<HTMLDivElement>,
+            dateStr: string
+        ) => void;
+        datesSelected: string[];
+        startDate: Date;
+        endDate: Date;
+        allowedDates: string[] | undefined;
+
+        drawnDays: CalendarDayProps[];
+        drawnDays2: CalendarDayProps[];
+    }) => (
+        <SimpleGrid columns={{ base: 1, sm: 2 }}>
+            <Box>
+                <Center>
+                    <GoLeftButton canGoLeft={canGoLeft} goLeft={goLeft} />
+
+                    <Text
+                        data-testid="month-display"
+                        mx={4}
+                        width="80px"
+                        textAlign={"center"}
+                        fontWeight="bold"
+                    >
+                        {" "}
+                        {format(selectedDate, "MMM yyyy")}
+                    </Text>
+                </Center>
+                <Box px={8} pt={4}>
+                    <SelectionArea
+                        className="select-container"
+                        onStart={onStart}
+                        onMove={onMove}
+                        onStop={_onStop}
+                        onBeforeStart={tempBefStart}
+                        selectables=".selectable"
+                        features={{
+                            singleTap: {
+                                allow: true,
+                                intersect: "touch",
+                            },
+                            // Enable / disable touch support.
+                            touch: true,
+
+                            // Range selection.
+                            range: true,
+                        }}
+                        behaviour={{
+                            overlap: "invert",
+                            intersect: "touch",
+                            startThreshold: 10,
+                            scrolling: {
+                                speedDivider: 10,
+                                manualSpeed: 750,
+                                startScrollMargins: {
+                                    x: 0,
+                                    y: 0,
+                                },
+                            },
+                        }}
+                    >
+                        <Grid
+                            templateColumns="repeat(7, 1fr)"
+                            gap={0}
+                            data-testid="select-container-calendar"
+                        >
+                            <CalendarHeader />
+                            <CalendarBody
+                                drawnDays={drawnDays}
+                                onTouchEnd={onTouchEnd}
+                                datesSelected={datesSelected}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectedDate={selectedDate}
+                                allowedDates={allowedDates}
+                                drawOverflow={false}
+                            />
+                        </Grid>
+                    </SelectionArea>
+                </Box>
+            </Box>
+            <Box>
+                <Center>
+                    <Text
+                        data-testid="month-display"
+                        mx={4}
+                        width="80px"
+                        textAlign={"center"}
+                        fontWeight="bold"
+                    >
+                        {" "}
+                        {format(addMonths(selectedDate, 1), "MMM yyyy")}
+                    </Text>
+                    <GoRightButton canGoRight={canGoRight} goRight={goRight} />
+                </Center>
+
+                <Box px={8} pt={4}>
+                    <SelectionArea
+                        className="select-container"
+                        onStart={onStart}
+                        onMove={onMove}
+                        onStop={_onStop}
+                        onBeforeStart={tempBefStart}
+                        selectables=".selectable"
+                        features={{
+                            singleTap: {
+                                allow: true,
+                                intersect: "touch",
+                            },
+                            // Enable / disable touch support.
+                            touch: true,
+
+                            // Range selection.
+                            range: true,
+                        }}
+                        behaviour={{
+                            overlap: "invert",
+                            intersect: "touch",
+                            startThreshold: 10,
+                            scrolling: {
+                                speedDivider: 10,
+                                manualSpeed: 750,
+                                startScrollMargins: {
+                                    x: 0,
+                                    y: 0,
+                                },
+                            },
+                        }}
+                    >
+                        <Grid
+                            templateColumns="repeat(7, 1fr)"
+                            gap={0}
+                            data-testid="select-container-calendar"
+                        >
+                            <CalendarHeader />
+                            <CalendarBody
+                                drawnDays={drawnDays2}
+                                onTouchEnd={onTouchEnd}
+                                datesSelected={datesSelected}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectedDate={addMonths(selectedDate, 1)}
+                                allowedDates={allowedDates}
+                                drawOverflow={false}
+                            />
+                        </Grid>
+                    </SelectionArea>{" "}
+                </Box>
+            </Box>
+        </SimpleGrid>
+    )
+);
+
+const SingleCalendar = React.memo(
+    ({
+        selectedDate,
+        canGoLeft,
+        canGoRight,
+        goLeft,
+        goRight,
+
+        singleDrawnDays,
+        _onStop,
+        allowedDates,
+        datesSelected,
+        endDate,
+        onMove,
+        onStart,
+        onTouchEnd,
+        startDate,
+        tempBefStart,
+    }: {
+        selectedDate: Date;
+        canGoLeft: boolean;
+        goLeft: () => void;
+        canGoRight: boolean;
+        goRight: () => void;
+        onStart: (e: SelectionEvent) => void;
+        onMove: (e: SelectionEvent) => void;
+        _onStop: (e: SelectionEvent) => void;
+        tempBefStart: (e: SelectionEvent) => void;
+        onTouchEnd: (
+            e: React.TouchEvent<HTMLDivElement>,
+            dateStr: string
+        ) => void;
+        datesSelected: string[];
+        startDate: Date;
+        endDate: Date;
+        allowedDates: string[] | undefined;
+
+        singleDrawnDays: CalendarDayProps[];
+    }) => (
+        <Stack
+            px={{
+                base: 0,
+                sm: 8,
+            }}
+        >
             <Flex justifyContent={"center"}>
-                {/* <Button
-                    size="xs"
-                    isDisabled={!canGoLeft}
-                    onClick={goLeft}
-                    aria-label="Previous month"
-                    // className="override-button-color"
-                >
-                    {" "}
-                    &lt;{" "}
-                </Button> */}
-                {/* <Text
+                <GoLeftButton canGoLeft={canGoLeft} goLeft={goLeft} />
+                <Text
                     data-testid="month-display"
                     mx={4}
                     width="80px"
@@ -410,168 +689,59 @@ const CalendarContainer = ({
                 >
                     {" "}
                     {format(selectedDate, "MMM yyyy")}
-                </Text> */}
-                {/* <Button
-                    size="xs"
-                    onClick={goRight}
-                    isDisabled={!canGoRight}
-                    aria-label="Next month"
-                    // className="override-button-color"
-                >
-                    {" "}
-                    &gt;{" "}
-                </Button> */}
+                </Text>
+                <GoRightButton canGoRight={canGoRight} goRight={goRight} />
             </Flex>
+            <SelectionArea
+                className="select-container"
+                onStart={onStart}
+                onMove={onMove}
+                onStop={_onStop}
+                onBeforeStart={tempBefStart}
+                selectables=".selectable"
+                features={{
+                    singleTap: {
+                        allow: true,
+                        intersect: "touch",
+                    },
+                    // Enable / disable touch support.
+                    touch: true,
 
-            <SimpleGrid columns={{ base: 1, md: 2 }}>
-                <Box>
-                    <Center>
-                        <IconButton
-                            size="xs"
-                            isDisabled={!canGoLeft}
-                            onClick={goLeft}
-                            aria-label="Previous month"
-                            icon={<FaChevronLeft />}
-                        />
-                        <Text
-                            data-testid="month-display"
-                            mx={4}
-                            width="80px"
-                            textAlign={"center"}
-                            fontWeight="bold"
-                        >
-                            {" "}
-                            {format(selectedDate, "MMM yyyy")}
-                        </Text>
-                    </Center>
-                    <Box px={8} pt={4}>
-                        <SelectionArea
-                            className="select-container"
-                            onStart={onStart}
-                            onMove={onMove}
-                            onStop={_onStop}
-                            onBeforeStart={tempBefStart}
-                            selectables=".selectable"
-                            features={{
-                                singleTap: {
-                                    allow: true,
-                                    intersect: "touch",
-                                },
-                                // Enable / disable touch support.
-                                touch: true,
-
-                                // Range selection.
-                                range: true,
-                            }}
-                            behaviour={{
-                                overlap: "invert",
-                                intersect: "touch",
-                                startThreshold: 10,
-                                scrolling: {
-                                    speedDivider: 10,
-                                    manualSpeed: 750,
-                                    startScrollMargins: {
-                                        x: 0,
-                                        y: 0,
-                                    },
-                                },
-                            }}
-                        >
-                            <Grid
-                                templateColumns="repeat(7, 1fr)"
-                                gap={0}
-                                data-testid="select-container-calendar"
-                            >
-                                <CalendarHeader />
-                                <CalendarBody
-                                    drawnDays={drawnDays}
-                                    onTouchEnd={onTouchEnd}
-                                    datesSelected={datesSelected}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    selectedDate={selectedDate}
-                                    allowedDates={allowedDates}
-                                />
-                            </Grid>
-                        </SelectionArea>
-                    </Box>
-                </Box>
-                <Box>
-                    <Center>
-                        <Text
-                            data-testid="month-display"
-                            mx={4}
-                            width="80px"
-                            textAlign={"center"}
-                            fontWeight="bold"
-                        >
-                            {" "}
-                            {format(addMonths(selectedDate, 1), "MMM yyyy")}
-                        </Text>
-                        <IconButton
-                            size="xs"
-                            isDisabled={!canGoRight}
-                            onClick={goRight}
-                            aria-label="Next month"
-                            icon={<FaChevronRight />}
-                        />
-                    </Center>
-
-                    <Box px={8} pt={4}>
-                        <SelectionArea
-                            className="select-container"
-                            onStart={onStart}
-                            onMove={onMove}
-                            onStop={_onStop}
-                            onBeforeStart={tempBefStart}
-                            selectables=".selectable"
-                            features={{
-                                singleTap: {
-                                    allow: true,
-                                    intersect: "touch",
-                                },
-                                // Enable / disable touch support.
-                                touch: true,
-
-                                // Range selection.
-                                range: true,
-                            }}
-                            behaviour={{
-                                overlap: "invert",
-                                intersect: "touch",
-                                startThreshold: 10,
-                                scrolling: {
-                                    speedDivider: 10,
-                                    manualSpeed: 750,
-                                    startScrollMargins: {
-                                        x: 0,
-                                        y: 0,
-                                    },
-                                },
-                            }}
-                        >
-                            <Grid
-                                templateColumns="repeat(7, 1fr)"
-                                gap={0}
-                                data-testid="select-container-calendar"
-                            >
-                                <CalendarHeader />
-                                <CalendarBody
-                                    drawnDays={drawnDays2}
-                                    onTouchEnd={onTouchEnd}
-                                    datesSelected={datesSelected}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    selectedDate={addMonths(selectedDate, 1)}
-                                    allowedDates={allowedDates}
-                                />
-                            </Grid>
-                        </SelectionArea>{" "}
-                    </Box>
-                </Box>
-            </SimpleGrid>
+                    // Range selection.
+                    range: true,
+                }}
+                behaviour={{
+                    overlap: "invert",
+                    intersect: "touch",
+                    startThreshold: 10,
+                    scrolling: {
+                        speedDivider: 10,
+                        manualSpeed: 750,
+                        startScrollMargins: {
+                            x: 0,
+                            y: 0,
+                        },
+                    },
+                }}
+            >
+                <Grid
+                    templateColumns="repeat(7, 1fr)"
+                    gap={0}
+                    data-testid="select-container-calendar"
+                >
+                    <CalendarHeader />
+                    <CalendarBody
+                        drawnDays={singleDrawnDays}
+                        onTouchEnd={onTouchEnd}
+                        datesSelected={datesSelected}
+                        startDate={startDate}
+                        endDate={endDate}
+                        selectedDate={selectedDate}
+                        allowedDates={allowedDates}
+                        drawOverflow={true}
+                    />
+                </Grid>
+            </SelectionArea>
         </Stack>
-    );
-};
-
-export default React.memo(CalendarContainer);
+    )
+);

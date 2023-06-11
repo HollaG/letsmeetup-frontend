@@ -977,7 +977,7 @@ const MeetupPage = () => {
                         {indicateIsVisible && (
                             <TabPanel p={1}>
                                 <Stack spacing={4} justifyContent="left">
-                                    <Box height="32px">
+                                    <Box height="40px">
                                         <Heading fontSize={"lg"}>
                                             📅 Select your available dates{" "}
                                         </Heading>
