@@ -45,6 +45,7 @@ import { isMobile } from "react-device-detect";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import { URLSearchParams } from "url";
+import FancyButton from "../components/Buttons/FancyButton";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
 import HelperText from "../components/Display/HelperText";
 import TimeContainer, {
@@ -359,8 +360,6 @@ const Create = () => {
     const toast = useToast();
     const webUserSubmit = async () => {
         try {
-            console.log("trying to submit");
-            console.log(webUser);
             let tWebUser: IMeetupUser;
 
             setIsSubmitting(true);
@@ -441,33 +440,18 @@ const Create = () => {
     }, []);
 
     return (
-        <Stack spacing={4} justifyContent="center" alignItems={"center"}>
-            <Container id="container-details" p={0} maxW="1000px">
-                <Stack>
-                    <Heading fontSize={"xl"}>🎉Create a new event </Heading>
-                    <Input
-                        id="title"
-                        placeholder="Event title (required)"
-                        required
-                        value={title}
-                        onChange={onTitleChange}
-                    />
-                    <Textarea
-                        id="description"
-                        placeholder="Event description (optional)"
-                        value={description}
-                        onChange={onDescriptionChange}
-                    />
-                </Stack>
-            </Container>
-
-            <SimpleGrid columns={{ base: 1, md: 2 }}></SimpleGrid>
+        <Stack
+            spacing={16}
+            justifyContent="center"
+            alignItems={"center"}
+            // divider={<Divider />}
+        >
             <Container id="container-dates" p={0} maxW="1000px">
                 <Stack>
                     <Box>
-                        <Heading fontSize={"xl"} pt={6}>
+                        <Heading fontSize={"2xl"}>
                             {" "}
-                            📅 Select the possible event dates{" "}
+                            📅 When do you want your meetup?
                         </Heading>
 
                         <HelperText>
@@ -478,11 +462,16 @@ const Create = () => {
                     </Box>
                     {/* <Center>
                         <Container justifyContent="center"> */}
+                    {/* <Box>
+                        <Box maxWidth={"500px"} mx={"auto"}> */}
                     <CalendarContainer
                         datesSelected={datesRef.current}
                         setDatesSelected={setDatesSelected}
                         onStop={onStop}
                     />
+                    {/* </Box>
+                    </Box> */}
+
                     {/* </Container>
                     </Center> */}
                 </Stack>
@@ -490,9 +479,9 @@ const Create = () => {
 
             <Container id="container-timings" p={0} maxW="1000px">
                 <Stack>
-                    <Heading fontSize={"xl"} pt={6}>
+                    <Heading fontSize={"2xl"}>
                         {" "}
-                        🕔 Select the possible event timings{" "}
+                        🕔 What times do you want to have it on?
                     </Heading>
                     <Flex direction={"row"} justifyContent="space-between">
                         <Text> Set as full day </Text>
@@ -533,8 +522,8 @@ const Create = () => {
                 {" "}
                 <Stack>
                     <Box>
-                        <Heading fontSize={"xl"} pt={6}>
-                            ⚙️ Advanced settings
+                        <Heading fontSize={"2xl"}>
+                            ⚙️ Customize your meetup
                         </Heading>
                         <HelperText>
                             Unmodified settings will be set to their default.
@@ -666,11 +655,33 @@ const Create = () => {
                 </Stack>{" "}
             </Container>
 
+            <Container id="container-details" p={0} maxW="1000px">
+                <Stack>
+                    <Heading fontSize={"2xl"}>
+                        🎉 Give your meetup a name so people know!{" "}
+                    </Heading>
+                    <Input
+                        id="title"
+                        placeholder="Meetup title (required)"
+                        required
+                        value={title}
+                        onChange={onTitleChange}
+                        maxLength={256}
+                    />
+                    <Textarea
+                        id="description"
+                        placeholder="Meetup description (optional)"
+                        value={description}
+                        onChange={onDescriptionChange}
+                        maxLength={4096}
+                    />
+                </Stack>
+            </Container>
             {!user && !webUser && (
                 <Container id="container-user" p={0} maxW="1000px">
                     <Stack>
-                        <Heading fontSize={"xl"} pt={6}>
-                            👤 User settings
+                        <Heading fontSize={"2xl"}>
+                            👤 Just one last thing...
                         </Heading>
                         <Alert
                             status="info"
@@ -705,6 +716,7 @@ const Create = () => {
                             placeholder="Your name (required)"
                             value={newUserName}
                             onChange={(e) => setNewUserName(e.target.value)}
+                            maxLength={128}
                         />
                         {/* <Divider />
                         <Text> Or, create an account </Text> */}
@@ -714,15 +726,25 @@ const Create = () => {
             <Container id="container-submit" p={0} maxW="1000px">
                 {!user && (
                     <Center>
-                        <Button
+                        {/* <Button
                             colorScheme="purple"
                             isDisabled={!userCanSubmit}
                             onClick={webUserSubmit}
                             isLoading={isSubmitting}
                         >
-                            {" "}
-                            Create event{" "}
-                        </Button>
+                            
+                        </Button> */}
+                        <FancyButton
+                            props={{
+                                isDisabled: !userCanSubmit,
+                                onClick: webUserSubmit,
+                                isLoading: isSubmitting,
+                            }}
+                        >
+                            {userCanSubmit
+                                ? "Create meetup  🚀"
+                                : "Please fill in all required fields"}
+                        </FancyButton>
                     </Center>
                 )}
             </Container>
@@ -743,7 +765,11 @@ const Create = () => {
                         </AlertDialogBody>
 
                         <AlertDialogFooter>
-                            <Button ref={cancelRef} onClick={onClose}>
+                            <Button
+                                ref={cancelRef}
+                                onClick={onClose}
+                                variant="outline"
+                            >
                                 Never mind, I'll continue as a guest
                             </Button>
                             {/* <Button colorScheme="red" onClick={() => {}} ml={3}>

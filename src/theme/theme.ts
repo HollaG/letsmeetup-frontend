@@ -16,7 +16,7 @@ const theme = extendTheme({
     config,
 
     fonts: {
-        heading: `'Inter', sans-serif`,
+        heading: `'Lexend', sans-serif`,
         body: `'Inter', sans-serif`,
     },
 });

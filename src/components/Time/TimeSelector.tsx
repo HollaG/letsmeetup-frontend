@@ -8,6 +8,7 @@ import {
     Progress,
     Center,
     Heading,
+    Collapse,
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns";
@@ -182,182 +183,186 @@ const TimeSelector = ({
     };
 
     return (
-        <Stack>
-            <Box>
-                <Heading fontSize={"lg"}>
-                    {" "}
-                    🕔 Select your available times{" "}
-                </Heading>
-                <HelperText>
-                    {" "}
-                    {isMobile ? "Touch / Touch" : "Click / click"} and drag to
-                    select.
-                </HelperText>
-
-                {isMobile && (
+        <Collapse in={!!datesSelected.length}>
+            <Stack>
+                <Box>
+                    <Heading fontSize={"lg"}>
+                        {" "}
+                        🕔 Select your available times{" "}
+                    </Heading>
                     <HelperText>
-                        Scroll by dragging along the labels.
+                        {" "}
+                        {isMobile ? "Touch / Touch" : "Click / click"} and drag
+                        to select.
                     </HelperText>
-                )}
-            </Box>
-            <Flex justifyContent="end">
-                <Button
-                    size="xs"
-                    // backgroundColor={style?.button_color}
-                    // sx={{
-                    //     ":hover": {
-                    //         backgroundColor: style?.button_color
-                    //     }
-                    // }}
-                    onClick={selectAll}
-                >
-                    {" "}
-                    Select all{" "}
-                </Button>
-                <Button
-                    size="xs"
-                    colorScheme="red"
-                    ml={2}
-                    onClick={deselectAll}
-                >
-                    {" "}
-                    Deselect all{" "}
-                </Button>
-            </Flex>
-            <Box
-                as={SelectionArea}
-                className="select-container"
-                onBeforeStart={_onBeforeStart}
-                onStart={_onStart}
-                onMove={_onMove}
-                onStop={_onStop}
-                selectables=".selectable"
-                display="grid"
-                gridTemplateColumns={`repeat(${datesSelected.length + 2}, 1fr)`}
-                width="100%"
-                maxHeight="480px"
-                userSelect="none"
-                overflow="auto"
-                behaviour={{
-                    overlap: "invert",
-                    intersect: "touch",
-                    startThreshold: 10,
-                    scrolling: {
-                        speedDivider: 10,
-                        manualSpeed: 750,
-                        startScrollMargins: {
-                            x: 64,
-                            y: 64,
-                        },
-                    },
-                }}
-                features={{
-                    singleTap: {
-                        allow: true,
+
+                    {isMobile && (
+                        <HelperText>
+                            Scroll by dragging along the labels.
+                        </HelperText>
+                    )}
+                </Box>
+                <Flex justifyContent="end">
+                    <Button
+                        size="xs"
+                        // backgroundColor={style?.button_color}
+                        // sx={{
+                        //     ":hover": {
+                        //         backgroundColor: style?.button_color
+                        //     }
+                        // }}
+                        onClick={selectAll}
+                    >
+                        {" "}
+                        Select all{" "}
+                    </Button>
+                    <Button
+                        size="xs"
+                        colorScheme="red"
+                        ml={2}
+                        onClick={deselectAll}
+                    >
+                        {" "}
+                        Deselect all{" "}
+                    </Button>
+                </Flex>
+                <Box
+                    as={SelectionArea}
+                    className="select-container"
+                    onBeforeStart={_onBeforeStart}
+                    onStart={_onStart}
+                    onMove={_onMove}
+                    onStop={_onStop}
+                    selectables=".selectable"
+                    display="grid"
+                    gridTemplateColumns={`repeat(${
+                        datesSelected.length + 2
+                    }, 1fr)`}
+                    width="100%"
+                    maxHeight="480px"
+                    userSelect="none"
+                    overflow="auto"
+                    behaviour={{
+                        overlap: "invert",
                         intersect: "touch",
-                    },
-                    // Enable / disable touch support.
-                    touch: true,
-
-                    // Range selection.
-                    range: true,
-                }}
-            >
-                {/* This box is for the unused cell at top left. */}
-                <Box width={COL_HEADER_CELL_WIDTH} bgColor="unset" pr={1} />
-                {datesSelected.map((d, i) => (
-                    <Box
-                        minWidth={CELL_WIDTH}
-                        fontSize={"xs"}
-                        textAlign={"center"}
-                        fontWeight="normal"
-                        // mx={CELL_PADDING_LR}
-                        // my={CELL_PADDING_TB}
-                        textTransform="unset"
-                        p={0}
-                        key={i}
-                        className="blocked"
-                    >
-                        {convertDateToDayAndMonth(d)[0]}
-                        <br />
-                        {convertDateToDayAndMonth(d)[1]}
-                    </Box>
-                ))}
-                <Box width={COL_HEADER_CELL_WIDTH} bgColor="unset" pr={1} />
-
-                {arrayToGenerate.map((rows, r) =>
-                    rows.map((data, c) => (
-                        <TableCell
-                            key={`${data.value}-${r}-${c}`}
-                            cellColor={
-                                isSelectedCell(data)
-                                    ? cellSelectedColor
-                                    : cellUnselectedColor
-                            }
-                            data={data}
-                            className={classNameGenerator(data)}
-                            cellOutlineColor={cellOutlineColor}
-                            isAllowed={allowedTimes?.includes(data.value)}
-                            // renderText={r % 2 == 0}
-                        />
-                    ))
-                )}
-                {/* This cell provides the last timing. */}
-                <TableCell
-                    cellColor={cellUnselectedColor}
-                    className="blocked"
-                    cellOutlineColor="unset"
-                    data={{
-                        value: convertMinutesToAmPm(
-                            convertRowNumberToMinutes(
-                                startMin,
-                                arrayToGenerate.length
-                            )
-                        ),
-                        col: -1,
-                        row: arrayToGenerate.length,
-                        isClickable: false,
-                        isHeader: true,
+                        startThreshold: 10,
+                        scrolling: {
+                            speedDivider: 10,
+                            manualSpeed: 750,
+                            startScrollMargins: {
+                                x: 64,
+                                y: 64,
+                            },
+                        },
                     }}
-                />
-                {datesSelected.map((d, i) => (
-                    <Box
-                        minWidth={CELL_WIDTH}
-                        fontSize={"xs"}
-                        textAlign={"center"}
-                        fontWeight="normal"
-                        // mx={CELL_PADDING_LR}
-                        // my={CELL_PADDING_TB}
-                        textTransform="unset"
-                        p={0}
-                        key={i + datesSelected.length}
-                        className="blocked"
-                    >
-                        {convertDateToDayAndMonth(d)[0]}
-                        <br />
-                        {convertDateToDayAndMonth(d)[1]}
-                    </Box>
-                ))}
-                <TableCell
-                    cellColor={cellUnselectedColor}
-                    className="blocked"
-                    cellOutlineColor="unset"
-                    data={{
-                        value: convertMinutesToAmPm(
-                            convertRowNumberToMinutes(
-                                startMin,
-                                arrayToGenerate.length
-                            )
-                        ),
-                        col: -1,
-                        row: arrayToGenerate.length,
-                        isClickable: false,
-                        isHeader: true,
-                        align: "left",
+                    features={{
+                        singleTap: {
+                            allow: true,
+                            intersect: "touch",
+                        },
+                        // Enable / disable touch support.
+                        touch: true,
+
+                        // Range selection.
+                        range: true,
                     }}
-                />
-            </Box>
-        </Stack>
+                >
+                    {/* This box is for the unused cell at top left. */}
+                    <Box width={COL_HEADER_CELL_WIDTH} bgColor="unset" pr={1} />
+                    {datesSelected.map((d, i) => (
+                        <Box
+                            minWidth={CELL_WIDTH}
+                            fontSize={"xs"}
+                            textAlign={"center"}
+                            fontWeight="normal"
+                            // mx={CELL_PADDING_LR}
+                            // my={CELL_PADDING_TB}
+                            textTransform="unset"
+                            p={0}
+                            key={i}
+                            className="blocked"
+                        >
+                            {convertDateToDayAndMonth(d)[0]}
+                            <br />
+                            {convertDateToDayAndMonth(d)[1]}
+                        </Box>
+                    ))}
+                    <Box width={COL_HEADER_CELL_WIDTH} bgColor="unset" pr={1} />
+
+                    {arrayToGenerate.map((rows, r) =>
+                        rows.map((data, c) => (
+                            <TableCell
+                                key={`${data.value}-${r}-${c}`}
+                                cellColor={
+                                    isSelectedCell(data)
+                                        ? cellSelectedColor
+                                        : cellUnselectedColor
+                                }
+                                data={data}
+                                className={classNameGenerator(data)}
+                                cellOutlineColor={cellOutlineColor}
+                                isAllowed={allowedTimes?.includes(data.value)}
+                                // renderText={r % 2 == 0}
+                            />
+                        ))
+                    )}
+                    {/* This cell provides the last timing. */}
+                    <TableCell
+                        cellColor={cellUnselectedColor}
+                        className="blocked"
+                        cellOutlineColor="unset"
+                        data={{
+                            value: convertMinutesToAmPm(
+                                convertRowNumberToMinutes(
+                                    startMin,
+                                    arrayToGenerate.length
+                                )
+                            ),
+                            col: -1,
+                            row: arrayToGenerate.length,
+                            isClickable: false,
+                            isHeader: true,
+                        }}
+                    />
+                    {datesSelected.map((d, i) => (
+                        <Box
+                            minWidth={CELL_WIDTH}
+                            fontSize={"xs"}
+                            textAlign={"center"}
+                            fontWeight="normal"
+                            // mx={CELL_PADDING_LR}
+                            // my={CELL_PADDING_TB}
+                            textTransform="unset"
+                            p={0}
+                            key={i + datesSelected.length}
+                            className="blocked"
+                        >
+                            {convertDateToDayAndMonth(d)[0]}
+                            <br />
+                            {convertDateToDayAndMonth(d)[1]}
+                        </Box>
+                    ))}
+                    <TableCell
+                        cellColor={cellUnselectedColor}
+                        className="blocked"
+                        cellOutlineColor="unset"
+                        data={{
+                            value: convertMinutesToAmPm(
+                                convertRowNumberToMinutes(
+                                    startMin,
+                                    arrayToGenerate.length
+                                )
+                            ),
+                            col: -1,
+                            row: arrayToGenerate.length,
+                            isClickable: false,
+                            isHeader: true,
+                            align: "left",
+                        }}
+                    />
+                </Box>
+            </Stack>{" "}
+        </Collapse>
     );
 };
 

@@ -80,7 +80,8 @@ const CalendarDay = ({
      * @returns the color of the circle around the date
      */
     const getBgColor = () => {
-        if (selected) {
+        // don't render selected if there is no text content
+        if (selected && children) {
             return style?.button_color || SELECTED_DATE_COLOR;
             // return SELECTED_DATE_COLOR;
         } else if (isSameDay(dateParser(dataKey), new Date())) {
@@ -97,10 +98,11 @@ const CalendarDay = ({
      */
     const getClassName = () => {
         let className = "date ";
-        if (selected) {
+        // children is the text content. Don't let it be selectable if there is no text content.
+        if (selected && children) {
             className += "selected ";
         }
-        if (isSelectable) {
+        if (isSelectable && children) {
             className += "selectable ";
         }
         return className;
@@ -203,5 +205,6 @@ export default React.memo(
         prev.dataKey === next.dataKey &&
         prev.selected === next.selected &&
         prev.nextSelected === next.nextSelected &&
-        prev.prevSelected === next.prevSelected
+        prev.prevSelected === next.prevSelected &&
+        prev.children === next.children
 );

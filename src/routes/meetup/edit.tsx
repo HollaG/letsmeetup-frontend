@@ -37,6 +37,7 @@ import { isMobile } from "react-device-detect";
 import { Link, useLoaderData, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import { removeDate } from ".";
+import FancyButton from "../../components/Buttons/FancyButton";
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
 import HelperText from "../../components/Display/HelperText";
 import TimeContainer, {
@@ -586,14 +587,14 @@ const MeetupEditPage = () => {
                 </Flex>
                 <Input
                     id="title"
-                    placeholder="Event title (required)"
+                    placeholder="Meetup title (required)"
                     required
                     value={title}
                     onChange={onTitleChange}
                 />
                 <Textarea
                     id="description"
-                    placeholder="Event description (optional)"
+                    placeholder="Meetup description (optional)"
                     value={description}
                     onChange={onDescriptionChange}
                 />
@@ -788,17 +789,18 @@ const MeetupEditPage = () => {
                 </Flex>
                 {!user && (
                     <Center>
-                        <Button
-                            colorScheme="purple"
-                            isDisabled={!userCanSubmit}
-                            onClick={onSubmit}
-                            isLoading={isSubmitting}
-                            w="240px"
+                        <FancyButton
+                            props={{
+                                isDisabled: !userCanSubmit,
+                                onClick: onSubmit,
+                                isLoading: isSubmitting,
+                                w: "300px",
+                            }}
                         >
                             {userCanSubmit
-                                ? "Save your changes"
+                                ? "Save your changes 🚀"
                                 : "No changes since last save"}
-                        </Button>
+                        </FancyButton>
                     </Center>
                 )}
             </Stack>

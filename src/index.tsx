@@ -30,6 +30,9 @@ import PrivateRoutes from "./routes/PrivateRoutes";
 import { WebUserProvider } from "./context/WebAuthProvider";
 import MeetupsPage from "./routes/meetups";
 
+import "@fontsource/lexend";
+import "@fontsource/inter";
+
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
         meetup: (await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))).data(), // fetch shit here
