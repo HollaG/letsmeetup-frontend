@@ -45,6 +45,7 @@ import { isMobile } from "react-device-detect";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import { URLSearchParams } from "url";
+import FancyButton from "../components/Buttons/FancyButton";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
 import HelperText from "../components/Display/HelperText";
 import TimeContainer, {
@@ -661,7 +662,7 @@ const Create = () => {
                     </Heading>
                     <Input
                         id="title"
-                        placeholder="Event title (required)"
+                        placeholder="Meetup title (required)"
                         required
                         value={title}
                         onChange={onTitleChange}
@@ -669,7 +670,7 @@ const Create = () => {
                     />
                     <Textarea
                         id="description"
-                        placeholder="Event description (optional)"
+                        placeholder="Meetup description (optional)"
                         value={description}
                         onChange={onDescriptionChange}
                         maxLength={4096}
@@ -725,16 +726,25 @@ const Create = () => {
             <Container id="container-submit" p={0} maxW="1000px">
                 {!user && (
                     <Center>
-                        <Button
+                        {/* <Button
                             colorScheme="purple"
                             isDisabled={!userCanSubmit}
                             onClick={webUserSubmit}
                             isLoading={isSubmitting}
                         >
+                            
+                        </Button> */}
+                        <FancyButton
+                            props={{
+                                isDisabled: !userCanSubmit,
+                                onClick: webUserSubmit,
+                                isLoading: isSubmitting,
+                            }}
+                        >
                             {userCanSubmit
-                                ? "Create meetup"
+                                ? "Create meetup  🚀"
                                 : "Please fill in all required fields"}
-                        </Button>
+                        </FancyButton>
                     </Center>
                 )}
             </Container>

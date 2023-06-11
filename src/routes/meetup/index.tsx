@@ -79,6 +79,7 @@ import {
 } from "../../utils/toasts.utils";
 import { FcShare } from "react-icons/fc";
 import { FaShare } from "react-icons/fa";
+import FancyButton from "../../components/Buttons/FancyButton";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -1048,19 +1049,22 @@ const MeetupPage = () => {
                                     )}
                                     {!user && (
                                         <Center>
-                                            <Button
-                                                isDisabled={
-                                                    !hasDataChanged || !tempName
-                                                }
-                                                colorScheme="purple"
-                                                onClick={onSubmitWebUser}
-                                                isLoading={isSubmitting}
-                                                w="240px"
+                                            <FancyButton
+                                                props={{
+                                                    isDisabled:
+                                                        !hasDataChanged ||
+                                                        !tempName,
+
+                                                    onClick: onSubmitWebUser,
+                                                    isLoading: isSubmitting,
+                                                    w: "300px",
+                                                }}
                                             >
+                                                {" "}
                                                 {hasDataChanged
-                                                    ? "Save your changes"
-                                                    : "No changes since last save"}
-                                            </Button>
+                                                    ? "Save your changes 📝"
+                                                    : "No changes since last save"}{" "}
+                                            </FancyButton>
                                         </Center>
                                     )}
                                 </Stack>

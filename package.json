@@ -9,6 +9,7 @@
         "@emotion/styled": "^11.11.0",
         "@fontsource/inter": "^4.5.15",
         "@fontsource/lexend": "^5.0.3",
+        "@fontsource/zilla-slab": "^5.0.3",
         "@testing-library/react": "^13.4.0",
         "@testing-library/user-event": "^14.4.3",
         "@types/node": "^12.20.55",

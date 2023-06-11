@@ -8,12 +8,7 @@ import {
     Flex,
     Link,
 } from "@chakra-ui/react";
-import {
-    FcAssistant,
-    FcDonate,
-    FcEngineering,
-    FcInTransit,
-} from "react-icons/fc";
+import { FcAssistant, FcEngineering } from "react-icons/fc";
 import { FaTelegram } from "react-icons/fa";
 
 interface FeatureProps {

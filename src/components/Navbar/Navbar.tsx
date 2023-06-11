@@ -26,6 +26,8 @@ import { useTelegram } from "../../context/TelegramProvider";
 
 import { Link } from "react-router-dom";
 
+import "@fontsource/zilla-slab";
+
 const MenuNavLink = ({ children }: { children: ReactNode }) => (
     <NavLink
         px={2}
@@ -75,8 +77,9 @@ export default function Nav() {
                             // px={3}
                             // borderRadius="50%"
                             // textColor={"white"}
-                            fontSize="md"
-                            fontWeight={"semiblod"}
+                            fontSize="xl"
+                            // fontWeight={"semiblod"}
+                            fontFamily="Zilla Slab"
                         >
                             <Image
                                 src={"/logo192.png"}
@@ -123,6 +126,7 @@ export default function Nav() {
                                         isLoading={webUser === false}
                                         colorScheme="purple"
                                         variant="ghost"
+                                        fontFamily="Zilla Slab"
                                     >
                                         {" "}
                                         Sign in
