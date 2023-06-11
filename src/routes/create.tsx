@@ -478,7 +478,7 @@ const Create = () => {
             </Container>
 
             <Container id="container-timings" p={0} maxW="1000px">
-                <Stack>
+                <Stack mb={2}>
                     <Heading fontSize={"2xl"}>
                         {" "}
                         🕔 What times do you want to have it on?
@@ -502,20 +502,20 @@ const Create = () => {
                             }}
                         />
                     </Flex>
-                    <Collapse in={!isFullDay}>
-                        <TimeContainer
-                            datesSelected={datesRef.current}
-                            setTimesSelected={setTimesSelected}
-                            timesSelected={timesRef.current}
-                            setPristine={setPristine}
-                            pristine={pristine}
-                            endMin={endMin}
-                            setTime={setTime}
-                            timeRef={timeRef}
-                            startMin={startMin}
-                        />
-                    </Collapse>
-                </Stack>{" "}
+                </Stack>
+                <Collapse in={!isFullDay}>
+                    <TimeContainer
+                        datesSelected={datesRef.current}
+                        setTimesSelected={setTimesSelected}
+                        timesSelected={timesRef.current}
+                        setPristine={setPristine}
+                        pristine={pristine}
+                        endMin={endMin}
+                        setTime={setTime}
+                        timeRef={timeRef}
+                        startMin={startMin}
+                    />
+                </Collapse>
             </Container>
 
             <Container id="container-settings" p={0} maxW="1000px">
