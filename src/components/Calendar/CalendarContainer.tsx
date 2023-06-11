@@ -686,6 +686,7 @@ const SingleCalendar = React.memo(
                     mx={4}
                     width="80px"
                     textAlign={"center"}
+                    fontWeight="bold"
                 >
                     {" "}
                     {format(selectedDate, "MMM yyyy")}
