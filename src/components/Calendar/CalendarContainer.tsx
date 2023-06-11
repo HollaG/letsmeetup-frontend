@@ -140,8 +140,7 @@ const getDrawnDays = (selectedDate: Date, drawOverflow: boolean) => {
         });
         lfd = addDays(lfd, 1);
     }
-
-    console.log(drawOverflow, "in getDrawnDays");
+    console.log("gettng drawn day");
     return tempArray;
 };
 
@@ -162,14 +161,10 @@ const CalendarContainer = ({
     onBeforeStart,
 }: CalendarContainerProps) => {
     const [singleDrawnDays, setSingleDrawnDays] = useState<CalendarDayProps[]>(
-        getDrawnDays(new Date(), true)
+        []
     );
-    const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>(
-        getDrawnDays(new Date(), false)
-    );
-    const [drawnDays2, setDrawnDays2] = useState<CalendarDayProps[]>(
-        getDrawnDays(addMonths(new Date(), 1), false)
-    );
+    const [drawnDays, setDrawnDays] = useState<CalendarDayProps[]>([]);
+    const [drawnDays2, setDrawnDays2] = useState<CalendarDayProps[]>([]);
     const { user, webApp } = useTelegram();
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
 
@@ -191,7 +186,7 @@ const CalendarContainer = ({
 
     useEffect(() => {
         const d = new Date();
-
+        console.log("useeffect");
         if (showDual) {
             setDrawnDays(getDrawnDays(selectedDate, false));
             setDrawnDays2(getDrawnDays(addMonths(selectedDate, 1), false));

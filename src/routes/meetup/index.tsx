@@ -742,25 +742,6 @@ const MeetupPage = () => {
         }
     };
 
-    const ViewComponent = (
-        <Stack spacing={4} justifyContent="left">
-            <Box height="40px">
-                <Heading fontSize="lg"> Others' availability </Heading>
-                <Center>
-                    <ColorExplainer
-                        numTotal={liveMeetupRef.current.users.length}
-                    />
-                </Center>
-            </Box>
-            <CalendarDisplay
-                meetup={liveMeetupRef.current}
-                _rerender={_rerender}
-            />
-            {!meetup.isFullDay && <ByTimeList meetup={liveMeetupRef.current} />}
-            {meetup.isFullDay && <ByDateList meetup={liveMeetupRef.current} />}
-        </Stack>
-    );
-
     // actions should only be shown if the user has the same id
     const showActions =
         (user && user.id === liveMeetup.creator.id) ||
@@ -1127,11 +1108,15 @@ const MeetupPage = () => {
                                     </Stack>
                                 </TabPanel>
                             )}
-                            <TabPanel p={1}>{ViewComponent}</TabPanel>
+                            <TabPanel p={1}>
+                                <ViewComponent liveMeetupRef={liveMeetupRef} />
+                            </TabPanel>
                         </TabPanels>
                     </Tabs>
                 )}
-                {!indicateIsVisible && ViewComponent}
+                {!indicateIsVisible && (
+                    <ViewComponent liveMeetupRef={liveMeetupRef} />
+                )}
 
                 {AlertDelete}
             </Stack>
@@ -1140,3 +1125,25 @@ const MeetupPage = () => {
 };
 
 export default MeetupPage;
+
+const ViewComponent = React.memo(
+    ({ liveMeetupRef }: { liveMeetupRef: any }) => (
+        <Stack spacing={4} justifyContent="left">
+            <Box height="40px">
+                <Heading fontSize="lg"> Others' availability </Heading>
+                <Center>
+                    <ColorExplainer
+                        numTotal={liveMeetupRef.current.users.length}
+                    />
+                </Center>
+            </Box>
+            <CalendarDisplay meetup={liveMeetupRef.current} />
+            {!liveMeetupRef.isFullDay && (
+                <ByTimeList meetup={liveMeetupRef.current} />
+            )}
+            {liveMeetupRef.isFullDay && (
+                <ByDateList meetup={liveMeetupRef.current} />
+            )}
+        </Stack>
+    )
+);

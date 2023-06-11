@@ -87,7 +87,7 @@ const CalendarBody = ({
 
 export default React.memo(CalendarBody, (prevProps, nextProps) => {
     // only update the body if the dates selected or the drawn days have changed
-    console.log(prevProps.drawOverflow, nextProps.drawOverflow);
+
     const res =
         prevProps.datesSelected.length === nextProps.datesSelected.length &&
         prevProps.drawnDays.length === nextProps.drawnDays.length &&
