@@ -33,6 +33,8 @@ import {
     AlertDialogOverlay,
     Toast,
     useToast,
+    HStack,
+    Tag,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -962,6 +964,29 @@ const MeetupPage = () => {
                         </Stack>
                     )}
                 </Flex>
+
+                <Stack>
+                    <Heading fontSize={"lg"}> Meetup options ⚙️</Heading>
+                    <HStack>
+                        {" "}
+                        {liveMeetup.options.limitNumberRespondents !==
+                            Number.MAX_VALUE && (
+                            <Tag>
+                                {" "}
+                                Limit total replies:{" "}
+                                {liveMeetup.options.limitNumberRespondents}{" "}
+                            </Tag>
+                        )}
+                        {liveMeetup.options.limitPerSlot !==
+                            Number.MAX_VALUE && (
+                            <Tag>
+                                {" "}
+                                Limit per slot:{" "}
+                                {liveMeetup.options.limitPerSlot}{" "}
+                            </Tag>
+                        )}
+                    </HStack>
+                </Stack>
                 <Divider />
 
                 {indicateIsVisible && (
