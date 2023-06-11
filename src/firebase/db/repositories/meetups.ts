@@ -94,7 +94,6 @@ export const getUserMeetups = async (id: string): Promise<Array<Meetup>> => {
 
 // create a Meetup
 export const create = async (meetup: Meetup): Promise<Meetup> | never => {
-    console.log("Creating!");
     const dbRef = collection(db, COLLECTION_NAME);
     try {
         const docRef = await addDoc(dbRef, meetup);
@@ -147,9 +146,6 @@ export const updateAvailability = async (
     },
     comments: string = ""
 ): Promise<Meetup | null> => {
-    console.log("--------------------");
-    console.log(datesSelected, timesSelected, comments);
-
     if (!user) return null;
     const docRef = doc(db, COLLECTION_NAME, id);
     const oldMeetup = (await getDoc(docRef)).data() as Meetup;
@@ -229,8 +225,6 @@ export const updateAvailability = async (
             }
         });
     }
-
-    console.log({ newMap });
 
     try {
         const updated = await updateDoc(docRef, {

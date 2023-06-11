@@ -26,7 +26,6 @@ const Footer = () => {
     const textColor = useColorModeValue("gray.600", "gray.300");
 
     const [showBigFooter] = useMediaQuery("(min-width: 48em)");
-    console.log(showBigFooter);
     const BigFooter = (
         <Grid
             gridTemplateColumns="1fr 10px 1fr"

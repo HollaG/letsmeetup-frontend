@@ -272,13 +272,11 @@ const Create = () => {
             } else {
                 disableButton();
             }
-            console.log("updating onSubmit");
         }
     }, [webApp, userCanSubmit, style]);
 
     useEffect(() => {
         if (webApp?.initData) {
-            console.log("Bound the submit!");
             webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp?.initData]);
@@ -416,8 +414,6 @@ const Create = () => {
                 creatorInfoMessageId: 0,
             };
 
-            console.log(MeetupData);
-
             const meetup = await create(MeetupData);
             toast({
                 title: "Meetup created",
@@ -442,7 +438,6 @@ const Create = () => {
     // on sign in, close the popup, if any
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("LOGGED IN", user);
             if (user) onClose();
         });
         return () => unsubscribe();

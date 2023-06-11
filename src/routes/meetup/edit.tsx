@@ -164,7 +164,6 @@ const MeetupEditPage = () => {
         } else {
             setUserCanSubmit(false);
         }
-        // console.log(userCanSubmit);
     }, [
         datesSelected.length,
         timesSelected.length,
@@ -215,11 +214,9 @@ const MeetupEditPage = () => {
                     }
                 }
                 for (let userData of newUsers) {
-                    console.log("before", userData.selected);
                     userData.selected = userData.selected.filter((s) =>
                         timesRef.current.includes(s)
                     );
-                    console.log("after", userData.selected);
                 }
             }
         }
@@ -267,8 +264,6 @@ const MeetupEditPage = () => {
             users: newUsers,
             // creatorInfoMessageId: 0,
         };
-
-        console.log({ MeetupData });
 
         return update(meetupId, MeetupData)
             .then((res) => {
@@ -457,13 +452,11 @@ const MeetupEditPage = () => {
             } else {
                 disableButton();
             }
-            console.log("updating onSubmit");
         }
     }, [webApp, userCanSubmit, style]);
 
     useEffect(() => {
         if (webApp?.initData) {
-            console.log("Bound the submit!");
             webApp.MainButton.onClick(onSubmit);
         }
     }, [webApp?.initData]);

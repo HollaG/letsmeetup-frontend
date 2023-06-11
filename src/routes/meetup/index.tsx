@@ -161,7 +161,6 @@ const MeetupPage = () => {
         if (!meetupId) return;
         const unsubscribe = firestore.getDocument(meetupId || "", {
             next: (doc) => {
-                console.log(doc.data(), "---doc changed---");
                 if (!doc.data()) {
                     navigate("/");
                 } else {
@@ -537,7 +536,6 @@ const MeetupPage = () => {
      * Submits the availability data to the server.
      */
     const onSubmitTelegram = async () => {
-        console.log("onsubmit");
         await updateAvailability(
             meetupId,
             user,
@@ -620,7 +618,7 @@ const MeetupPage = () => {
         // for each of the allowed slots, check if the slot has hit the max number of respondents
         if (liveMeetup.options.limitPerSlot !== Number.MAX_VALUE) {
             // number has been modified from default
-            console.log({ creatorAllowed });
+
             const allowedAfterPerSlotLimitHit = creatorAllowed.filter(
                 (slot) => {
                     // if the slot is selected, we should always render it.
@@ -630,7 +628,7 @@ const MeetupPage = () => {
                             ?.selected.includes(slot)
                     ) {
                         // user selecetd this slot
-                        console.log("a");
+
                         return true;
                     }
 
@@ -641,8 +639,6 @@ const MeetupPage = () => {
                         : true;
                 }
             );
-
-            console.log({ allowedAfterPerSlotLimitHit });
 
             if (allowedAfterPerSlotLimitHit.length != creatorAllowed.length) {
                 // some slots have hit the limit
@@ -688,14 +684,12 @@ const MeetupPage = () => {
      * Submits the availability data to the server.
      */
     const onSubmitWebUser = async () => {
-        console.log("onsubmit");
         if (!hasDataChanged || !tempName) return;
         try {
             setIsSubmitting(true);
             // if not logged in, as either anon or actual, log them in
             let tWebUser: IMeetupUser;
             if (!webUser) {
-                console.log("logging them in...");
                 let user = await signInWithoutUsername(tempName);
                 tWebUser = {
                     id: user.user.uid,
@@ -711,7 +705,6 @@ const MeetupPage = () => {
                     last_name: webUser.last_name || "",
                 } as IMeetupUser;
             }
-            console.log({ tWebUser, meetupId });
 
             await updateAvailability(
                 meetupId,
@@ -730,7 +723,6 @@ const MeetupPage = () => {
                 ...SUCCESS_TOAST_OPTIONS,
             });
         } catch (e: any) {
-            console.log(e);
             toast({
                 title: "Error updating availability",
                 description: e.toString(),

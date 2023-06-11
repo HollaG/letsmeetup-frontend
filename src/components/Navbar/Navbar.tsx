@@ -53,7 +53,6 @@ export default function Nav() {
     const webUser = useWebUser();
     const { user } = useTelegram();
 
-    console.log({ webUser });
     return (
         <Box
             bg={useColorModeValue("purple.50", "gray.900")}

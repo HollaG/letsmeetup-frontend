@@ -96,7 +96,6 @@ const MeetupsPage = () => {
         }
     };
     if (!meetupUser) {
-        console.log("not allowed");
         return <> Loading... </>;
     }
 

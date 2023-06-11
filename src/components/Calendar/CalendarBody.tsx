@@ -47,7 +47,6 @@ const CalendarBody = ({
     allowedDates,
 }: CalendarBodyProps) => {
     // If the date is one that is in-between other dates, draw a Square instead of a Circle, and set minWidth to be 100%.
-    console.log("rerendered body");
     return (
         <>
             {drawnDays.map((d, i) => (
