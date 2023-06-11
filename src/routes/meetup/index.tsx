@@ -1073,6 +1073,10 @@ const MeetupPage = () => {
                                                     }
                                                     value={tempName}
                                                 />
+                                                <HelperText>
+                                                    Your name will help the
+                                                    creator identify you!
+                                                </HelperText>
                                             </Box>
                                         )}
                                         {!user && (
@@ -1081,7 +1085,8 @@ const MeetupPage = () => {
                                                     props={{
                                                         isDisabled:
                                                             !hasDataChanged ||
-                                                            !tempName,
+                                                            (!tempName &&
+                                                                !webUser),
 
                                                         onClick:
                                                             onSubmitWebUser,
@@ -1091,7 +1096,8 @@ const MeetupPage = () => {
                                                     }}
                                                 >
                                                     {" "}
-                                                    {hasDataChanged
+                                                    {hasDataChanged &&
+                                                    (tempName || webUser)
                                                         ? "Save your changes 📝"
                                                         : "No changes since last save"}{" "}
                                                 </FancyButton>
