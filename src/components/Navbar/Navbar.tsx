@@ -26,8 +26,6 @@ import { useTelegram } from "../../context/TelegramProvider";
 
 import { Link } from "react-router-dom";
 
-import "@fontsource/zilla-slab";
-
 const MenuNavLink = ({ children }: { children: ReactNode }) => (
     <NavLink
         px={2}

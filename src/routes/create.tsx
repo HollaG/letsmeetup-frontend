@@ -736,12 +736,13 @@ const Create = () => {
                         </Button> */}
                         <FancyButton
                             props={{
-                                isDisabled: !userCanSubmit,
+                                isDisabled: !userCanSubmit || !newUserName,
                                 onClick: webUserSubmit,
                                 isLoading: isSubmitting,
+                                w: "300px",
                             }}
                         >
-                            {userCanSubmit
+                            {userCanSubmit && newUserName
                                 ? "Create meetup  🚀"
                                 : "Please fill in all required fields"}
                         </FancyButton>

@@ -32,6 +32,9 @@ import MeetupsPage from "./routes/meetups";
 
 import "@fontsource/lexend";
 import "@fontsource/inter";
+
+import "@fontsource/zilla-slab";
+
 import TermsPage from "./routes/policies/terms";
 import PrivacyPage from "./routes/policies/privacy";
 

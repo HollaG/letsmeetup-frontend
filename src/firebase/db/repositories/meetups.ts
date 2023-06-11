@@ -275,6 +275,24 @@ export const deleteMeetup = async (id: string) => {
         throw e;
     }
 };
+
+export const deleteUserMeetups = async (id: string) => {
+    try {
+        const docs = query(
+            collection(db, COLLECTION_NAME),
+            where("creator.id", "==", id)
+        );
+
+        for (const doc of (await getDocs(docs)).docs) {
+            await deleteMeetup(doc.id);
+        }
+
+        return true;
+    } catch (e) {
+        console.log("error deleting");
+        throw e;
+    }
+};
 // // delete a todo
 // export const remove = async (id: string) => {
 //     await db.collection(COLLECTION_NAME).doc(id).delete();

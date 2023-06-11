@@ -38,6 +38,7 @@ const Footer = () => {
             textAlign="center"
             pb={1}
             fontSize="sm"
+            fontFamily="Zilla Slab"
         >
             <GridItem>
                 <Flex justifyContent={"right"} alignItems="center">
@@ -82,7 +83,13 @@ const Footer = () => {
     );
     if (showBigFooter) return BigFooter;
     return (
-        <Stack p={6} spacing={6} fontSize="sm" textColor={textColor}>
+        <Stack
+            p={6}
+            spacing={6}
+            fontSize="sm"
+            textColor={textColor}
+            fontFamily="Zilla Slab"
+        >
             <Divider />
 
             <Stack spacing={2}>
