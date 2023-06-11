@@ -797,7 +797,7 @@ const MeetupEditPage = () => {
                 </Stack>
                 <Stack>
                     <Heading fontSize={"2xl"}>
-                        🎉 Give your meetup a name so people know!{" "}
+                        🎉 Give your meetup a name!
                     </Heading>
                     <Input
                         id="title"

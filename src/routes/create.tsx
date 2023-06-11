@@ -658,7 +658,7 @@ const Create = () => {
             <Container id="container-details" p={0} maxW="1000px">
                 <Stack>
                     <Heading fontSize={"2xl"}>
-                        🎉 Give your meetup a name so people know!{" "}
+                        🎉 Give your meetup a name!
                     </Heading>
                     <Input
                         id="title"
