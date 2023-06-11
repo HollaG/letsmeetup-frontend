@@ -24,7 +24,6 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import GoogleButton from "react-google-button";
 import { FaFacebook, FaGithub, FaMicrosoft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Navigate, redirect } from "react-router-dom";
