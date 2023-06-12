@@ -45,7 +45,6 @@ jobs:
             - name: Build 🏗️
               run: npm run build
               env:
-                  REACT_APP_BOT_TOKEN: ${{ secrets.REACT_APP_BOT_TOKEN }}
                   REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
                   REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
                   REACT_APP_COLLECTION_NAME: ${{ secrets.REACT_APP_COLLECTION_NAME }}
