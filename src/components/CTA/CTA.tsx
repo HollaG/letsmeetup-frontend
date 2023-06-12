@@ -48,7 +48,7 @@ export default function CallToActionWithIllustration({
             >
                 <Heading
                     fontWeight={600}
-                    fontSize={{ base: "3xl", sm: "4xl", md: "6xl" }}
+                    fontSize={{ base: "4xl", md: "6xl" }}
                     lineHeight={"110%"}
                     // background={
                     //     "linear-gradient(90deg, rgba(255,87,87,1) 0%, rgba(140,82,255,1) 100%)"
