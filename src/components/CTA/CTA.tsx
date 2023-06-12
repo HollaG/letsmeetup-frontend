@@ -13,9 +13,11 @@ import {
     Highlight,
     keyframes,
     createIcon,
+    Image,
 } from "@chakra-ui/react";
 
 import { Link } from "react-router-dom";
+import { TypeAnimation } from "react-type-animation";
 import FancyButton from "../Buttons/FancyButton";
 
 export default function CallToActionWithIllustration({
@@ -65,6 +67,7 @@ export default function CallToActionWithIllustration({
                     >
                         scheduling{" "}
                     </Text> */}
+                    <br />
                     <Text
                         as={"span"}
                         background={
@@ -75,7 +78,23 @@ export default function CallToActionWithIllustration({
                             WebkitTextFillColor: "transparent",
                         }}
                     >
-                        made easy
+                        {/* made easy */}
+                        <TypeAnimation
+                            sequence={[
+                                // Same substring at the start will only be typed out once, initially
+                                "made easy",
+                                4000, // wait 1s before replacing "Mice" with "Hamsters"
+                                "made simple",
+                                4000,
+                                "made effortless",
+                                4000,
+                                "made fun",
+                                4000,
+                            ]}
+                            wrapper="span"
+                            speed={5}
+                            repeat={Infinity}
+                        />
                     </Text>
                     ✨
                 </Heading>
@@ -156,9 +175,14 @@ export default function CallToActionWithIllustration({
                         Learn more
                     </Button>
                 </Flex>
-                <Flex w={"full"}>
-                    <Illustration
+                <Flex w={"full"} justifyContent="center">
+                    {/* <Illustration
                         height={{ sm: "24rem", lg: "28rem" }}
+                        mt={{ base: 12, sm: 16 }}
+                    /> */}
+                    <Image
+                        src={"/images/homepage2.svg"}
+                        height={{ sm: "28rem", lg: "32rem" }}
                         mt={{ base: 12, sm: 16 }}
                     />
                 </Flex>

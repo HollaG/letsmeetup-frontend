@@ -141,7 +141,9 @@ const MeetupEditPage = () => {
 
     const [endAt, setEndAt, endAtRef] = useStateRef<string>(
         format(
-            (loadedMeetup.options.endAt as any as Timestamp).toDate(),
+            loadedMeetup.options.endAt
+                ? (loadedMeetup.options.endAt as any as Timestamp).toDate()
+                : addYears(new Date(), 1),
             "yyyy-MM-dd"
         )
     );
