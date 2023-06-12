@@ -6,7 +6,7 @@ import { useTelegram } from "../../context/TelegramProvider";
 export const GoLeftButton = React.memo(
     ({ canGoLeft, goLeft }: { canGoLeft: boolean; goLeft: () => void }) => {
         const { style } = useTelegram();
-        const _btnColor = useColorModeValue("purple.200", "purple.700");
+        const _btnColor = useColorModeValue("#D6BCFA", "#553C9A");
         const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
 
         const btnColor = style?.button_color || _btnColor;
@@ -28,7 +28,7 @@ export const GoLeftButton = React.memo(
 export const GoRightButton = React.memo(
     ({ canGoRight, goRight }: { canGoRight: boolean; goRight: () => void }) => {
         const { style } = useTelegram();
-        const _btnColor = useColorModeValue("purple.200", "purple.700");
+        const _btnColor = useColorModeValue("#D6BCFA", "#553C9A");
 
         const btnColor = style?.button_color || _btnColor;
 
