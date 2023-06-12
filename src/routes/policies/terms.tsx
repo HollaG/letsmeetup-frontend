@@ -1,10 +1,13 @@
-import { Heading, Stack, Text } from "@chakra-ui/react";
+import { Center, Divider, Heading, Image, Stack, Text } from "@chakra-ui/react";
 
 const TermsPage = () => {
     return (
-        <Stack>
-            <Heading>Terms and Conditions</Heading>
-
+        <Stack spacing={4}>
+            <Center>
+                <Image src="/images/terms.svg" w="100%" maxW="600px" />
+            </Center>
+            <Heading textAlign="center">Terms and Conditions</Heading>
+            <Divider />
             <Text>Welcome to Look4Times!</Text>
 
             <Text>

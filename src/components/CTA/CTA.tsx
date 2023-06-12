@@ -13,6 +13,7 @@ import {
     Highlight,
     keyframes,
     createIcon,
+    Image,
 } from "@chakra-ui/react";
 
 import { Link } from "react-router-dom";
@@ -156,9 +157,14 @@ export default function CallToActionWithIllustration({
                         Learn more
                     </Button>
                 </Flex>
-                <Flex w={"full"}>
-                    <Illustration
+                <Flex w={"full"} justifyContent="center">
+                    {/* <Illustration
                         height={{ sm: "24rem", lg: "28rem" }}
+                        mt={{ base: 12, sm: 16 }}
+                    /> */}
+                    <Image
+                        src={"/images/homepage2.svg"}
+                        height={{ sm: "28rem", lg: "32rem" }}
                         mt={{ base: 12, sm: 16 }}
                     />
                 </Flex>

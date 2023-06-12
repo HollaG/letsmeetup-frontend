@@ -40,13 +40,20 @@ import PrivacyPage from "./routes/policies/privacy";
 import AboutPage from "./routes/about";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
-    const meetup = (
-        await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))
-    ).data();
-    if (!meetup) throw new Error("Meetup not found");
-    return {
-        meetup: meetup, // fetch shit here
-    };
+    try {
+        const meetup = (
+            await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))
+        ).data();
+        if (!meetup)
+            throw new Error(
+                "Oops! This meetup was not found. Perhaps check with the creator if they sent an incorrect link?"
+            );
+        return {
+            meetup: meetup, // fetch shit here
+        };
+    } catch (e) {
+        throw e;
+    }
 }
 
 /**
@@ -60,7 +67,11 @@ const router = createHashRouter([
     {
         path: "/",
         element: <Layout />,
-        errorElement: <ErrorPage />,
+        errorElement: (
+            <Layout>
+                <ErrorPage />
+            </Layout>
+        ),
         children: [
             {
                 path: "/",
@@ -103,7 +114,11 @@ const router = createHashRouter([
     {
         path: "/",
         element: <Layout />,
-        errorElement: <ErrorPage />,
+        errorElement: (
+            <Layout>
+                <ErrorPage />
+            </Layout>
+        ),
         children: [
             {
                 path: "/",

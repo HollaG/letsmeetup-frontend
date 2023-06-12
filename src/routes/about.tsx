@@ -14,7 +14,7 @@ const AboutPage = () => {
         <Stack spacing={4}>
             <Center w="100%">
                 <Image
-                    src="/about.png"
+                    src="/images/about.png"
                     maxW="600px"
                     borderRadius={"16px"}
                     boxShadow="lg"

@@ -1,9 +1,13 @@
-import { Heading, Stack, Text } from "@chakra-ui/react";
+import { Center, Divider, Heading, Image, Stack, Text } from "@chakra-ui/react";
 
 const PrivacyPage = () => {
     return (
-        <Stack>
-            <Heading>Privacy Policy of Look4Times</Heading>
+        <Stack spacing={4}>
+            <Center>
+                <Image src="/images/privacy.svg" w="100%" maxW="600px" />
+            </Center>
+            <Heading textAlign="center">Privacy Policy</Heading>
+            <Divider />
 
             <Text>
                 Look4Times operates the look4times.com website, which provides
