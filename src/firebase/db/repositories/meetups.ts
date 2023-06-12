@@ -1,7 +1,6 @@
 // import db config
-import fire, { db } from "../..";
+import { db } from "../..";
 import {
-    getFirestore,
     collection,
     query,
     where,
@@ -13,8 +12,6 @@ import {
     deleteDoc,
     orderBy,
 } from "firebase/firestore";
-import { ITelegramUser } from "../../../types/telegram";
-import { swapDateTimeStr } from "../../../routes/meetup";
 import { IMeetupUser } from "./users";
 
 // collection name
@@ -110,7 +107,7 @@ export const create = async (meetup: Meetup): Promise<Meetup> | never => {
 export const update = async (id: string, meetup: Meetup): Promise<Meetup> => {
     const docRef = doc(db, COLLECTION_NAME, id);
     try {
-        const updated = await updateDoc(docRef, {
+        await updateDoc(docRef, {
             ...meetup,
             last_updated: new Date(),
         });
@@ -144,7 +141,7 @@ export const updateAvailability = async (
         timesSelected: string[];
         // isFullDay: boolean;
     },
-    comments: string = ""
+    comments = ""
 ): Promise<Meetup | null> => {
     if (!user) return null;
     const docRef = doc(db, COLLECTION_NAME, id);
@@ -199,10 +196,10 @@ export const updateAvailability = async (
     // newAvailabilityData = newAvailabilityData.filter((u) => u.selected.some((s) => oldMeetup.selectionMap[s]))
 
     // update the selectionMap
-    let newMap: { [key: string]: IMeetupUser[] } = {};
+    const newMap: { [key: string]: IMeetupUser[] } = {};
 
     // first, remove this user from the selectionMap
-    for (let dateTimeStr in oldMeetup.selectionMap) {
+    for (const dateTimeStr in oldMeetup.selectionMap) {
         const res = oldMeetup.selectionMap[dateTimeStr].filter(
             (u) => u.id !== user.id
         );
@@ -227,7 +224,7 @@ export const updateAvailability = async (
     }
 
     try {
-        const updated = await updateDoc(docRef, {
+        await updateDoc(docRef, {
             users: newAvailabilityData,
             selectionMap: newMap,
             last_updated: new Date(),
@@ -251,7 +248,7 @@ export const updateAvailability = async (
     // } as Todo;
 };
 
-export const endMeetup = async (id: string, isEnded: boolean = true) => {
+export const endMeetup = async (id: string, isEnded = true) => {
     const docRef = doc(db, COLLECTION_NAME, id);
     try {
         return await updateDoc(docRef, { isEnded, last_updated: new Date() });

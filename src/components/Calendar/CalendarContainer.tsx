@@ -3,14 +3,10 @@
  */
 import {
     Box,
-    Button,
     Center,
     Flex,
     Grid,
     GridItemProps,
-    Icon,
-    IconButton,
-    Select,
     SimpleGrid,
     Stack,
     Text,
@@ -18,18 +14,14 @@ import {
 } from "@chakra-ui/react";
 import SelectionArea, { SelectionEvent } from "@viselect/react";
 import {
-    addYears,
     format,
     isBefore,
-    isSameDay,
     parse,
     subMonths,
 } from "date-fns";
 import { addDays, addMonths, isAfter, subDays } from "date-fns/esm";
 import React, { useCallback } from "react";
-import { useEffect, useMemo, useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { FcPrevious } from "react-icons/fc";
+import { useEffect, useState } from "react";
 import useStateRef from "react-usestateref";
 import { useTelegram } from "../../context/TelegramProvider";
 import { GoLeftButton, GoRightButton } from "../Buttons/NavigationButtons";

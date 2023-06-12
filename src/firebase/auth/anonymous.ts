@@ -2,7 +2,6 @@ import {
     getAuth,
     signInAnonymously,
     signOut,
-    updateCurrentUser,
     updateProfile,
 } from "firebase/auth";
 

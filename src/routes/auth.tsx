@@ -4,9 +4,7 @@ import {
     FormControl,
     FormLabel,
     Input,
-    Checkbox,
     Stack,
-    Link,
     Button,
     Heading,
     Text,
@@ -18,20 +16,16 @@ import {
     TabPanel,
     TabPanels,
     Tabs,
-    Spacer,
     FormErrorMessage,
     FormHelperText,
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaFacebook, FaGithub, FaMicrosoft } from "react-icons/fa";
+import { FaGithub, FaMicrosoft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Navigate, redirect } from "react-router-dom";
-import HelperText from "../components/Display/HelperText";
 import { useWebUser } from "../context/WebAuthProvider";
-import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { createAccountEmail, signInEmail } from "../firebase/auth/email";
-import { signInWithFacebook } from "../firebase/auth/facebook";
 import { signInWithGithub } from "../firebase/auth/github";
 import { signInWithGoogle } from "../firebase/auth/google";
 import { signInWithMicrosoft } from "../firebase/auth/microsoft";
@@ -43,6 +37,7 @@ import {
 const AuthPage = () => {
     const webUser = useWebUser();
 
+    // TODO
     const searchParams = new URLSearchParams(document.location.search);
     useEffect(() => {
         if (webUser) {
@@ -59,11 +54,6 @@ const AuthPage = () => {
         </Stack>
     );
 };
-
-/**
- * Directly sends the user to the login page
- */
-const skipSignIn = () => {};
 
 export function LoginCard() {
     return (
@@ -99,9 +89,6 @@ export function LoginInfo() {
     const [returningEmail, setReturningEmail] = useState("");
     const [returningPassword, setReturningPassword] = useState("");
 
-    const returningEmailIsValid = returningEmail.includes("@");
-    const returningPasswordIsValid = returningPassword.trim().length >= 6;
-
     const [returningEmailIncorrect, setReturningEmailIncorrect] =
         useState(false);
     const [returningPasswordIncorrect, setReturningPasswordIncorrect] =
@@ -135,7 +122,7 @@ export function LoginInfo() {
 
         try {
             setIsSubmitting(true);
-            const acct = await createAccountEmail(
+            await createAccountEmail(
                 newEmail,
                 newPassword,
                 newFirstName,

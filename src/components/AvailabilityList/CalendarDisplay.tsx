@@ -1,6 +1,5 @@
 import { ChakraProps, useColorModeValue } from "@chakra-ui/react";
 import { isAfter, isBefore, parse } from "date-fns";
-import { CSSProperties } from "react";
 import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
@@ -18,10 +17,9 @@ import {
     RANGE_FULL_LIGHT,
     RANGE_FULL_DARK,
 } from "../../lib/std";
-import { removeDate, removeTime } from "../../routes/meetup";
+import { removeTime } from "../../routes/meetup";
 import {
     aC,
-    assignColor,
     RangeColors,
 } from "../../utils/availabilityList.utils";
 import { dateEncoder, dateParser } from "../Calendar/CalendarContainer";
@@ -95,7 +93,7 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
      * we can use this for both full-day and non-full-day meetups
      */
     const availabilityPerDayMap: { [dateStr: string]: number } = {};
-    for (let dateTimeStr in meetup.selectionMap) {
+    for (const dateTimeStr in meetup.selectionMap) {
         const dateStr = removeTime(dateTimeStr);
         if (availabilityPerDayMap[dateStr]) {
             availabilityPerDayMap[dateStr] = Math.max(

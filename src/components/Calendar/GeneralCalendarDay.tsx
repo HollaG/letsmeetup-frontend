@@ -1,16 +1,12 @@
 import {
     Box,
     ChakraProps,
-    Circle,
     Square,
     Text,
     useColorModeValue,
 } from "@chakra-ui/react";
-import { addDays, isAfter, isBefore, subDays } from "date-fns";
-import { isSameDay } from "date-fns/esm";
-import React, { CSSProperties } from "react";
+import React from "react";
 import { BODY_STYLES } from "./CalendarBody";
-import { dateEncoder, dateParser } from "./CalendarContainer";
 
 // Color values
 const DARK__UNSELECTABLE_TEXT_COLOR = "gray.600";

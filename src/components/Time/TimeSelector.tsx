@@ -5,7 +5,6 @@ import {
     Box,
     useColorModeValue,
     Text,
-    Progress,
     Center,
     Heading,
     Collapse,

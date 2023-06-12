@@ -195,7 +195,7 @@ export const getNumberOfConsectiveSelectedTimeSlots = (
     const [time, date] = dateTimeStr.split("::");
     let nextTime = parseInt(time) + 30;
     let count = 0;
-    while (true) {
+    while (nextTime < 24 * 60) {
         if (nextTime >= 24 * 60) {
             // it's the next day, we stop counting here
             break;
@@ -216,26 +216,12 @@ export const getNumberOfConsectiveSelectedTimeSlots = (
  * @param dateTimeStr the current date and time to check
  */
 export const getSlotLength = (dateTimeStr: string, meetup: Meetup) => {
-    const [time, date] = dateTimeStr.split("::");
     const numConsec = getNumberOfConsectiveSelectedTimeSlots(
         dateTimeStr,
         meetup
     );
 
     const numMinutes = 30 + numConsec.length * 30;
-    // convert numMinutes into hours and minutes
-    const hours = Math.floor(numMinutes / 60);
-    const minutes = numMinutes % 60;
-
-    let resString = "";
-    // if (hours > 0) {
-    //     resString += `${hours} hr`;
-    // }
-    // if (minutes > 0) {
-    //     resString += ` ${minutes} min`;
-    // }
-
-    // return resString;
 
     return `${numMinutes / 60} hrs`;
 };
@@ -252,7 +238,7 @@ export const getSlotLength = (dateTimeStr: string, meetup: Meetup) => {
  * @returns
  */
 function hexToRgb(hex: string) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
         ? {
               r: parseInt(result[1], 16),

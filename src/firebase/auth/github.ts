@@ -1,7 +1,7 @@
-import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
 
 import "firebase/compat/auth";
-import fire, { auth } from "..";
+import { auth } from "..";
 
 const githubAuthProvider = new GithubAuthProvider();
 

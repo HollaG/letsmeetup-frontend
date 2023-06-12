@@ -5,11 +5,6 @@ import {
     Avatar,
     Link as NavLink,
     Button,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    MenuDivider,
     useDisclosure,
     useColorModeValue,
     Stack,
@@ -19,8 +14,6 @@ import {
     Image,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { signOut } from "firebase/auth";
-import { signOutWithoutUsername } from "../../firebase/auth/anonymous";
 import { useWebUser } from "../../context/WebAuthProvider";
 import { useTelegram } from "../../context/TelegramProvider";
 

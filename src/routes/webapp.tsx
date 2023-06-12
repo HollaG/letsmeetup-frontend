@@ -1,9 +1,7 @@
-import { Heading, Text } from "@chakra-ui/react";
 import { useEffect } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const WebApp = () => {
-    const location = useLocation();
     const navigate = useNavigate();
     useEffect(() => {
         const hasStartApp = window.location.href.includes("tgWebAppStartParam");

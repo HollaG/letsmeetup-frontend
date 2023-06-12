@@ -28,10 +28,9 @@ import HelperText from "../components/Display/HelperText";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
 import { getUserMeetups, Meetup } from "../firebase/db/repositories/meetups";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
 import { format } from "date-fns/esm";
-import { signOut } from "firebase/auth";
 import { signOutAll } from "../firebase/auth";
 import { deleteData } from "../firebase/db/repositories/users";
 import {
@@ -45,6 +44,9 @@ const MeetupsPage = () => {
     const meetupUser = user ? user : webUser;
     const [meetups, setMeetups] = useState<Meetup[]>([]);
 
+    useEffect(() => {
+        document.title = `Look4Times | Your meetups`;
+    }, []);
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     // filter and put all the ended meetups at the end

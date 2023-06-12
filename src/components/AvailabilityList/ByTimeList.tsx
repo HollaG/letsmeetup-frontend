@@ -7,16 +7,12 @@ import {
     Grid,
     GridItem,
     Heading,
-    HStack,
     Link,
     Progress,
     SimpleGrid,
     Stack,
     Text,
-    useColorMode,
     useColorModeValue,
-    Wrap,
-    WrapItem,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import React from "react";
@@ -41,18 +37,14 @@ import {
 import { removeDate } from "../../routes/meetup";
 import { ITelegramUser } from "../../types/telegram";
 import {
-    assignColor,
     hasPeopleInNextTimeSlot,
-    getNumberOfConsectiveSelectedTimeSlots,
     isSameAsPreviousTimeSlot,
     RangeColors,
     getSlotLength,
     aC,
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
-import { create30MinuteIncrements } from "../Time/TimeContainer";
 import { convertMinutesToAmPm } from "../Time/TimeSelector";
-import ColorExplainer from "./common/ColorExplainer";
 import CommentsDisplay from "./common/CommentsDisplay";
 import DisplayBox from "./common/DisplayBox";
 
@@ -120,7 +112,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
     const dates = meetup.dates.filter((date) => {
         // return false if there is no one available on that day
         let atLeastOne = false;
-        for (let dateTimeStr in meetup.selectionMap) {
+        for (const dateTimeStr in meetup.selectionMap) {
             if (dateTimeStr.includes(date)) {
                 if (meetup.selectionMap[dateTimeStr].length > 0) {
                     atLeastOne = true;

@@ -4,10 +4,10 @@ class CustomEnvironment extends JsDomEnv {
     async setup() {
         await super.setup();
         this.global.DOMRect = class DOMRect {
-            bottom: number = 0;
-            left: number = 0;
-            right: number = 0;
-            top: number = 0;
+            bottom = 0;
+            left = 0;
+            right = 0;
+            top = 0;
             constructor(
                 public x = 0,
                 public y = 0,

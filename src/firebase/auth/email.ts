@@ -1,14 +1,11 @@
 import {
     createUserWithEmailAndPassword,
-    getAuth,
-    GoogleAuthProvider,
     signInWithEmailAndPassword,
-    signInWithPopup,
     updateProfile,
 } from "firebase/auth";
 
 import "firebase/compat/auth";
-import fire, { auth } from "..";
+import { auth } from "..";
 
 export const createAccountEmail = (
     email: string,

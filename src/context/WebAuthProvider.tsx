@@ -1,7 +1,6 @@
 import { User } from "firebase/auth";
 import { useState, createContext, useEffect, useContext } from "react";
 import { auth } from "../firebase";
-import googleAuth from "../firebase/auth/google";
 import {
     createIfNotExists,
     IMeetupUser,

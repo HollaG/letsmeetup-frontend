@@ -36,11 +36,9 @@ import {
 import { ITelegramUser } from "../../types/telegram";
 import {
     aC,
-    assignColor,
     RangeColors,
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
-import ColorExplainer from "./common/ColorExplainer";
 import CommentsDisplay from "./common/CommentsDisplay";
 import DisplayBox from "./common/DisplayBox";
 
