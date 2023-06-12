@@ -38,6 +38,7 @@ import "@fontsource/zilla-slab";
 import TermsPage from "./routes/policies/terms";
 import PrivacyPage from "./routes/policies/privacy";
 import AboutPage from "./routes/about";
+import ScrollToTop from "./components/Utility/ScrollToTop";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     try {

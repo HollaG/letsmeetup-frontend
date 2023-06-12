@@ -3,6 +3,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import Nav from "../components/Navbar/Navbar";
+import ScrollToTop from "../components/Utility/ScrollToTop";
 import { useTelegram } from "../context/TelegramProvider";
 
 /**
@@ -18,6 +19,7 @@ const Layout = ({
     const { user } = useTelegram();
     return (
         <>
+            <ScrollToTop />
             <Box minHeight={"1500px"} pb={10}>
                 {!user && <Nav />}
                 <Container mt={3} maxW="1000px">
