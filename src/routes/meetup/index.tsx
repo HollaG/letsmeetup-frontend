@@ -155,6 +155,10 @@ const MeetupPage = () => {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = `${liveMeetup.creator.first_name}'s meetup` || "";
+    }, [liveMeetup]);
+
     /**
      * Subscribe to changes in the document.
      *

@@ -1,6 +1,10 @@
 import { Center, Divider, Heading, Image, Stack, Text } from "@chakra-ui/react";
+import { useEffect } from "react";
 
 const TermsPage = () => {
+    useEffect(() => {
+        document.title = `Look4Times's Terms and Conditions`;
+    }, []);
     return (
         <Stack spacing={4}>
             <Center>

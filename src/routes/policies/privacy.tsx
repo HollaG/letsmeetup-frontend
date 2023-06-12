@@ -1,6 +1,10 @@
 import { Center, Divider, Heading, Image, Stack, Text } from "@chakra-ui/react";
+import { useEffect } from "react";
 
 const PrivacyPage = () => {
+    useEffect(() => {
+        document.title = `Look4Times's Privacy Policy`;
+    }, []);
     return (
         <Stack spacing={4}>
             <Center>

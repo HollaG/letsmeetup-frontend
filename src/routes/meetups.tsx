@@ -45,6 +45,9 @@ const MeetupsPage = () => {
     const meetupUser = user ? user : webUser;
     const [meetups, setMeetups] = useState<Meetup[]>([]);
 
+    useEffect(() => {
+        document.title = `Look4Times | Your meetups`;
+    }, []);
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     // filter and put all the ended meetups at the end

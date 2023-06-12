@@ -11,13 +11,16 @@ import {
     useMediaQuery,
     Divider,
 } from "@chakra-ui/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import CallToActionWithIllustration from "../components/CTA/CTA";
 import SimpleThreeColumns from "../components/CTA/Features";
 import { Link } from "react-router-dom";
 const Root = () => {
     const featuresRef = useRef<HTMLDivElement>(null);
     const [showSecondIllustration] = useMediaQuery("(min-width: 48em)");
+    useEffect(() => {
+        document.title = `Look4Times`;
+    }, []);
     return (
         <Stack spacing={12}>
             <CallToActionWithIllustration featuresRef={featuresRef} />

@@ -91,6 +91,9 @@ const MeetupEditPage = () => {
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
         useStateRef<boolean>(false);
 
+    useEffect(() => {
+        document.title = `${loadedMeetup.creator.first_name}'s meetup` || "";
+    }, [loadedMeetup]);
     const times = [...new Set(loadedMeetup.timeslots.map(removeDate))].sort(
         (a, b) => a - b
     );

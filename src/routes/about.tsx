@@ -10,8 +10,12 @@ import {
     Text,
     UnorderedList,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 const AboutPage = () => {
+    useEffect(() => {
+        document.title = `Look4Times's FAQ`;
+    }, []);
     return (
         <Stack spacing={4}>
             <Center w="100%">

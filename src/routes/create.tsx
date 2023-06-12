@@ -71,6 +71,9 @@ import {
 import { LoginCard, LoginInfo } from "./auth";
 
 const Create = () => {
+    useEffect(() => {
+        document.title = `Look4Times | Create a new meetup`;
+    }, []);
     const [title, setTitle, titleRef] = useStateRef<string>("");
     const [description, setDescription, descriptionRef] =
         useStateRef<string>("");
