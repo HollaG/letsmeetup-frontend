@@ -37,6 +37,7 @@ import "@fontsource/zilla-slab";
 
 import TermsPage from "./routes/policies/terms";
 import PrivacyPage from "./routes/policies/privacy";
+import AboutPage from "./routes/about";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
     return {
@@ -88,6 +89,10 @@ const router = createHashRouter([
             {
                 path: "/policies/privacy",
                 element: <PrivacyPage />,
+            },
+            {
+                path: "/about",
+                element: <AboutPage />,
             },
         ],
     },

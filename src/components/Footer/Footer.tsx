@@ -42,6 +42,9 @@ const Footer = () => {
             <GridItem>
                 <Flex justifyContent={"right"} alignItems="center">
                     <HStack spacing={{ base: 2, md: 6 }}>
+                        <NavLink as={Link} to="/about">
+                            About
+                        </NavLink>
                         <NavLink as={Link} to="/policies/privacy">
                             {" "}
                             Privacy Policy{" "}
@@ -92,6 +95,9 @@ const Footer = () => {
             <Divider />
 
             <Stack spacing={2}>
+                <NavLink as={Link} to="/about">
+                    About
+                </NavLink>
                 <NavLink as={Link} to="/policies/privacy">
                     {" "}
                     Privacy Policy{" "}
