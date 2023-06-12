@@ -195,7 +195,7 @@ export const getNumberOfConsectiveSelectedTimeSlots = (
     const [time, date] = dateTimeStr.split("::");
     let nextTime = parseInt(time) + 30;
     let count = 0;
-    while (true) {
+    while (nextTime < 24 * 60) {
         if (nextTime >= 24 * 60) {
             // it's the next day, we stop counting here
             break;

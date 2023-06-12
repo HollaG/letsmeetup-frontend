@@ -5,6 +5,7 @@ module.exports = {
     extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
     rules: {
         "unused-imports/no-unused-imports-ts": 2,
+        "@typescript-eslint/ban-ts-comment": "off",
     },
     ignorePatterns: ["build/*"],
 };
