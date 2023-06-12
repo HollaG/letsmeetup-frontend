@@ -416,7 +416,7 @@ const TimeContainer = ({
         setPreviousTimesSelected([]);
     };
 
-    const _btnColor = useColorModeValue("purple.200", "purple.700");
+    const _btnColor = useColorModeValue("#D6BCFA", "#553C9A");
 
     const btnColor = style?.button_color || _btnColor;
 

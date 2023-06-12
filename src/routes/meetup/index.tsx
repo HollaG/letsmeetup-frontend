@@ -191,7 +191,7 @@ const MeetupPage = () => {
 
     // console.log({ meetup });
 
-    const _btnColor = useColorModeValue("purple.200", "purple.700");
+    const _btnColor = useColorModeValue("#D6BCFA", "#553C9A");
     const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");

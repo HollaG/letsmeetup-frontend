@@ -110,6 +110,11 @@ const router = createHashRouter([
                 path: "/about",
                 element: <AboutPage />,
             },
+
+            {
+                path: "/webapp",
+                element: <WebApp />,
+            },
         ],
     },
     {
@@ -129,10 +134,6 @@ const router = createHashRouter([
                         path: "/meetup/:meetupId/edit",
                         element: <MeetupEditPage />,
                         loader,
-                    },
-                    {
-                        path: "/webapp",
-                        element: <WebApp />,
                     },
                     {
                         path: "/meetups",

@@ -314,7 +314,7 @@ const Create = () => {
     };
 
     // Handle the colors changing
-    const _btnColor = useColorModeValue("purple.200", "purple.700");
+    const _btnColor = useColorModeValue("#D6BCFA", "#553C9A"); // cannot use chakra styling as webapp button style doesn't accept it // purple.200, purple.700
     const _disabledBtnColor = useColorModeValue("#EDF2F7", "#1A202C");
     const _enabledTextColor = useColorModeValue("#ffffff", "#000000");
     const _disabledTextColor = useColorModeValue("#000000", "#ffffff");
