@@ -82,7 +82,8 @@ import {
 import { FcShare } from "react-icons/fc";
 import { FaShare } from "react-icons/fa";
 import FancyButton from "../../components/Buttons/FancyButton";
-import { isBefore } from "date-fns/esm";
+import { format, isBefore } from "date-fns/esm";
+import { Timestamp } from "firebase/firestore";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -880,7 +881,7 @@ const MeetupPage = () => {
                     // alignItems="center"
                 >
                     <Stack>
-                        <Heading fontSize={"xl"}> {meetup.title} </Heading>
+                        <Heading fontSize={"2xl"}> {meetup.title} </Heading>
                         {meetup.description && (
                             <Text> {meetup.description} </Text>
                         )}
@@ -938,28 +939,45 @@ const MeetupPage = () => {
                     )}
                 </Flex>
 
-                <Stack>
-                    <Heading fontSize={"lg"}> Meetup options ⚙️</Heading>
-                    <HStack>
-                        {" "}
-                        {liveMeetup.options.limitNumberRespondents !==
-                            Number.MAX_VALUE && (
-                            <Tag>
-                                {" "}
-                                Limit total replies:{" "}
-                                {liveMeetup.options.limitNumberRespondents}{" "}
-                            </Tag>
-                        )}
-                        {liveMeetup.options.limitPerSlot !==
-                            Number.MAX_VALUE && (
-                            <Tag>
-                                {" "}
-                                Limit per slot:{" "}
-                                {liveMeetup.options.limitPerSlot}{" "}
-                            </Tag>
-                        )}
-                    </HStack>
-                </Stack>
+                {
+                    <Stack>
+                        <Heading fontSize={"lg"}> ⚙️ Meetup options </Heading>
+                        <HStack>
+                            {" "}
+                            {liveMeetup.options.limitNumberRespondents !==
+                                Number.MAX_VALUE && (
+                                <Tag>
+                                    {" "}
+                                    Limit total replies:{" "}
+                                    {
+                                        liveMeetup.options
+                                            .limitNumberRespondents
+                                    }{" "}
+                                </Tag>
+                            )}
+                            {liveMeetup.options.limitPerSlot !==
+                                Number.MAX_VALUE && (
+                                <Tag>
+                                    {" "}
+                                    Limit per slot:{" "}
+                                    {liveMeetup.options.limitPerSlot}{" "}
+                                </Tag>
+                            )}
+                            {liveMeetup.options.endAt && (
+                                <Tag>
+                                    Ends on:{" "}
+                                    {format(
+                                        (
+                                            liveMeetup.options
+                                                .endAt as any as Timestamp
+                                        )?.toDate(),
+                                        "dd MMM yyyy"
+                                    )}
+                                </Tag>
+                            )}
+                        </HStack>
+                    </Stack>
+                }
                 <Divider />
 
                 {indicateIsVisible && (
@@ -1128,7 +1146,7 @@ const ViewComponent = React.memo(
     ({ liveMeetup }: { liveMeetup: Meetup }) => (
         <Stack spacing={4} justifyContent="left">
             <Box height="40px">
-                <Heading fontSize="lg"> Others' availability </Heading>
+                <Heading fontSize="lg"> 👥 Others' availability </Heading>
                 <Center>
                     <ColorExplainer numTotal={liveMeetup.users.length} />
                 </Center>

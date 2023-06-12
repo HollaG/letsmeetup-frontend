@@ -26,7 +26,7 @@ const FancyButton = ({
                     "linear-gradient(90deg, rgba(255,87,87,1) 0%, rgba(140,82,255,1) 100%)",
                 boxShadow: "rgb(140, 82, 255, 0.65) 0 4px 15px 0px",
                 transition:
-                    "background 0.3s ease-in-out 0s, transform 0.1s ease-out 0s",
+                    "all 0.3s ease-in-out 0s, background 0.3s ease-in-out 0s, transform 0.1s ease-out 0s",
             }}
             _focus={{
                 boxShadow: !props?.isDisabled

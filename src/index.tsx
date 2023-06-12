@@ -40,8 +40,12 @@ import PrivacyPage from "./routes/policies/privacy";
 import AboutPage from "./routes/about";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
+    const meetup = (
+        await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))
+    ).data();
+    if (!meetup) throw new Error("Meetup not found");
     return {
-        meetup: (await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))).data(), // fetch shit here
+        meetup: meetup, // fetch shit here
     };
 }
 
