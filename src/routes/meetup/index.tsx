@@ -35,6 +35,8 @@ import {
     useToast,
     HStack,
     Tag,
+    Wrap,
+    WrapItem,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -942,40 +944,46 @@ const MeetupPage = () => {
                 {
                     <Stack>
                         <Heading fontSize={"lg"}> ⚙️ Meetup options </Heading>
-                        <HStack>
+                        <Wrap>
                             {" "}
                             {liveMeetup.options.limitNumberRespondents !==
                                 Number.MAX_VALUE && (
-                                <Tag>
-                                    {" "}
-                                    Limit total replies:{" "}
-                                    {
-                                        liveMeetup.options
-                                            .limitNumberRespondents
-                                    }{" "}
-                                </Tag>
+                                <WrapItem>
+                                    <Tag size={{ base: "sm", md: "md" }}>
+                                        {" "}
+                                        Limit total replies:{" "}
+                                        {
+                                            liveMeetup.options
+                                                .limitNumberRespondents
+                                        }{" "}
+                                    </Tag>{" "}
+                                </WrapItem>
                             )}
                             {liveMeetup.options.limitPerSlot !==
                                 Number.MAX_VALUE && (
-                                <Tag>
-                                    {" "}
-                                    Limit per slot:{" "}
-                                    {liveMeetup.options.limitPerSlot}{" "}
-                                </Tag>
+                                <WrapItem>
+                                    <Tag size={{ base: "sm", md: "md" }}>
+                                        {" "}
+                                        Limit per slot:{" "}
+                                        {liveMeetup.options.limitPerSlot}{" "}
+                                    </Tag>{" "}
+                                </WrapItem>
                             )}
                             {liveMeetup.options.endAt && (
-                                <Tag>
-                                    Ends on:{" "}
-                                    {format(
-                                        (
-                                            liveMeetup.options
-                                                .endAt as any as Timestamp
-                                        )?.toDate(),
-                                        "dd MMM yyyy"
-                                    )}
-                                </Tag>
+                                <WrapItem>
+                                    <Tag size={{ base: "sm", md: "md" }}>
+                                        Ends on:{" "}
+                                        {format(
+                                            (
+                                                liveMeetup.options
+                                                    .endAt as any as Timestamp
+                                            )?.toDate(),
+                                            "dd MMM yyyy"
+                                        )}
+                                    </Tag>{" "}
+                                </WrapItem>
                             )}
-                        </HStack>
+                        </Wrap>
                     </Stack>
                 }
                 <Divider />
