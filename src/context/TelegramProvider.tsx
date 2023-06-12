@@ -115,14 +115,16 @@ export const TelegramProvider = ({
         const initData = app.initData;
 
         if (initData) {
-            validateHash(initData)
-                .then(() => {
-                    console.log("Data validated, you're good to go!");
-                    app.ready();
-                })
-                .catch((e) => {
-                    app = null;
-                });
+            // There's no need to validate data, we're not dealing with sensitive information.
+            // validateHash(initData)
+            //     .then(() => {
+            //         console.log("Data validated, you're good to go!");
+            //         app.ready();
+            //     })
+            //     .catch((e) => {
+            //         app = null;
+            //     });
+            app.ready();
             app.onEvent("themeChanged", updateColorMode);
         }
     }

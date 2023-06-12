@@ -4,9 +4,11 @@ import {
     Heading,
     Image,
     Link as NavLink,
+    ListItem,
     Stack,
     Tag,
     Text,
+    UnorderedList,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 const AboutPage = () => {
@@ -137,6 +139,76 @@ const AboutPage = () => {
                     🤔 What is your hosting solution?
                 </Heading>
                 <Text>I use Github Pages to host the frontend.</Text>
+            </Stack>
+            <Stack>
+                <Heading fontSize={"lg"}>
+                    {" "}
+                    🤔 What libraries and resources did you use?
+                </Heading>
+
+                <Text fontWeight={"semibold"}> Libraries </Text>
+                <UnorderedList>
+                    <ListItem>
+                        <NavLink
+                            href="https://reactrouter.com/en/main"
+                            isExternal
+                        >
+                            {" "}
+                            React Router{" "}
+                        </NavLink>
+                    </ListItem>
+                    <ListItem>
+                        <NavLink
+                            href="https://github.com/simonwep/selection"
+                            isExternal
+                        >
+                            {" "}
+                            Viselect
+                        </NavLink>
+                    </ListItem>
+                    <ListItem>
+                        <NavLink href="https://date-fns.org/" isExternal>
+                            {" "}
+                            date-fns
+                        </NavLink>
+                    </ListItem>
+                    <ListItem>
+                        <NavLink
+                            href="https://react-type-animation.netlify.app/"
+                            isExternal
+                        >
+                            {" "}
+                            React Type Animation
+                        </NavLink>
+                    </ListItem>
+                    <ListItem>
+                        <NavLink
+                            href="https://www.npmjs.com/package/react-usestateref"
+                            isExternal
+                        >
+                            {" "}
+                            react-useStateRef
+                        </NavLink>
+                    </ListItem>
+                </UnorderedList>
+                <Text fontWeight={"semibold"}> Resources </Text>
+                <UnorderedList>
+                    <ListItem>
+                        <NavLink
+                            href="https://chakra-templates.dev/"
+                            isExternal
+                        >
+                            {" "}
+                            Chakra Templates (Layout)
+                        </NavLink>
+                    </ListItem>
+                    <ListItem>
+                        <NavLink href="https://undraw.co/" isExternal>
+                            {" "}
+                            unDraw (Illustrations)
+                        </NavLink>
+                    </ListItem>
+                </UnorderedList>
             </Stack>
         </Stack>
     );

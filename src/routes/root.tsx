@@ -22,7 +22,10 @@ const Root = () => {
         <Stack spacing={12}>
             <CallToActionWithIllustration featuresRef={featuresRef} />
             <Stack>
-                <Heading textAlign="center" fontSize={"4xl"}>
+                <Heading
+                    textAlign="center"
+                    fontSize={{ base: "4xl", md: "6xl" }}
+                >
                     Features 🙌
                 </Heading>
                 <SimpleThreeColumns featuresRef={featuresRef} />
