@@ -1,17 +1,14 @@
 import {
     Stack,
     Flex,
-    Button,
     Grid,
     Text,
     ChakraProps,
     SimpleGrid,
     Box,
     Center,
-    IconButton,
     useMediaQuery,
 } from "@chakra-ui/react";
-import SelectionArea from "@viselect/react";
 import {
     addDays,
     addMonths,
@@ -22,13 +19,11 @@ import {
     subDays,
     subMonths,
 } from "date-fns";
-import { CSSProperties, memo, useEffect, useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { memo, useEffect, useState } from "react";
 import { GoLeftButton, GoRightButton } from "../Buttons/NavigationButtons";
-import CalendarBody from "./CalendarBody";
 import CalendarHeader from "./CalendarHeader";
 import GeneralCalendarBody from "./GeneralCalendarBody";
-import { DrawnDayProps, GeneralCalendarDayProps } from "./GeneralCalendarDay";
+import { DrawnDayProps } from "./GeneralCalendarDay";
 
 type GeneralCalendarProps = {
     startDate: Date;
@@ -47,7 +42,7 @@ type GeneralCalendarProps = {
     initialDate?: Date; // the initial date to display. Defaults to today
 };
 
-const getDrawnDays = (selectedDate: Date, drawOverflow: boolean = true) => {
+const getDrawnDays = (selectedDate: Date, drawOverflow = true) => {
     const currentMonthNum = selectedDate.getMonth();
     const currentYearNum = selectedDate.getFullYear();
 

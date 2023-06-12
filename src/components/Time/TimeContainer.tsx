@@ -1,27 +1,15 @@
 import {
     Box,
-    Button,
     Collapse,
-    Divider,
     Flex,
-    Grid,
-    GridItem,
-    HStack,
     Stack,
     Switch,
-    Table,
-    TableContainer,
-    Tbody,
-    Td,
     Text,
-    Th,
-    Thead,
-    Tr,
     useColorModeValue,
 } from "@chakra-ui/react";
-import SelectionArea, { SelectionEvent } from "@viselect/react";
+import { SelectionEvent } from "@viselect/react";
 import { format } from "date-fns/esm";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useStateRef from "react-usestateref";
 import { useTelegram } from "../../context/TelegramProvider";
 import { ENCODER_SEPARATOR } from "../../lib/std";
@@ -176,7 +164,7 @@ const TimeContainer = ({
         // add the new times to the selection if and only if
         // newStart < currentStart
         // newEnd > currentEnd
-        let newTimes: TimeSelection = [];
+        const newTimes: TimeSelection = [];
         // if (e[0] < startMin) {
         //     datesSelected.forEach((date) => {
         //         newTimes.push(

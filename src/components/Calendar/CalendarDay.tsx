@@ -1,4 +1,4 @@
-import { Box, Circle, Square, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Square, Text, useColorModeValue } from "@chakra-ui/react";
 import { addDays, isAfter, isBefore, subDays } from "date-fns";
 import { isSameDay } from "date-fns/esm";
 import React from "react";

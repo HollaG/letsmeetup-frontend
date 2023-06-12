@@ -1,7 +1,7 @@
-import { FacebookAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { FacebookAuthProvider, signInWithPopup } from "firebase/auth";
 
 import "firebase/compat/auth";
-import fire, { auth } from "..";
+import { auth } from "..";
 
 const facebookAuthProvider = new FacebookAuthProvider();
 

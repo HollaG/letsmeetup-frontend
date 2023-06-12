@@ -1,4 +1,4 @@
-import { Box, Center, Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "../components/Footer/Footer";

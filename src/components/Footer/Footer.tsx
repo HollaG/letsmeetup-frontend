@@ -4,19 +4,15 @@ import {
     Grid,
     GridItem,
     HStack,
-    SimpleGrid,
     Link as NavLink,
     Icon,
-    Text,
     useColorModeValue,
     Center,
     Stack,
     useMediaQuery,
 } from "@chakra-ui/react";
 import {
-    FaBasketballBall,
     FaGithub,
-    FaInternetExplorer,
     FaLinkedin,
 } from "react-icons/fa";
 

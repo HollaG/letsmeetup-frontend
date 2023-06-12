@@ -1,17 +1,10 @@
 import {
-    Center,
-    Circle,
-    color,
     GridItem,
-    Square,
-    Text,
     TextProps,
-    useColorModeValue,
 } from "@chakra-ui/react";
-import { addDays, format, isBefore, isSameDay, isToday } from "date-fns";
+import { addDays } from "date-fns";
 import { subDays } from "date-fns/esm";
-import React, { useCallback } from "react";
-import { useMemo } from "react";
+import React from "react";
 import { CalendarDayProps, dateEncoder } from "./CalendarContainer";
 import CalendarDay from "./CalendarDay";
 

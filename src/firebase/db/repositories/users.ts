@@ -1,20 +1,15 @@
 // import db config
-import fire, { db } from "../..";
+import { db } from "../..";
 import {
-    getFirestore,
     collection,
     query,
-    where,
     getDocs,
-    addDoc,
-    updateDoc,
     doc,
-    getDoc,
     setDoc,
     deleteDoc,
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
-import { deleteUserMeetups, Meetup } from "./meetups";
+import { deleteUserMeetups } from "./meetups";
 
 export type WebUser = {
     type: string;
@@ -53,7 +48,7 @@ export const createIfNotExists = async (
 ): Promise<IMeetupUser> | never => {
     const dbRef = doc(db, COLLECTION_NAME, user.id.toString());
     try {
-        const docRef = await setDoc(dbRef, user);
+        await setDoc(dbRef, user);
 
         return {
             ...user,
@@ -65,15 +60,11 @@ export const createIfNotExists = async (
 };
 
 export const deleteData = async (id: string) => {
-    try {
-        const docRef = doc(db, COLLECTION_NAME, id);
-        await deleteUserMeetups(id);
-        await deleteDoc(docRef);
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await deleteUserMeetups(id);
+    await deleteDoc(docRef);
 
-        return true;
-    } catch (e) {
-        throw e;
-    }
+    return true;
 };
 
 // TODO: complete update function

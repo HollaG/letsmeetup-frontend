@@ -3,13 +3,9 @@ import {
     RangeSliderTrack,
     RangeSliderFilledTrack,
     RangeSliderThumb,
-    RangeSliderMark,
     Stack,
     Text,
-    Grid,
-    Box,
     Flex,
-    useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTelegram } from "../../context/TelegramProvider";

@@ -1,11 +1,9 @@
 import {
-    collection,
     doc,
     DocumentData,
     DocumentSnapshot,
     FirestoreError,
     onSnapshot,
-    QuerySnapshot,
 } from "firebase/firestore";
 import { db as fire } from "../firebase/index";
 import { COLLECTION_NAME } from "../firebase/db/repositories/meetups";

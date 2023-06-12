@@ -1,13 +1,11 @@
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as serviceWorker from "./serviceWorker";
 
 import { TelegramProvider } from "./context/TelegramProvider";
 import {
-    createBrowserRouter,
     createHashRouter,
     LoaderFunctionArgs,
     RouterProvider,
@@ -21,7 +19,7 @@ import "./index.css";
 import Layout from "./routes/layout";
 import MeetupPage from "./routes/meetup";
 import { doc, getDoc } from "firebase/firestore";
-import fire, { db } from "./firebase";
+import { db } from "./firebase";
 import { COLLECTION_NAME } from "./firebase/db/repositories/meetups";
 import WebApp from "./routes/webapp";
 import MeetupEditPage from "./routes/meetup/edit";
@@ -38,23 +36,18 @@ import "@fontsource/zilla-slab";
 import TermsPage from "./routes/policies/terms";
 import PrivacyPage from "./routes/policies/privacy";
 import AboutPage from "./routes/about";
-import ScrollToTop from "./components/Utility/ScrollToTop";
 
 async function loader({ params: { meetupId } }: LoaderFunctionArgs) {
-    try {
-        const meetup = (
-            await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))
-        ).data();
-        if (!meetup)
-            throw new Error(
-                "Oops! This meetup was not found. Perhaps check with the creator if they sent an incorrect link?"
-            );
-        return {
-            meetup: meetup, // fetch shit here
-        };
-    } catch (e) {
-        throw e;
-    }
+    const meetup = (
+        await getDoc(doc(db, COLLECTION_NAME, meetupId || ""))
+    ).data();
+    if (!meetup)
+        throw new Error(
+            "Oops! This meetup was not found. Perhaps check with the creator if they sent an incorrect link?"
+        );
+    return {
+        meetup: meetup, // fetch shit here
+    };
 }
 
 /**

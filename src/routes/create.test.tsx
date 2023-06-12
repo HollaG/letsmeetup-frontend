@@ -1,7 +1,6 @@
-import { getByText, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Create from "./create";
 import "@testing-library/jest-dom/extend-expect";
-import { format } from "date-fns";
 
 /**
  * Tests for the create page.

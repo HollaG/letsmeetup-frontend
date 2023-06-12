@@ -1,8 +1,7 @@
 import { useColorMode } from "@chakra-ui/react";
-import { ThemeProvider } from "@emotion/react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { IMeetupUser } from "../firebase/db/repositories/users";
-import type { ITelegramUser, IWebApp, ThemeParams } from "../types/telegram";
+import type { IWebApp, ThemeParams } from "../types/telegram";
 
 export interface ITelegramContext {
     webApp?: IWebApp;
@@ -109,7 +108,7 @@ export const TelegramProvider = ({
         }
     }, [(window as any).Telegram?.WebApp]);
 
-    let app = (window as any).Telegram?.WebApp;
+    const app = (window as any).Telegram?.WebApp;
 
     if (app as IWebApp) {
         const initData = app.initData;

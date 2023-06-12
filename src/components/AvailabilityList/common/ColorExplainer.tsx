@@ -18,7 +18,6 @@ import {
 } from "../../../lib/std";
 import {
     aC,
-    assignColor,
     RangeColors,
 } from "../../../utils/availabilityList.utils";
 

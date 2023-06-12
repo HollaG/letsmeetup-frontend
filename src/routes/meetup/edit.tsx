@@ -1,4 +1,3 @@
-import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
     useColorModeValue,
     FormControl,
@@ -10,7 +9,6 @@ import {
     Switch,
     Collapse,
     InputGroup,
-    InputRightElement,
     Text,
     Box,
     Alert,
@@ -43,13 +41,10 @@ import { removeDate } from ".";
 import FancyButton from "../../components/Buttons/FancyButton";
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
 import HelperText from "../../components/Display/HelperText";
-import TimeContainer, {
-    create30MinuteIncrements,
-} from "../../components/Time/TimeContainer";
+import TimeContainer from "../../components/Time/TimeContainer";
 import { useTelegram } from "../../context/TelegramProvider";
 import { useWebUser } from "../../context/WebAuthProvider";
 import {
-    create,
     Meetup,
     update,
     UserAvailabilityData,
@@ -61,7 +56,7 @@ import {
 } from "../../utils/toasts.utils";
 
 const MeetupEditPage = () => {
-    let { meetupId } = useParams<{
+    const { meetupId } = useParams<{
         meetupId: string;
     }>() as { meetupId: string };
     let { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
@@ -200,25 +195,25 @@ const MeetupEditPage = () => {
             // if there are any times set in the old selectionMap as keys that are NOT in the new timeslots / new dates, remove them
             if (isFullDayRef.current) {
                 // the meetup was a full day.
-                for (let dateStr in loadedMeetup.selectionMap) {
+                for (const dateStr in loadedMeetup.selectionMap) {
                     if (!datesRef.current.includes(dateStr)) {
                         delete newSelectionMap[dateStr];
                     }
                 }
 
-                for (let userData of newUsers) {
+                for (const userData of newUsers) {
                     userData.selected = userData.selected.filter((s) =>
                         datesRef.current.includes(s)
                     );
                 }
             } else {
                 // the meetup was a time one
-                for (let dateTimeStr in loadedMeetup.selectionMap) {
+                for (const dateTimeStr in loadedMeetup.selectionMap) {
                     if (!timesRef.current.includes(dateTimeStr)) {
                         delete newSelectionMap[dateTimeStr];
                     }
                 }
-                for (let userData of newUsers) {
+                for (const userData of newUsers) {
                     userData.selected = userData.selected.filter((s) =>
                         timesRef.current.includes(s)
                     );
@@ -483,7 +478,7 @@ const MeetupEditPage = () => {
      *
      * Pristine refers to whether the 'set individual date times' switch has been touched.
      */
-    const [pristine, setPristine, pristineRef] = useStateRef<boolean>(true);
+    const [pristine, setPristine] = useState<boolean>(true);
     const onStop = () => {
         // if (pristineRef.current) {
         //     const flat = create30MinuteIncrements(

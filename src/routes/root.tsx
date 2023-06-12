@@ -3,13 +3,10 @@ import {
     Center,
     Heading,
     Stack,
-    Text,
-    Link as NavLink,
     SimpleGrid,
     Image,
     Box,
     useMediaQuery,
-    Divider,
 } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import CallToActionWithIllustration from "../components/CTA/CTA";

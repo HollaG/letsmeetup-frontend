@@ -15,13 +15,11 @@ import {
     MenuList,
     Stack,
     Tab,
-    TabIndicator,
     TabList,
     TabPanel,
     TabPanels,
     Tabs,
     Text,
-    useColorMode,
     useColorModeValue,
     Link as NavLink,
     useDisclosure,
@@ -31,22 +29,15 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
-    Toast,
     useToast,
-    HStack,
     Tag,
     Wrap,
     WrapItem,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import {
-    useLoaderData,
-    useNavigate,
-    useNavigation,
-    useParams,
-} from "react-router-dom";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
 import ByDateList from "../../components/AvailabilityList/ByDateList";
 import ByTimeList from "../../components/AvailabilityList/ByTimeList";
@@ -59,11 +50,7 @@ import HelperText from "../../components/Display/HelperText";
 import { CellData } from "../../components/Time/TimeContainer";
 import TimeSelector from "../../components/Time/TimeSelector";
 import { useTelegram } from "../../context/TelegramProvider";
-import {
-    capitalizeFirstLetter,
-    generateRandomAnonName,
-    useWebUser,
-} from "../../context/WebAuthProvider";
+import { useWebUser } from "../../context/WebAuthProvider";
 import { signInWithoutUsername } from "../../firebase/auth/anonymous";
 import {
     deleteMeetup,
@@ -73,7 +60,6 @@ import {
 } from "../../firebase/db/repositories/meetups";
 import { IMeetupUser } from "../../firebase/db/repositories/users";
 import useFirestore from "../../hooks/firestore";
-import { ITelegramUser } from "../../types/telegram";
 import { TimeSelection } from "../../types/types";
 
 import { Link } from "react-router-dom";
@@ -81,7 +67,6 @@ import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
 } from "../../utils/toasts.utils";
-import { FcShare } from "react-icons/fc";
 import { FaShare } from "react-icons/fa";
 import FancyButton from "../../components/Buttons/FancyButton";
 import { format, isBefore } from "date-fns/esm";
@@ -144,14 +129,13 @@ const MeetupPage = () => {
 
     const firestore = useFirestore();
 
-    let { meetupId } = useParams<{
+    const { meetupId } = useParams<{
         meetupId: string;
     }>() as { meetupId: string };
     const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
 
-    const [meetup, setMeetup] = useState<Meetup>(loadedMeetup);
-    const [liveMeetup, setLiveMeetup, liveMeetupRef] =
-        useStateRef<Meetup>(loadedMeetup);
+    const [meetup] = useState<Meetup>(loadedMeetup);
+    const [liveMeetup, setLiveMeetup] = useStateRef<Meetup>(loadedMeetup);
 
     const navigate = useNavigate();
 
@@ -172,7 +156,6 @@ const MeetupPage = () => {
                     navigate("/");
                 } else {
                     setLiveMeetup(doc.data() as Meetup);
-                    _setRerender((prev) => !prev);
                 }
             },
         });
@@ -187,7 +170,7 @@ const MeetupPage = () => {
 
     /** ----------------- TELEGRAM INTEGRATION ----------------- */
 
-    let { user, webApp, style } = useTelegram();
+    const { user, webApp, style } = useTelegram();
 
     const [_, setWebAppRef, webAppRef] = useStateRef(webApp);
 
@@ -380,7 +363,7 @@ const MeetupPage = () => {
      * @param store The store of the selection event
      * @returns
      */
-    const onBeforeStartDate = ({ event, selection }: SelectionEvent) => {
+    const onBeforeStartDate = ({ selection }: SelectionEvent) => {
         selection.clearSelection(true, true);
         selection.select(".selectable.selected.date", true);
         // if ((event?.target as HTMLElement)?.className.includes("blocked")) {
@@ -494,7 +477,7 @@ const MeetupPage = () => {
      * @see https://stackoverflow.com/a/63039797
      * @see https://www.npmjs.com/package/react-usestateref
      */
-    const onStopTime = ({ event, selection }: SelectionEvent) => {
+    const onStopTime = ({ selection }: SelectionEvent) => {
         // TODO: there needs to be a user here
         // updateAvailability(meetupId, user || tempUser, {
         //     datesSelected: datesRef.current,
@@ -574,9 +557,6 @@ const MeetupPage = () => {
         setComments(e.target.value);
         setHasDataChanged(true);
     };
-
-    // Force calendar to re-render
-    const [_rerender, _setRerender] = useState(false);
 
     /**
      * Helps to determine if the Indicate tab should be visible.
@@ -677,9 +657,6 @@ const MeetupPage = () => {
     }, [liveMeetup]);
 
     /** Handling stuff related to non-signed-in-users */
-    const randomName = `Anonymous ${capitalizeFirstLetter(
-        generateRandomAnonName()
-    )}`;
     const [tempName, setTempName] = useState<string>(
         webUser ? webUser.first_name : ""
     );
@@ -697,7 +674,7 @@ const MeetupPage = () => {
             // if not logged in, as either anon or actual, log them in
             let tWebUser: IMeetupUser;
             if (!webUser) {
-                let user = await signInWithoutUsername(tempName);
+                const user = await signInWithoutUsername(tempName);
                 tWebUser = {
                     id: user.user.uid,
                     type: "Guest",

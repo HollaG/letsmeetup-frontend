@@ -1,4 +1,3 @@
-import { CheckIcon, MinusIcon } from "@chakra-ui/icons";
 import {
     Alert,
     AlertDialog,
@@ -14,27 +13,19 @@ import {
     Center,
     Collapse,
     Container,
-    Divider,
     Flex,
-    FormControl,
-    FormHelperText,
     Heading,
     Input,
     InputGroup,
-    InputLeftAddon,
-    InputRightAddon,
-    InputRightElement,
     NumberDecrementStepper,
     NumberIncrementStepper,
     NumberInput,
     NumberInputField,
     NumberInputStepper,
-    SimpleGrid,
     Stack,
     Switch,
     Text,
     Textarea,
-    useColorMode,
     useColorModeValue,
     useDisclosure,
     useToast,
@@ -43,16 +34,14 @@ import { addYears, format, parse } from "date-fns";
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { redirect, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useStateRef from "react-usestateref";
-import { URLSearchParams } from "url";
 import FancyButton from "../components/Buttons/FancyButton";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
 import HelperText from "../components/Display/HelperText";
 import TimeContainer, {
     create30MinuteIncrements,
 } from "../components/Time/TimeContainer";
-import TimeRangeSelector from "../components/Time/TimeRangeSelector";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
 import { auth } from "../firebase";
@@ -68,7 +57,7 @@ import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
 } from "../utils/toasts.utils";
-import { LoginCard, LoginInfo } from "./auth";
+import { LoginInfo } from "./auth";
 
 const Create = () => {
     useEffect(() => {
@@ -214,7 +203,6 @@ const Create = () => {
                     // send the ID back to Telegram
                     // webApp?.sendData(res.id)
                     // webApp?.close()
-                    const newDocId = res.id;
                     webApp?.switchInlineQuery(titleRef.current, [
                         "users",
                         "groups",
@@ -226,7 +214,6 @@ const Create = () => {
                 .catch((e) => {
                     alert("somme error!!" + e.toString());
                 });
-        } else {
         }
     }, [webApp]);
 
@@ -371,7 +358,7 @@ const Create = () => {
 
             setIsSubmitting(true);
             if (!webUser) {
-                let user = await signInWithoutUsername(newUserName);
+                const user = await signInWithoutUsername(newUserName);
                 tWebUser = {
                     id: user.user.uid,
                     type: "Guest",
