@@ -140,7 +140,26 @@ const MeetupPage = () => {
     const { meetup: loadedMeetup } = useLoaderData() as { meetup: Meetup };
 
     const [meetup] = useState<Meetup>(loadedMeetup);
-    const [liveMeetup, setLiveMeetup] = useStateRef<Meetup>(loadedMeetup);
+    const [_liveMeetup, setLiveMeetup] = useStateRef<Meetup>(loadedMeetup);
+
+    const [showOnlyFull, setShowOnlyFull] = useState(false);
+
+    let liveMeetup = _liveMeetup;
+    // if the user only wants to see the slots that everyone has selected
+    if (showOnlyFull) {
+        const numUsers = Object.keys(liveMeetup.users).length;
+        // remove all the keys from selectionMap whose length is less than the number of users
+        liveMeetup = {
+            ...liveMeetup,
+            selectionMap: Object.fromEntries(
+                Object.entries(liveMeetup.selectionMap).filter(
+                    ([key, value]) => {
+                        return Object.keys(value).length === numUsers;
+                    }
+                )
+            ),
+        };
+    }
 
     const navigate = useNavigate();
 
@@ -331,7 +350,6 @@ const MeetupPage = () => {
         )
     );
 
-    console.log(cannotMakeIt);
     /**
      * Tracks the previous times selected for comparison against when we
      * add / remove items by dragging
@@ -1211,13 +1229,21 @@ const MeetupPage = () => {
                                 </TabPanel>
                             )}
                             <TabPanel p={1}>
-                                <ViewComponent liveMeetup={liveMeetup} />
+                                <ViewComponent
+                                    showOnlyFull={showOnlyFull}
+                                    setShowOnlyFull={setShowOnlyFull}
+                                    liveMeetup={liveMeetup}
+                                />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
                 )}
                 {!indicateIsVisible && (
-                    <ViewComponent liveMeetup={liveMeetup} />
+                    <ViewComponent
+                        showOnlyFull={showOnlyFull}
+                        setShowOnlyFull={setShowOnlyFull}
+                        liveMeetup={liveMeetup}
+                    />
                 )}
 
                 {AlertDelete}
@@ -1229,7 +1255,15 @@ const MeetupPage = () => {
 export default MeetupPage;
 
 const ViewComponent = React.memo(
-    ({ liveMeetup }: { liveMeetup: Meetup }) => (
+    ({
+        liveMeetup,
+        showOnlyFull,
+        setShowOnlyFull,
+    }: {
+        liveMeetup: Meetup;
+        showOnlyFull: boolean;
+        setShowOnlyFull: React.Dispatch<React.SetStateAction<boolean>>;
+    }) => (
         <Stack spacing={4} justifyContent="left">
             <Box height="80px">
                 <Heading fontSize="lg"> 👥 Others' availability </Heading>
@@ -1242,7 +1276,11 @@ const ViewComponent = React.memo(
                             {" "}
                             Show only full attendance
                         </FormLabel>
-                        <Switch id="show-full" />
+                        <Switch
+                            checked={showOnlyFull}
+                            onChange={(e) => setShowOnlyFull(e.target.checked)}
+                            id="show-full"
+                        />
                     </Flex>
                 </FormControl>
             </Box>
@@ -1257,7 +1295,8 @@ const ViewComponent = React.memo(
     (prevProps, nextProps) => {
         return (
             prevProps.liveMeetup.last_updated ===
-            nextProps.liveMeetup.last_updated
+                nextProps.liveMeetup.last_updated &&
+            prevProps.showOnlyFull === nextProps.showOnlyFull
         );
     }
 );
