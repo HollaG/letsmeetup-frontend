@@ -701,48 +701,98 @@ const MeetupEditPage = () => {
                         remove users who have already indicated!
                     </Alert>
                     {user && (
-                        <FormControl>
-                            <Flex
-                                justifyContent={"space-between"}
-                                alignItems="center"
-                            >
-                                <Box>
-                                    <FormLabel
-                                        htmlFor="settings-notification"
-                                        m={0}
-                                    >
-                                        {" "}
-                                        Send a notification when number of users
-                                        hits:{" "}
-                                    </FormLabel>
-                                    <HelperText>
-                                        {" "}
-                                        Default: No notification{" "}
-                                    </HelperText>
-                                </Box>
-                                <Box>
-                                    <InputGroup size="sm">
-                                        <NumberInput
-                                            id="settings-notification"
-                                            width="72px"
-                                            value={notificationThreshold}
-                                            onChange={(e) => {
-                                                setNotificationThreshold(
-                                                    parseInt(e)
-                                                );
-                                            }}
-                                            min={1}
+                        <>
+                            <FormControl>
+                                <Flex
+                                    justifyContent={"space-between"}
+                                    alignItems="center"
+                                >
+                                    <Box>
+                                        <FormLabel
+                                            htmlFor="settings-notification"
+                                            m={0}
                                         >
-                                            <NumberInputField />
-                                            <NumberInputStepper>
-                                                <NumberIncrementStepper />
-                                                <NumberDecrementStepper />
-                                            </NumberInputStepper>
-                                        </NumberInput>
-                                    </InputGroup>
-                                </Box>
-                            </Flex>
-                        </FormControl>
+                                            {" "}
+                                            Send a notification when number of
+                                            users hits:{" "}
+                                        </FormLabel>
+                                        <HelperText>
+                                            {" "}
+                                            Default: No notification{" "}
+                                        </HelperText>
+                                    </Box>
+                                    <Box>
+                                        <InputGroup size="sm">
+                                            <NumberInput
+                                                id="settings-notification"
+                                                width="72px"
+                                                value={notificationThreshold}
+                                                onChange={(e) => {
+                                                    setNotificationThreshold(
+                                                        parseInt(e)
+                                                    );
+                                                }}
+                                                min={1}
+                                            >
+                                                <NumberInputField />
+                                                <NumberInputStepper>
+                                                    <NumberIncrementStepper />
+                                                    <NumberDecrementStepper />
+                                                </NumberInputStepper>
+                                            </NumberInput>
+                                        </InputGroup>
+                                    </Box>
+                                </Flex>
+                            </FormControl>
+                            <FormControl>
+                                <Flex
+                                    justifyContent={"space-between"}
+                                    alignItems="center"
+                                >
+                                    <Box>
+                                        <FormLabel
+                                            m={0}
+                                            htmlFor="settings-notify-every-response"
+                                        >
+                                            Recieve a notification on every
+                                            update
+                                        </FormLabel>
+                                        <HelperText>
+                                            {" "}
+                                            Default: None. Be aware that this
+                                            can easily lead to spam from the
+                                            bot!
+                                        </HelperText>
+                                    </Box>
+                                    <Box>
+                                        <InputGroup size="lg">
+                                            <Checkbox
+                                                id="settings-notify-every-response"
+                                                isChecked={
+                                                    notifyOnEveryResponse !== 0
+                                                }
+                                                onChange={(e) =>
+                                                    setNotifyOnEveryResponse(
+                                                        e.target.checked ? 1 : 0
+                                                    )
+                                                }
+                                                sx={{
+                                                    "span.chakra-checkbox__control[data-checked]":
+                                                        {
+                                                            backgroundColor:
+                                                                style?.button_color,
+                                                        },
+                                                    // "span.chakra-switch__track:not([data-checked])": {
+                                                    //     backgroundColor:
+                                                    //         style?.secondary_bg_color,
+                                                    // },
+                                                }}
+                                            />
+                                        </InputGroup>
+                                    </Box>
+                                </Flex>
+                            </FormControl>
+                        </>
                     )}
                     <FormControl>
                         <Flex
@@ -870,50 +920,6 @@ const MeetupEditPage = () => {
                                             setEndAt(e.target.value)
                                         }
                                         min={format(new Date(), "yyyy-MM-dd")}
-                                    />
-                                </InputGroup>
-                            </Box>
-                        </Flex>
-                    </FormControl>
-                    <FormControl>
-                        <Flex
-                            justifyContent={"space-between"}
-                            alignItems="center"
-                        >
-                            <Box>
-                                <FormLabel
-                                    m={0}
-                                    htmlFor="settings-notify-every-response"
-                                >
-                                    Recieve a notification on every update
-                                </FormLabel>
-                                <HelperText>
-                                    {" "}
-                                    Default: None. Be aware that this can easily
-                                    lead to spam from the bot!
-                                </HelperText>
-                            </Box>
-                            <Box>
-                                <InputGroup size="lg">
-                                    <Checkbox
-                                        id="settings-notify-every-response"
-                                        isChecked={notifyOnEveryResponse !== 0}
-                                        onChange={(e) =>
-                                            setNotifyOnEveryResponse(
-                                                e.target.checked ? 1 : 0
-                                            )
-                                        }
-                                        sx={{
-                                            "span.chakra-checkbox__control[data-checked]":
-                                                {
-                                                    backgroundColor:
-                                                        style?.button_color,
-                                                },
-                                            // "span.chakra-switch__track:not([data-checked])": {
-                                            //     backgroundColor:
-                                            //         style?.secondary_bg_color,
-                                            // },
-                                        }}
                                     />
                                 </InputGroup>
                             </Box>

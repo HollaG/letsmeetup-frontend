@@ -1094,25 +1094,26 @@ const MeetupPage = () => {
                                         />
                                         <Divider />
                                         {/* This section is for web users only; let them input a name if they don't have one. */}
-                                        {(!webUser || !webUser.first_name) && (
-                                            <Box>
-                                                <Input
-                                                    placeholder={
-                                                        "Your name (required)"
-                                                    }
-                                                    onChange={(e) =>
-                                                        setTempName(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    value={tempName}
-                                                />
-                                                <HelperText>
-                                                    Your name will help the
-                                                    creator identify you!
-                                                </HelperText>
-                                            </Box>
-                                        )}
+                                        {(!webUser || !webUser.first_name) &&
+                                            !user && (
+                                                <Box>
+                                                    <Input
+                                                        placeholder={
+                                                            "Your name (required)"
+                                                        }
+                                                        onChange={(e) =>
+                                                            setTempName(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        value={tempName}
+                                                    />
+                                                    <HelperText>
+                                                        Your name will help the
+                                                        creator identify you!
+                                                    </HelperText>
+                                                </Box>
+                                            )}
                                         {!user && (
                                             <Center>
                                                 <FancyButton
