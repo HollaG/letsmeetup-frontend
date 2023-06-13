@@ -184,6 +184,7 @@ export default function CallToActionWithIllustration({
                         src={"/images/homepage2.svg"}
                         height={{ sm: "28rem", lg: "32rem" }}
                         mt={{ base: 12, sm: 16 }}
+                        alt="Illustration of a person scheduling a meeting"
                     />
                 </Flex>
             </Stack>

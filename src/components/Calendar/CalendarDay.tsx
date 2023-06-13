@@ -158,7 +158,12 @@ const CalendarDay = ({
     const nextDateStr = dateEncoder(addDays(dateParser(dataKey), 1));
 
     return (
-        <Box data-key={dataKey} className={`${getClassName()}`} width="100%">
+        <Box
+            aria-disabled={!isSelectable}
+            data-key={dataKey}
+            className={`${getClassName()}`}
+            width="100%"
+        >
             <Square
                 bg={getBgColor()}
                 size="36px"

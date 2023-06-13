@@ -64,6 +64,7 @@ const TimeRangeSelector = ({
                 <Text mr="-2"> 11:59 pm </Text>
             </Flex>
             <RangeSlider
+                aria-label={["Earliest timing", "Latest timing"]}
                 defaultValue={[9 * 60, 17 * 60]}
                 min={start}
                 max={end}

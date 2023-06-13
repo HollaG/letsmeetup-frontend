@@ -1,11 +1,4 @@
-import {
-    Button,
-    Center,
-    Heading,
-    Image,
-    Stack,
-    Text,
-} from "@chakra-ui/react";
+import { Button, Center, Heading, Image, Stack, Text } from "@chakra-ui/react";
 import { isRouteErrorResponse, Link, useRouteError } from "react-router-dom";
 
 export default function ErrorPage() {
@@ -20,6 +13,7 @@ export default function ErrorPage() {
                     maxW={"400px"}
                     w="100%"
                     mx={"auto"}
+                    alt="Error image"
                 />
                 <Heading
                     fontSize={"8xl"}

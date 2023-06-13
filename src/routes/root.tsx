@@ -52,7 +52,11 @@ const Root = () => {
                 </Center>
                 {showSecondIllustration && (
                     <Center>
-                        <Image src="/images/homepage3.svg" maxW="350px" />
+                        <Image
+                            src="/images/homepage3.svg"
+                            maxW="350px"
+                            alt="Illustration of people having questions"
+                        />
                     </Center>
                 )}
             </SimpleGrid>

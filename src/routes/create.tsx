@@ -14,6 +14,8 @@ import {
     Collapse,
     Container,
     Flex,
+    FormControl,
+    FormLabel,
     Heading,
     Input,
     InputGroup,
@@ -480,25 +482,39 @@ const Create = () => {
                             {" "}
                             🕔 What times do you want to have it on?
                         </Heading>
-                        <Flex direction={"row"} justifyContent="space-between">
-                            <Text> Set as full day </Text>
-                            <Switch
-                                isChecked={isFullDay}
-                                onChange={(e) => {
-                                    setIsFullDay(e.target.checked);
-                                }}
-                                // colorScheme={"#ffffff"}
-                                sx={{
-                                    "span.chakra-switch__track[data-checked]": {
-                                        backgroundColor: btnColor,
-                                    },
-                                    // "span.chakra-switch__track:not([data-checked])": {
-                                    //     backgroundColor:
-                                    //         style?.secondary_bg_color,
-                                    // },
-                                }}
-                            />
-                        </Flex>
+                        <FormControl>
+                            <Flex
+                                direction={"row"}
+                                justifyContent="space-between"
+                            >
+                                <FormLabel
+                                    htmlFor="isFullDay"
+                                    cursor="pointer"
+                                    m={0}
+                                >
+                                    {" "}
+                                    Set as full day{" "}
+                                </FormLabel>
+                                <Switch
+                                    id="isFullDay"
+                                    isChecked={isFullDay}
+                                    onChange={(e) => {
+                                        setIsFullDay(e.target.checked);
+                                    }}
+                                    // colorScheme={"#ffffff"}
+                                    sx={{
+                                        "span.chakra-switch__track[data-checked]":
+                                            {
+                                                backgroundColor: btnColor,
+                                            },
+                                        // "span.chakra-switch__track:not([data-checked])": {
+                                        //     backgroundColor:
+                                        //         style?.secondary_bg_color,
+                                        // },
+                                    }}
+                                />
+                            </Flex>
+                        </FormControl>
                     </Stack>
                     <Collapse in={!isFullDay}>
                         <TimeContainer
@@ -528,28 +544,71 @@ const Create = () => {
                             </HelperText>
                         </Box>
                         {user && (
+                            <FormControl>
+                                <Flex
+                                    justifyContent={"space-between"}
+                                    alignItems="center"
+                                >
+                                    <Box>
+                                        <FormLabel
+                                            htmlFor="settings-notification"
+                                            m={0}
+                                        >
+                                            {" "}
+                                            Send a notification when number of
+                                            users hits:{" "}
+                                        </FormLabel>
+                                        <HelperText>
+                                            {" "}
+                                            Default: No notification{" "}
+                                        </HelperText>
+                                    </Box>
+                                    <Box>
+                                        <InputGroup size="sm">
+                                            <NumberInput
+                                                id="settings-notification"
+                                                width="72px"
+                                                value={notificationThreshold}
+                                                onChange={(e) => {
+                                                    setNotificationThreshold(
+                                                        parseInt(e)
+                                                    );
+                                                }}
+                                                min={1}
+                                            >
+                                                <NumberInputField />
+                                                <NumberInputStepper>
+                                                    <NumberIncrementStepper />
+                                                    <NumberDecrementStepper />
+                                                </NumberInputStepper>
+                                            </NumberInput>
+                                        </InputGroup>
+                                    </Box>
+                                </Flex>
+                            </FormControl>
+                        )}
+                        <FormControl>
                             <Flex
                                 justifyContent={"space-between"}
                                 alignItems="center"
                             >
                                 <Box>
-                                    <Text>
-                                        {" "}
-                                        Send a notification when number of users
-                                        hits:{" "}
-                                    </Text>
-                                    <HelperText>
-                                        {" "}
-                                        Default: No notification{" "}
-                                    </HelperText>
+                                    <FormLabel
+                                        htmlFor="settings-limit-users"
+                                        m={0}
+                                    >
+                                        Limit the number of users to:
+                                    </FormLabel>
+                                    <HelperText> Default: No limit</HelperText>
                                 </Box>
                                 <Box>
                                     <InputGroup size="sm">
                                         <NumberInput
+                                            id="settings-limit-users"
                                             width="72px"
-                                            value={notificationThreshold}
+                                            value={limitNumberRespondents}
                                             onChange={(e) => {
-                                                setNotificationThreshold(
+                                                setLimitNumberRespondents(
                                                     parseInt(e)
                                                 );
                                             }}
@@ -564,37 +623,7 @@ const Create = () => {
                                     </InputGroup>
                                 </Box>
                             </Flex>
-                        )}
-
-                        <Flex
-                            justifyContent={"space-between"}
-                            alignItems="center"
-                        >
-                            <Box>
-                                <Text> Limit the number of users to: </Text>
-                                <HelperText> Default: No limit</HelperText>
-                            </Box>
-                            <Box>
-                                <InputGroup size="sm">
-                                    <NumberInput
-                                        width="72px"
-                                        value={limitNumberRespondents}
-                                        onChange={(e) => {
-                                            setLimitNumberRespondents(
-                                                parseInt(e)
-                                            );
-                                        }}
-                                        min={1}
-                                    >
-                                        <NumberInputField />
-                                        <NumberInputStepper>
-                                            <NumberIncrementStepper />
-                                            <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                    </NumberInput>
-                                </InputGroup>
-                            </Box>
-                        </Flex>
+                        </FormControl>
 
                         {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
@@ -627,61 +656,74 @@ const Create = () => {
                         </InputGroup>
                     </Box>
                 </Flex> */}
-
-                        <Flex
-                            justifyContent={"space-between"}
-                            alignItems="center"
-                        >
-                            <Box>
-                                <Text>
-                                    {" "}
-                                    Limit the number of users per slot to:{" "}
-                                </Text>
-                                <HelperText> Default: No limit </HelperText>
-                            </Box>
-                            <Box>
-                                <InputGroup size="sm">
-                                    <NumberInput
-                                        width="72px"
-                                        value={limitPerSlot}
-                                        onChange={(e) => {
-                                            setLimitPerSlot(parseInt(e));
-                                        }}
-                                        min={1}
+                        <FormControl>
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                            >
+                                <Box>
+                                    <FormLabel
+                                        m={0}
+                                        htmlFor="settings-limit-per-slot"
                                     >
-                                        <NumberInputField />
-                                        <NumberInputStepper>
-                                            <NumberIncrementStepper />
-                                            <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                    </NumberInput>
-                                </InputGroup>
-                            </Box>
-                        </Flex>
-                        <Flex
-                            justifyContent={"space-between"}
-                            alignItems="center"
-                        >
-                            <Box>
-                                <Text> Automatically end meetup on:</Text>
-                                <HelperText>
-                                    {" "}
-                                    Default: 1 year from now{" "}
-                                </HelperText>
-                            </Box>
-                            <Box>
-                                <InputGroup size="sm">
-                                    <Input
-                                        type="date"
-                                        value={endAt}
-                                        onChange={(e) =>
-                                            setEndAt(e.target.value)
-                                        }
-                                        min={format(new Date(), "yyyy-MM-dd")}
-                                    />
-                                </InputGroup>
-                            </Box>
-                        </Flex>
+                                        {" "}
+                                        Limit the number of users per slot to:{" "}
+                                    </FormLabel>
+                                    <HelperText> Default: No limit </HelperText>
+                                </Box>
+                                <Box>
+                                    <InputGroup size="sm">
+                                        <NumberInput
+                                            id="settings-limit-per-slot"
+                                            width="72px"
+                                            value={limitPerSlot}
+                                            onChange={(e) => {
+                                                setLimitPerSlot(parseInt(e));
+                                            }}
+                                            min={1}
+                                        >
+                                            <NumberInputField />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                    </InputGroup>
+                                </Box>
+                            </Flex>
+                        </FormControl>
+                        <FormControl>
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                            >
+                                <Box>
+                                    <FormLabel m={0} htmlFor="settings-end-at">
+                                        Automatically end meetup on:
+                                    </FormLabel>
+                                    <HelperText>
+                                        {" "}
+                                        Default: 1 year from now{" "}
+                                    </HelperText>
+                                </Box>
+                                <Box>
+                                    <InputGroup size="sm">
+                                        <Input
+                                            id="settings-end-at"
+                                            type="date"
+                                            value={endAt}
+                                            onChange={(e) =>
+                                                setEndAt(e.target.value)
+                                            }
+                                            min={format(
+                                                new Date(),
+                                                "yyyy-MM-dd"
+                                            )}
+                                        />
+                                    </InputGroup>
+                                </Box>
+                            </Flex>
+                        </FormControl>
                     </Stack>{" "}
                 </Container>
 

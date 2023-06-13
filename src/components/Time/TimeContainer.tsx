@@ -2,9 +2,10 @@ import {
     Box,
     Collapse,
     Flex,
+    FormControl,
+    FormLabel,
     Stack,
     Switch,
-    Text,
     useColorModeValue,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
@@ -418,23 +419,33 @@ const TimeContainer = ({
                     setTime={setTime}
                 />
 
-                <Flex direction={"row"} justifyContent="space-between">
-                    <Text> Set time per day </Text>
-                    <Switch
-                        isChecked={showIndividualTimes}
-                        onChange={toggleIndividualTime}
-                        // https://github.com/chakra-ui/chakra-ui/discussions/6140
-                        sx={{
-                            "span.chakra-switch__track[data-checked]": {
-                                backgroundColor: btnColor,
-                            },
-                            // "span.chakra-switch__track:not([data-checked])": {
-                            //     backgroundColor:
-                            //         style?.secondary_bg_color,
-                            // },
-                        }}
-                    />
-                </Flex>
+                <FormControl>
+                    <Flex direction={"row"} justifyContent="space-between">
+                        <FormLabel
+                            htmlFor="showIndividualTimes"
+                            cursor="pointer"
+                            m={0}
+                        >
+                            {" "}
+                            Set time per day{" "}
+                        </FormLabel>
+                        <Switch
+                            id="showIndividualTimes"
+                            isChecked={showIndividualTimes}
+                            onChange={toggleIndividualTime}
+                            // https://github.com/chakra-ui/chakra-ui/discussions/6140
+                            sx={{
+                                "span.chakra-switch__track[data-checked]": {
+                                    backgroundColor: btnColor,
+                                },
+                                // "span.chakra-switch__track:not([data-checked])": {
+                                //     backgroundColor:
+                                //         style?.secondary_bg_color,
+                                // },
+                            }}
+                        />
+                    </Flex>{" "}
+                </FormControl>
             </Stack>
             <Collapse in={showIndividualTimes} unmountOnExit>
                 <TimeSelector

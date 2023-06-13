@@ -11,10 +11,7 @@ import {
     Stack,
     useMediaQuery,
 } from "@chakra-ui/react";
-import {
-    FaGithub,
-    FaLinkedin,
-} from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
 
@@ -58,10 +55,18 @@ const Footer = () => {
             <GridItem>
                 <Flex justifyContent={"left"} alignItems="center">
                     <HStack spacing={{ base: 2, md: 6 }}>
-                        <NavLink isExternal href="https://marcussoh.com">
+                        <NavLink
+                            isExternal
+                            href="https://marcussoh.com"
+                            aria-label="Marcus Soh's website"
+                        >
                             by Marcus Soh (2023)
                         </NavLink>
-                        <NavLink isExternal href="https://github.com/HollaG">
+                        <NavLink
+                            isExternal
+                            href="https://github.com/HollaG"
+                            aria-label="Marcus Soh's Github"
+                        >
                             <Center>
                                 <Icon as={FaGithub} />
                             </Center>
@@ -69,6 +74,7 @@ const Footer = () => {
                         <NavLink
                             isExternal
                             href="https://www.linkedin.com/in/marcussoh1/"
+                            aria-label="Marcus Soh's LinkedIn"
                         >
                             <Center>
                                 <Icon as={FaLinkedin} />
@@ -104,10 +110,18 @@ const Footer = () => {
                 </NavLink>
             </Stack>
             <HStack spacing={2}>
-                <NavLink isExternal href="https://marcussoh.com">
+                <NavLink
+                    isExternal
+                    href="https://marcussoh.com"
+                    aria-label="Marcus Soh's website"
+                >
                     by Marcus Soh (2023)
                 </NavLink>
-                <NavLink isExternal href="https://github.com/HollaG">
+                <NavLink
+                    isExternal
+                    href="https://github.com/HollaG"
+                    aria-label="Marcus Soh's Github"
+                >
                     <Center>
                         <Icon as={FaGithub} />
                     </Center>
@@ -115,6 +129,7 @@ const Footer = () => {
                 <NavLink
                     isExternal
                     href="https://www.linkedin.com/in/marcussoh1/"
+                    aria-label="Marcus Soh's LinkedIn"
                 >
                     <Center>
                         <Icon as={FaLinkedin} />
