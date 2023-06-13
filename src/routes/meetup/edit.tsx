@@ -273,6 +273,7 @@ const MeetupEditPage = () => {
                 notifyOnEveryResponse: notifyOnEveryResponseRef.current ?? 0,
             },
             users: newUsers,
+
             // creatorInfoMessageId: 0,
         };
 

@@ -33,6 +33,10 @@ import {
     Tag,
     Wrap,
     WrapItem,
+    FormControl,
+    FormLabel,
+    Switch,
+    Collapse,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
 import React, { useEffect, useState } from "react";
@@ -318,6 +322,13 @@ const MeetupPage = () => {
             .map(String);
 
     /**
+     * Whether the user can make it or not
+     */
+    const [cannotMakeIt, setCannotMakeIt, cannotMakeItRef] = useStateRef(
+        meetup.cannotMakeIt.some((u) => u.user?.id === userId)
+    );
+
+    /**
      * Tracks the previous times selected for comparison against when we
      * add / remove items by dragging
      *
@@ -530,10 +541,11 @@ const MeetupPage = () => {
             meetupId,
             user,
             {
-                datesSelected: datesRef.current,
-                timesSelected: timesRef.current.filter((t) =>
+                _datesSelected: datesRef.current,
+                _timesSelected: timesRef.current.filter((t) =>
                     datesRef.current.includes(removeTime(t))
                 ),
+                cannotMakeIt: cannotMakeItRef.current,
             },
             commentsRef.current
         );
@@ -694,10 +706,11 @@ const MeetupPage = () => {
                 meetupId,
                 tWebUser,
                 {
-                    datesSelected: datesRef.current,
-                    timesSelected: timesRef.current.filter((t) =>
+                    _datesSelected: datesRef.current,
+                    _timesSelected: timesRef.current.filter((t) =>
                         datesRef.current.includes(removeTime(t))
                     ),
+                    cannotMakeIt: cannotMakeItRef.current,
                 },
                 commentsRef.current
             );
@@ -1042,51 +1055,95 @@ const MeetupPage = () => {
                                                 and drag to select.
                                             </HelperText>
                                         </Box>
-                                        <CalendarContainer
-                                            datesSelected={datesSelected}
-                                            setDatesSelected={setDatesSelected}
-                                            startDate={startDate}
-                                            endDate={endDate}
-                                            allowedDates={
-                                                meetup.isFullDay
-                                                    ? totalAllowedSlots
-                                                    : meetup.dates
-                                            }
-                                            onStop={onStopDate}
-                                            onBeforeStart={onBeforeStartDate}
-                                        />
-                                        {!meetup.isFullDay && (
-                                            <>
-                                                <TimeSelector
-                                                    classNameGenerator={
-                                                        classNameGenerator
-                                                    }
-                                                    datesSelected={
-                                                        staticDatesSelected
-                                                    }
-                                                    deselectAll={
-                                                        deselectAllTimes
-                                                    }
-                                                    endMin={endMin}
-                                                    startMin={startMin}
-                                                    isSelectedCell={
-                                                        isSelectedCell
-                                                    }
-                                                    selectAll={selectAllTimes}
-                                                    timesSelected={
-                                                        timesRef.current
-                                                    }
-                                                    onBeforeStart={
-                                                        onBeforeStartTime
-                                                    }
-                                                    onMove={onMoveTime}
-                                                    allowedTimes={
-                                                        totalAllowedSlots
-                                                    }
-                                                    onStop={onStopTime}
+                                        <FormControl>
+                                            <Flex
+                                                justifyContent={"space-between"}
+                                            >
+                                                <FormLabel
+                                                    htmlFor="cannot-make-it"
+                                                    m={0}
+                                                >
+                                                    {" "}
+                                                    I cannot make it{" "}
+                                                </FormLabel>
+                                                <Switch
+                                                    colorScheme={"red"}
+                                                    id="cannot-make-it"
+                                                    checked={cannotMakeIt}
+                                                    onChange={(e) => {
+                                                        setCannotMakeIt(
+                                                            e.target.checked
+                                                        );
+                                                        setHasDataChanged(true);
+                                                    }}
                                                 />
-                                            </>
-                                        )}
+                                            </Flex>
+                                        </FormControl>
+                                        <Box>
+                                            <Collapse in={!cannotMakeIt}>
+                                                <Stack spacing={4}>
+                                                    <CalendarContainer
+                                                        datesSelected={
+                                                            datesSelected
+                                                        }
+                                                        setDatesSelected={
+                                                            setDatesSelected
+                                                        }
+                                                        startDate={startDate}
+                                                        endDate={endDate}
+                                                        allowedDates={
+                                                            meetup.isFullDay
+                                                                ? totalAllowedSlots
+                                                                : meetup.dates
+                                                        }
+                                                        onStop={onStopDate}
+                                                        onBeforeStart={
+                                                            onBeforeStartDate
+                                                        }
+                                                    />
+                                                    {!meetup.isFullDay && (
+                                                        <>
+                                                            <TimeSelector
+                                                                classNameGenerator={
+                                                                    classNameGenerator
+                                                                }
+                                                                datesSelected={
+                                                                    staticDatesSelected
+                                                                }
+                                                                deselectAll={
+                                                                    deselectAllTimes
+                                                                }
+                                                                endMin={endMin}
+                                                                startMin={
+                                                                    startMin
+                                                                }
+                                                                isSelectedCell={
+                                                                    isSelectedCell
+                                                                }
+                                                                selectAll={
+                                                                    selectAllTimes
+                                                                }
+                                                                timesSelected={
+                                                                    timesRef.current
+                                                                }
+                                                                onBeforeStart={
+                                                                    onBeforeStartTime
+                                                                }
+                                                                onMove={
+                                                                    onMoveTime
+                                                                }
+                                                                allowedTimes={
+                                                                    totalAllowedSlots
+                                                                }
+                                                                onStop={
+                                                                    onStopTime
+                                                                }
+                                                            />
+                                                        </>
+                                                    )}
+                                                </Stack>
+                                            </Collapse>
+                                        </Box>
                                         <Input
                                             placeholder="Add your comments (optional)"
                                             value={comments}
@@ -1162,11 +1219,20 @@ export default MeetupPage;
 const ViewComponent = React.memo(
     ({ liveMeetup }: { liveMeetup: Meetup }) => (
         <Stack spacing={4} justifyContent="left">
-            <Box height="40px">
+            <Box height="80px">
                 <Heading fontSize="lg"> 👥 Others' availability </Heading>
                 <Center>
                     <ColorExplainer numTotal={liveMeetup.users.length} />
                 </Center>
+                <FormControl>
+                    <Flex justifyContent={"space-between"}>
+                        <FormLabel htmlFor="show-full" m={0}>
+                            {" "}
+                            Show only full attendance
+                        </FormLabel>
+                        <Switch id="show-full" />
+                    </Flex>
+                </FormControl>
             </Box>
             <CalendarDisplay meetup={liveMeetup} />
             {!liveMeetup.isFullDay && <ByTimeList meetup={liveMeetup} />}

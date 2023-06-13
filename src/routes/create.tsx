@@ -204,6 +204,7 @@ const Create = () => {
                 notifyOnEveryResponse: notifyOnEveryResponseRef.current || 0,
             },
             creatorInfoMessageId: 0,
+            cannotMakeIt: [],
         };
 
         console.log({ MeetupData });
@@ -418,6 +419,7 @@ const Create = () => {
                     // but we can put it in for now
                 },
                 creatorInfoMessageId: 0,
+                cannotMakeIt: [],
             };
 
             const meetup = await create(MeetupData);
