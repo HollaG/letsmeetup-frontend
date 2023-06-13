@@ -154,6 +154,8 @@ export const updateAvailability = async (
         throw new Error("Meetup not found");
     }
 
+    user.id = user.id.toString();
+
     const oldUsers = oldMeetup.users;
     const isFullDay = oldMeetup.isFullDay;
 

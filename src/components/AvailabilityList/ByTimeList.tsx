@@ -45,7 +45,6 @@ import {
 } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
 import { convertMinutesToAmPm } from "../Time/TimeSelector";
-import CommentsDisplay from "./common/CommentsDisplay";
 import DisplayBox from "./common/DisplayBox";
 
 type ByTimeListProps = {
@@ -475,7 +474,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
             ])}
             <GridItem colSpan={3} mb={3}>
                 <Divider borderWidth={"2px"} mb={3} />
-                <CommentsDisplay meetup={meetup} />
+                {/* <CommentsDisplay meetup={meetup} /> */}
             </GridItem>
         </Grid>
     );

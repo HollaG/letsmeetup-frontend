@@ -34,12 +34,9 @@ import {
     RANGE_FULL_DARK,
 } from "../../lib/std";
 import { ITelegramUser } from "../../types/telegram";
-import {
-    aC,
-    RangeColors,
-} from "../../utils/availabilityList.utils";
+import { aC, RangeColors } from "../../utils/availabilityList.utils";
 import { dateParser } from "../Calendar/CalendarContainer";
-import CommentsDisplay from "./common/CommentsDisplay";
+
 import DisplayBox from "./common/DisplayBox";
 
 const CELL_WIDTH = "36px";
@@ -260,7 +257,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                 // alignItems="center"
                 mb={3}
             >
-                <CommentsDisplay meetup={meetup} />
+                {/* <CommentsDisplay meetup={meetup} /> */}
             </GridItem>
         </Grid>
     );

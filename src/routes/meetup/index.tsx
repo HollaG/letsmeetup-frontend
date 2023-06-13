@@ -75,6 +75,7 @@ import { FaShare } from "react-icons/fa";
 import FancyButton from "../../components/Buttons/FancyButton";
 import { format, isBefore } from "date-fns/esm";
 import { Timestamp } from "firebase/firestore";
+import UsersDisplay from "../../components/AvailabilityList/common/UsersDisplay";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -325,9 +326,12 @@ const MeetupPage = () => {
      * Whether the user can make it or not
      */
     const [cannotMakeIt, setCannotMakeIt, cannotMakeItRef] = useStateRef(
-        meetup.cannotMakeIt.some((u) => u.user?.id === userId)
+        liveMeetup.cannotMakeIt.some(
+            (u) => u.user?.id.toString() === userId.toString()
+        )
     );
 
+    console.log(cannotMakeIt);
     /**
      * Tracks the previous times selected for comparison against when we
      * add / remove items by dragging
@@ -553,7 +557,10 @@ const MeetupPage = () => {
     };
 
     const [comments, setComments, commentsRef] = useStateRef<string>(
-        meetup.users.find((u) => u.user.id === userId)?.comments || ""
+        meetup.users.find((u) => u.user.id.toString() === userId)?.comments ||
+            meetup.cannotMakeIt.find((u) => u.user.id.toString() === userId)
+                ?.comments ||
+            ""
     );
     /**
      * Controlled component for the comments input
@@ -1076,6 +1083,11 @@ const MeetupPage = () => {
                                                         );
                                                         setHasDataChanged(true);
                                                     }}
+                                                    defaultChecked={meetup.cannotMakeIt.some(
+                                                        (u) =>
+                                                            u.user?.id.toString() ===
+                                                            userId.toString()
+                                                    )}
                                                 />
                                             </Flex>
                                         </FormControl>
@@ -1235,8 +1247,11 @@ const ViewComponent = React.memo(
                 </FormControl>
             </Box>
             <CalendarDisplay meetup={liveMeetup} />
+
             {!liveMeetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
             {liveMeetup.isFullDay && <ByDateList meetup={liveMeetup} />}
+
+            <UsersDisplay meetup={liveMeetup} />
         </Stack>
     ),
     (prevProps, nextProps) => {
