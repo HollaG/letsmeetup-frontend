@@ -926,7 +926,34 @@ const MeetupPage = () => {
                     <Stack>
                         <Heading fontSize={"lg"}> ⚙️ Meetup options </Heading>
                         <Wrap>
-                            {" "}
+                            {user &&
+                                liveMeetup.options.notificationThreshold !==
+                                    Number.MAX_VALUE && (
+                                    <WrapItem>
+                                        <Tag size={{ base: "sm", md: "md" }}>
+                                            {" "}
+                                            Notify at response #:{" "}
+                                            {
+                                                liveMeetup.options
+                                                    .notificationThreshold
+                                            }{" "}
+                                        </Tag>{" "}
+                                    </WrapItem>
+                                )}
+                            {user &&
+                                liveMeetup.options.notifyOnEveryResponse !==
+                                    0 && (
+                                    <WrapItem>
+                                        <Tag size={{ base: "sm", md: "md" }}>
+                                            {" "}
+                                            Receive notification on:
+                                            {liveMeetup.options
+                                                .notifyOnEveryResponse === 1
+                                                ? " every update"
+                                                : " every new response"}{" "}
+                                        </Tag>{" "}
+                                    </WrapItem>
+                                )}
                             {liveMeetup.options.limitNumberRespondents !==
                                 Number.MAX_VALUE && (
                                 <WrapItem>

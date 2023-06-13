@@ -9,7 +9,6 @@ import {
     Switch,
     Collapse,
     InputGroup,
-    Text,
     Box,
     Alert,
     AlertIcon,
@@ -30,6 +29,7 @@ import {
     AlertDialogOverlay,
     Link as NavLink,
     FormLabel,
+    Checkbox,
 } from "@chakra-ui/react";
 import { format, parse } from "date-fns";
 import { addYears } from "date-fns/esm";
@@ -103,6 +103,9 @@ const MeetupEditPage = () => {
         initEndMin,
     ]); // in minutes
 
+    /**
+     * Advanced settings
+     */
     const [
         notificationThreshold,
         setNotificationThreshold,
@@ -146,6 +149,12 @@ const MeetupEditPage = () => {
             "yyyy-MM-dd"
         )
     );
+
+    const [
+        notifyOnEveryResponse,
+        setNotifyOnEveryResponse,
+        notifyOnEveryResponseRef,
+    ] = useStateRef<0 | 1 | 2>(loadedMeetup.options.notifyOnEveryResponse);
 
     // handle the form state TODO: replace with useStateRef
     useEffect(() => {
@@ -261,6 +270,7 @@ const MeetupEditPage = () => {
                 endAt: endAtRef.current
                     ? parse(endAtRef.current, "yyyy-MM-dd", new Date())
                     : addYears(new Date(), 1),
+                notifyOnEveryResponse: notifyOnEveryResponseRef.current ?? 0,
             },
             users: newUsers,
             // creatorInfoMessageId: 0,
@@ -691,31 +701,70 @@ const MeetupEditPage = () => {
                         remove users who have already indicated!
                     </Alert>
                     {user && (
+                        <FormControl>
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                            >
+                                <Box>
+                                    <FormLabel
+                                        htmlFor="settings-notification"
+                                        m={0}
+                                    >
+                                        {" "}
+                                        Send a notification when number of users
+                                        hits:{" "}
+                                    </FormLabel>
+                                    <HelperText>
+                                        {" "}
+                                        Default: No notification{" "}
+                                    </HelperText>
+                                </Box>
+                                <Box>
+                                    <InputGroup size="sm">
+                                        <NumberInput
+                                            id="settings-notification"
+                                            width="72px"
+                                            value={notificationThreshold}
+                                            onChange={(e) => {
+                                                setNotificationThreshold(
+                                                    parseInt(e)
+                                                );
+                                            }}
+                                            min={1}
+                                        >
+                                            <NumberInputField />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                    </InputGroup>
+                                </Box>
+                            </Flex>
+                        </FormControl>
+                    )}
+                    <FormControl>
                         <Flex
                             justifyContent={"space-between"}
                             alignItems="center"
                         >
                             <Box>
-                                <Text>
-                                    {" "}
-                                    Send a notification when number of users
-                                    hits:{" "}
-                                </Text>
-                                <HelperText>
-                                    {" "}
-                                    Default: No notification{" "}
-                                </HelperText>
+                                <FormLabel htmlFor="settings-limit-users" m={0}>
+                                    Limit the number of users to:
+                                </FormLabel>
+                                <HelperText> Default: No limit</HelperText>
                             </Box>
                             <Box>
                                 <InputGroup size="sm">
                                     <NumberInput
+                                        id="settings-limit-users"
                                         width="72px"
-                                        value={notificationThreshold}
+                                        value={limitNumberRespondents}
                                         onChange={(e) => {
-                                            setNotificationThreshold(
+                                            setLimitNumberRespondents(
                                                 parseInt(e)
                                             );
-                                            setUserCanSubmit(true);
                                         }}
                                         min={1}
                                     >
@@ -728,33 +777,7 @@ const MeetupEditPage = () => {
                                 </InputGroup>
                             </Box>
                         </Flex>
-                    )}
-
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text> Limit the number of users to: </Text>
-                            <HelperText> Default: No limit</HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <NumberInput
-                                    width="72px"
-                                    value={limitNumberRespondents}
-                                    onChange={(e) => {
-                                        setLimitNumberRespondents(parseInt(e));
-                                        setUserCanSubmit(true);
-                                    }}
-                                    min={1}
-                                >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            </InputGroup>
-                        </Box>
-                    </Flex>
+                    </FormControl>
 
                     {/* <Flex justifyContent={"space-between"} alignItems="center">
                     <Box>
@@ -787,57 +810,115 @@ const MeetupEditPage = () => {
                         </InputGroup>
                     </Box>
                 </Flex> */}
-
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text>
-                                {" "}
-                                Limit the number of users per slot to:{" "}
-                            </Text>
-                            <HelperText> Default: No limit </HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <NumberInput
-                                    width="72px"
-                                    value={limitPerSlot}
-                                    onChange={(e) => {
-                                        setUserCanSubmit(true);
-                                        setLimitPerSlot(parseInt(e));
-                                    }}
-                                    min={1}
+                    <FormControl>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <FormLabel
+                                    m={0}
+                                    htmlFor="settings-limit-per-slot"
                                 >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            </InputGroup>
-                        </Box>
-                    </Flex>
-                    <Flex justifyContent={"space-between"} alignItems="center">
-                        <Box>
-                            <Text> Automatically end meetup on:</Text>
-                            <HelperText>
-                                {" "}
-                                Default: 1 year from creation date{" "}
-                            </HelperText>
-                        </Box>
-                        <Box>
-                            <InputGroup size="sm">
-                                <Input
-                                    type="date"
-                                    value={endAt}
-                                    onChange={(e) => {
-                                        setEndAt(e.target.value);
-                                        setUserCanSubmit(true);
-                                    }}
-                                    min={format(new Date(), "yyyy-MM-dd")}
-                                />
-                            </InputGroup>
-                        </Box>
-                    </Flex>
+                                    {" "}
+                                    Limit the number of users per slot to:{" "}
+                                </FormLabel>
+                                <HelperText> Default: No limit </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <NumberInput
+                                        id="settings-limit-per-slot"
+                                        width="72px"
+                                        value={limitPerSlot}
+                                        onChange={(e) => {
+                                            setLimitPerSlot(parseInt(e));
+                                        }}
+                                        min={1}
+                                    >
+                                        <NumberInputField />
+                                        <NumberInputStepper>
+                                            <NumberIncrementStepper />
+                                            <NumberDecrementStepper />
+                                        </NumberInputStepper>
+                                    </NumberInput>
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    </FormControl>
+                    <FormControl>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <FormLabel m={0} htmlFor="settings-end-at">
+                                    Automatically end meetup on:
+                                </FormLabel>
+                                <HelperText>
+                                    {" "}
+                                    Default: 1 year from now{" "}
+                                </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="sm">
+                                    <Input
+                                        id="settings-end-at"
+                                        type="date"
+                                        value={endAt}
+                                        onChange={(e) =>
+                                            setEndAt(e.target.value)
+                                        }
+                                        min={format(new Date(), "yyyy-MM-dd")}
+                                    />
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    </FormControl>
+                    <FormControl>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Box>
+                                <FormLabel
+                                    m={0}
+                                    htmlFor="settings-notify-every-response"
+                                >
+                                    Recieve a notification on every update
+                                </FormLabel>
+                                <HelperText>
+                                    {" "}
+                                    Default: None. Be aware that this can easily
+                                    lead to spam from the bot!
+                                </HelperText>
+                            </Box>
+                            <Box>
+                                <InputGroup size="lg">
+                                    <Checkbox
+                                        id="settings-notify-every-response"
+                                        isChecked={notifyOnEveryResponse !== 0}
+                                        onChange={(e) =>
+                                            setNotifyOnEveryResponse(
+                                                e.target.checked ? 1 : 0
+                                            )
+                                        }
+                                        sx={{
+                                            "span.chakra-checkbox__control[data-checked]":
+                                                {
+                                                    backgroundColor:
+                                                        style?.button_color,
+                                                },
+                                            // "span.chakra-switch__track:not([data-checked])": {
+                                            //     backgroundColor:
+                                            //         style?.secondary_bg_color,
+                                            // },
+                                        }}
+                                    />
+                                </InputGroup>
+                            </Box>
+                        </Flex>
+                    </FormControl>
                 </Stack>
                 <Stack>
                     <Heading fontSize={"2xl"}>

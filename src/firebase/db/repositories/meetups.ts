@@ -54,6 +54,7 @@ export type Meetup = {
         limitNumberRespondents: number;
         limitSlotsPerRespondent: number;
         endAt: Date;
+        notifyOnEveryResponse: 0 | 1 | 2; // 0: don't notify, 1: notify everything, 2: notify new users
     };
 };
 
