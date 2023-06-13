@@ -29,6 +29,7 @@ import {
     AlertDialogHeader,
     AlertDialogOverlay,
     Link as NavLink,
+    FormLabel,
 } from "@chakra-ui/react";
 import { format, parse } from "date-fns";
 import { addYears } from "date-fns/esm";
@@ -625,25 +626,40 @@ const MeetupEditPage = () => {
                             {" "}
                             🕔 What times do you want to have it on?
                         </Heading>
-                        <Flex direction={"row"} justifyContent="space-between">
-                            <Text> Set as full day </Text>
-                            <Switch
-                                isChecked={isFullDay}
-                                onChange={(e) => {
-                                    setIsFullDay(e.target.checked);
-                                }}
-                                // colorScheme={"#ffffff"}
-                                sx={{
-                                    "span.chakra-switch__track[data-checked]": {
-                                        backgroundColor: btnColor,
-                                    },
-                                    // "span.chakra-switch__track:not([data-checked])": {
-                                    //     backgroundColor:
-                                    //         style?.secondary_bg_color,
-                                    // },
-                                }}
-                            />
-                        </Flex>
+
+                        <FormControl>
+                            <Flex
+                                direction={"row"}
+                                justifyContent="space-between"
+                            >
+                                <FormLabel
+                                    htmlFor="isFullDay"
+                                    cursor="pointer"
+                                    m={0}
+                                >
+                                    {" "}
+                                    Set as full day{" "}
+                                </FormLabel>
+                                <Switch
+                                    id="isFullDay"
+                                    isChecked={isFullDay}
+                                    onChange={(e) => {
+                                        setIsFullDay(e.target.checked);
+                                    }}
+                                    // colorScheme={"#ffffff"}
+                                    sx={{
+                                        "span.chakra-switch__track[data-checked]":
+                                            {
+                                                backgroundColor: btnColor,
+                                            },
+                                        // "span.chakra-switch__track:not([data-checked])": {
+                                        //     backgroundColor:
+                                        //         style?.secondary_bg_color,
+                                        // },
+                                    }}
+                                />
+                            </Flex>
+                        </FormControl>
                     </Stack>
                     <Collapse in={!isFullDay}>
                         <TimeContainer

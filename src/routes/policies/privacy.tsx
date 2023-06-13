@@ -8,7 +8,12 @@ const PrivacyPage = () => {
     return (
         <Stack spacing={4}>
             <Center>
-                <Image src="/images/privacy.svg" w="100%" maxW="600px" />
+                <Image
+                    src="/images/privacy.svg"
+                    w="100%"
+                    maxW="600px"
+                    alt="Image representing privacy"
+                />
             </Center>
             <Heading textAlign="center">Privacy Policy</Heading>
             <Divider />

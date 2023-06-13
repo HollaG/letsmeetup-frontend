@@ -25,6 +25,7 @@ const AboutPage = () => {
                     borderRadius={"16px"}
                     boxShadow="lg"
                     w="100%"
+                    alt="Look4Times logo"
                 />
             </Center>
             <Heading textAlign={"center"} fontFamily="Zilla Slab">

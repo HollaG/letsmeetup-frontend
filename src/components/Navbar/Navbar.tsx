@@ -75,6 +75,7 @@ export default function Nav() {
                                 src={"/logo192.png"}
                                 width="36px"
                                 height="36px"
+                                alt="Look4Times logo"
                             />{" "}
                             Look4Times
                         </Flex>
@@ -82,7 +83,11 @@ export default function Nav() {
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={5}>
-                            <Button onClick={toggleColorMode} variant="ghost">
+                            <Button
+                                onClick={toggleColorMode}
+                                variant="ghost"
+                                aria-label="Dark / Light mode toggle"
+                            >
                                 {colorMode === "light" ? (
                                     <MoonIcon />
                                 ) : (

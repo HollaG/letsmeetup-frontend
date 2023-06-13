@@ -8,7 +8,12 @@ const TermsPage = () => {
     return (
         <Stack spacing={4}>
             <Center>
-                <Image src="/images/terms.svg" w="100%" maxW="600px" />
+                <Image
+                    src="/images/terms.svg"
+                    w="100%"
+                    maxW="600px"
+                    alt="Image representing Terms and Conditions"
+                />
             </Center>
             <Heading textAlign="center">Terms and Conditions</Heading>
             <Divider />
