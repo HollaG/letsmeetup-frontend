@@ -5,10 +5,12 @@ import { RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK } from "../../../lib/std";
 import { aC } from "../../../utils/availabilityList.utils";
 
 const ColorExplainer = ({
+    numLeast,
     numTotal,
     setShowAbovePeople,
     showAbovePeople,
 }: {
+    numLeast: number;
     numTotal: number;
     setShowAbovePeople: (num: number) => void;
     showAbovePeople: number;
@@ -22,10 +24,12 @@ const ColorExplainer = ({
     const { style } = useTelegram();
     const bgColor = style?.bg_color ?? _bgColor;
 
-    // possible values: from 1 to numTotal (0 is never shown)
+    // possible values: from numLeast to numTotal (0 is never shown)
+    // numleast is the least number of people that can be available (might not always be 1, maybe all slots have at least 2 ppl)
+    // numTotal is the total number of people that can be available
     // naive implementation
     const possibleColors = new Set<string>();
-    for (let i = 1; i < numTotal + 1; i++) {
+    for (let i = numLeast; i < numTotal + 1; i++) {
         const color = aC(numTotal, i, fullColor, emptyColor, bgColor);
         possibleColors.add(color);
     }

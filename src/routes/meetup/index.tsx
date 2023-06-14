@@ -154,12 +154,24 @@ const MeetupPage = () => {
      */
     const [showAbovePeople, setShowAbovePeople] = useState<number>(1);
 
-    /**
-     * Similar to above, but because of rendering issues, we only want it to rerender when we're actually changing something, so:
-     */
-    // const [showAbovePeople, setShowAbovePeople] = useState<number>(0);
-
     let liveMeetup = _liveMeetup;
+
+    // calculate the most (best) slot, and the least (worst) slot (that is not 0)
+    let mostSelected = 0;
+    let leastSelected = Number.MAX_VALUE;
+    for (const dateTimeStr in liveMeetup.selectionMap) {
+        if (liveMeetup.selectionMap[dateTimeStr].length > mostSelected) {
+            mostSelected = liveMeetup.selectionMap[dateTimeStr].length;
+        }
+        if (liveMeetup.selectionMap[dateTimeStr].length < leastSelected) {
+            leastSelected = liveMeetup.selectionMap[dateTimeStr].length;
+        }
+    }
+
+    if (leastSelected === Number.MAX_VALUE) {
+        leastSelected = 1;
+    }
+
     // if the user only wants to see the slots that everyone has selected
     if (showAbovePeople) {
         const numUsers = Object.keys(liveMeetup.users).length;
@@ -931,6 +943,7 @@ const MeetupPage = () => {
                                 size="sm"
                                 rightIcon={<FaShare />}
                                 onClick={shareWeb}
+                                bgColor={style?.button_color}
                             >
                                 {" "}
                                 Share{" "}
@@ -942,6 +955,14 @@ const MeetupPage = () => {
                                     size="sm"
                                     colorScheme="purple"
                                     variant="outline"
+                                    borderColor={style?.button_color}
+                                    color={style?.button_color}
+                                    _hover={{
+                                        color: style?.link_color,
+                                    }}
+                                    _active={{
+                                        color: style?.link_color,
+                                    }}
                                 >
                                     Actions
                                 </MenuButton>
@@ -983,7 +1004,11 @@ const MeetupPage = () => {
                                 liveMeetup.options.notificationThreshold !==
                                     Number.MAX_VALUE && (
                                     <WrapItem>
-                                        <Tag size={{ base: "sm", md: "md" }}>
+                                        <Tag
+                                            size={{ base: "sm", md: "md" }}
+                                            bgColor={style?.button_color}
+                                            color={style?.button_text_color}
+                                        >
                                             {" "}
                                             Notify at response #:{" "}
                                             {
@@ -997,7 +1022,11 @@ const MeetupPage = () => {
                                 liveMeetup.options.notifyOnEveryResponse !==
                                     0 && (
                                     <WrapItem>
-                                        <Tag size={{ base: "sm", md: "md" }}>
+                                        <Tag
+                                            size={{ base: "sm", md: "md" }}
+                                            bgColor={style?.button_color}
+                                            color={style?.button_text_color}
+                                        >
                                             {" "}
                                             Receive notification on:
                                             {liveMeetup.options
@@ -1010,7 +1039,11 @@ const MeetupPage = () => {
                             {liveMeetup.options.limitNumberRespondents !==
                                 Number.MAX_VALUE && (
                                 <WrapItem>
-                                    <Tag size={{ base: "sm", md: "md" }}>
+                                    <Tag
+                                        size={{ base: "sm", md: "md" }}
+                                        bgColor={style?.button_color}
+                                        color={style?.button_text_color}
+                                    >
                                         {" "}
                                         Limit total replies:{" "}
                                         {
@@ -1023,7 +1056,11 @@ const MeetupPage = () => {
                             {liveMeetup.options.limitPerSlot !==
                                 Number.MAX_VALUE && (
                                 <WrapItem>
-                                    <Tag size={{ base: "sm", md: "md" }}>
+                                    <Tag
+                                        size={{ base: "sm", md: "md" }}
+                                        bgColor={style?.button_color}
+                                        color={style?.button_text_color}
+                                    >
                                         {" "}
                                         Limit per slot:{" "}
                                         {liveMeetup.options.limitPerSlot}{" "}
@@ -1032,7 +1069,11 @@ const MeetupPage = () => {
                             )}
                             {liveMeetup.options.endAt && (
                                 <WrapItem>
-                                    <Tag size={{ base: "sm", md: "md" }}>
+                                    <Tag
+                                        size={{ base: "sm", md: "md" }}
+                                        bgColor={style?.button_color}
+                                        color={style?.button_text_color}
+                                    >
                                         Ends on:{" "}
                                         {format(
                                             (
@@ -1248,6 +1289,8 @@ const MeetupPage = () => {
                                     showAbovePeople={showAbovePeople}
                                     setShowAbovePeople={setShowAbovePeople}
                                     liveMeetup={liveMeetup}
+                                    mostSelected={mostSelected}
+                                    leastSelected={leastSelected}
                                 />
                             </TabPanel>
                         </TabPanels>
@@ -1258,6 +1301,8 @@ const MeetupPage = () => {
                         showAbovePeople={showAbovePeople}
                         setShowAbovePeople={setShowAbovePeople}
                         liveMeetup={liveMeetup}
+                        leastSelected={leastSelected}
+                        mostSelected={mostSelected}
                     />
                 )}
 
@@ -1274,18 +1319,16 @@ const ViewComponent = React.memo(
         liveMeetup,
         showAbovePeople,
         setShowAbovePeople,
+        leastSelected,
+        mostSelected,
     }: {
         liveMeetup: Meetup;
         showAbovePeople: number;
         setShowAbovePeople: React.Dispatch<React.SetStateAction<number>>;
+        mostSelected: number;
+        leastSelected: number;
     }) => {
         // preformat: find the 'best' arrangement: what is the most number that any slot is selected?
-        let mostSelected = 0;
-        for (const dateTimeStr in liveMeetup.selectionMap) {
-            if (liveMeetup.selectionMap[dateTimeStr].length > mostSelected) {
-                mostSelected = liveMeetup.selectionMap[dateTimeStr].length;
-            }
-        }
 
         return (
             <Stack spacing={4} justifyContent="left">
@@ -1293,6 +1336,7 @@ const ViewComponent = React.memo(
                     <Heading fontSize="lg"> 👥 Others' availability </Heading>
                     <Center>
                         <ColorExplainer
+                            numLeast={leastSelected}
                             showAbovePeople={showAbovePeople}
                             setShowAbovePeople={setShowAbovePeople}
                             numTotal={mostSelected}
@@ -1343,11 +1387,17 @@ const SliderViewComponent = React.memo(
         showAbovePeople: number;
         setShowAbovePeople: React.Dispatch<React.SetStateAction<number>>;
     }) => {
-        const filledTrackColor = useColorModeValue("purple.100", "purple.900");
-        const notFilledTrackColor = useColorModeValue(
+        const { style } = useTelegram();
+
+        const _filledTrackColor = useColorModeValue("purple.100", "purple.900");
+        const _notFilledTrackColor = useColorModeValue(
             "purple.500",
             "purple.500"
         );
+
+        const filledTrackColor = style?.secondary_bg_color ?? _filledTrackColor;
+        const notFilledTrackColor = style?.button_color ?? _notFilledTrackColor;
+
         const [showTooltip, setShowTooltip] = useState(false);
 
         // convert the percentage into a number of people
@@ -1419,7 +1469,7 @@ const SliderViewComponent = React.memo(
                 <SliderThumb />
                 <Tooltip
                     hasArrow
-                    bg="purple.500"
+                    bg={style?.button_color || "purple.500"}
                     color="white"
                     placement="top"
                     isOpen={showTooltip}
