@@ -1,47 +1,21 @@
 import { useColorModeValue, HStack, Flex, Box, Text } from "@chakra-ui/react";
 import React from "react";
-import {
-    RANGE_EMPTY_LIGHT,
-    RANGE_EMPTY_DARK,
-    RANGE_0_LIGHT,
-    RANGE_0_DARK,
-    RANGE_1_LIGHT,
-    RANGE_1_DARK,
-    RANGE_2_LIGHT,
-    RANGE_2_DARK,
-    RANGE_3_LIGHT,
-    RANGE_3_DARK,
-    RANGE_4_LIGHT,
-    RANGE_4_DARK,
-    RANGE_FULL_LIGHT,
-    RANGE_FULL_DARK,
-} from "../../../lib/std";
-import {
-    aC,
-    RangeColors,
-} from "../../../utils/availabilityList.utils";
+import { RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK } from "../../../lib/std";
+import { aC } from "../../../utils/availabilityList.utils";
 
-const ColorExplainer = ({ numTotal }: { numTotal: number }) => {
+const ColorExplainer = ({
+    numTotal,
+    setShowAbovePeople,
+    showAbovePeople,
+}: {
+    numTotal: number;
+    setShowAbovePeople: (num: number) => void;
+    showAbovePeople: number;
+}) => {
     const range_empty = useColorModeValue(RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK);
-    const range_0 = useColorModeValue(RANGE_0_LIGHT, RANGE_0_DARK);
-    const range_1 = useColorModeValue(RANGE_1_LIGHT, RANGE_1_DARK);
-    const range_2 = useColorModeValue(RANGE_2_LIGHT, RANGE_2_DARK);
-    const range_3 = useColorModeValue(RANGE_3_LIGHT, RANGE_3_DARK);
-    const range_4 = useColorModeValue(RANGE_4_LIGHT, RANGE_4_DARK);
-    const range_full = useColorModeValue(RANGE_FULL_LIGHT, RANGE_FULL_DARK);
 
     const fullColor = "#38A169";
     const emptyColor = range_empty;
-
-    const colors: RangeColors = [
-        range_empty,
-        range_0,
-        range_1,
-        range_2,
-        range_3,
-        range_4,
-        range_full,
-    ];
 
     // possible values: from 1 to numTotal (0 is never shown)
     // naive implementation
@@ -56,7 +30,63 @@ const ColorExplainer = ({ numTotal }: { numTotal: number }) => {
             <Text> Least </Text>
             <Flex>
                 {[...possibleColors].map((color, i) => (
-                    <Box key={i} width="24px" height="24px" bgColor={color} />
+                    <Box
+                        key={i}
+                        onClick={() =>
+                            setShowAbovePeople(
+                                Math.round(
+                                    ((i + 1) / possibleColors.size) * numTotal
+                                )
+                            )
+                        }
+                        width="24px"
+                        height="24px"
+                        bgColor={color}
+                        cursor="pointer"
+                        border={
+                            showAbovePeople ===
+                            Math.round(
+                                ((i + 1) / possibleColors.size) * numTotal
+                            )
+                                ? "1px solid purple.500"
+                                : ""
+                        }
+                        mx={
+                            showAbovePeople ===
+                            Math.round(
+                                ((i + 1) / possibleColors.size) * numTotal
+                            )
+                                ? 2
+                                : 0
+                        }
+                        ml={
+                            showAbovePeople ===
+                                Math.round(
+                                    ((i + 1) / possibleColors.size) * numTotal
+                                ) && i === 0
+                                ? 0
+                                : showAbovePeople ===
+                                  Math.round(
+                                      ((i + 1) / possibleColors.size) * numTotal
+                                  )
+                                ? 2
+                                : 0
+                        }
+                        mr={
+                            showAbovePeople ===
+                                Math.round(
+                                    ((i + 1) / possibleColors.size) * numTotal
+                                ) && i === possibleColors.size - 1
+                                ? 0
+                                : showAbovePeople ===
+                                  Math.round(
+                                      ((i + 1) / possibleColors.size) * numTotal
+                                  )
+                                ? 2
+                                : 0
+                        }
+                        transition="all 0.2s ease-in-out"
+                    />
                 ))}
             </Flex>
             <Text> Most </Text>

@@ -37,9 +37,15 @@ import {
     FormLabel,
     Switch,
     Collapse,
+    Slider,
+    SliderFilledTrack,
+    SliderThumb,
+    SliderTrack,
+    Tooltip,
+    SliderMark,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
@@ -142,11 +148,20 @@ const MeetupPage = () => {
     const [meetup] = useState<Meetup>(loadedMeetup);
     const [_liveMeetup, setLiveMeetup] = useStateRef<Meetup>(loadedMeetup);
 
-    const [showOnlyFull, setShowOnlyFull] = useState(false);
+    /**
+     * Filters the visible amounts to only show slots with a number above x.
+     * e.g. if x = 50, only show slots that have 50% or more of the users selected.
+     */
+    const [showAbovePeople, setShowAbovePeople] = useState<number>(1);
+
+    /**
+     * Similar to above, but because of rendering issues, we only want it to rerender when we're actually changing something, so:
+     */
+    // const [showAbovePeople, setShowAbovePeople] = useState<number>(0);
 
     let liveMeetup = _liveMeetup;
     // if the user only wants to see the slots that everyone has selected
-    if (showOnlyFull) {
+    if (showAbovePeople) {
         const numUsers = Object.keys(liveMeetup.users).length;
         // remove all the keys from selectionMap whose length is less than the number of users
         liveMeetup = {
@@ -154,7 +169,7 @@ const MeetupPage = () => {
             selectionMap: Object.fromEntries(
                 Object.entries(liveMeetup.selectionMap).filter(
                     ([key, value]) => {
-                        return Object.keys(value).length === numUsers;
+                        return Object.keys(value).length >= showAbovePeople;
                     }
                 )
             ),
@@ -1068,7 +1083,7 @@ const MeetupPage = () => {
                             {indicateIsVisible && (
                                 <TabPanel p={1}>
                                     <Stack spacing={4} justifyContent="left">
-                                        <Box height="40px">
+                                        <Box height="80px">
                                             <Heading fontSize={"lg"}>
                                                 📅 Select your available dates{" "}
                                             </Heading>
@@ -1230,8 +1245,8 @@ const MeetupPage = () => {
                             )}
                             <TabPanel p={1}>
                                 <ViewComponent
-                                    showOnlyFull={showOnlyFull}
-                                    setShowOnlyFull={setShowOnlyFull}
+                                    showAbovePeople={showAbovePeople}
+                                    setShowAbovePeople={setShowAbovePeople}
                                     liveMeetup={liveMeetup}
                                 />
                             </TabPanel>
@@ -1240,8 +1255,8 @@ const MeetupPage = () => {
                 )}
                 {!indicateIsVisible && (
                     <ViewComponent
-                        showOnlyFull={showOnlyFull}
-                        setShowOnlyFull={setShowOnlyFull}
+                        showAbovePeople={showAbovePeople}
+                        setShowAbovePeople={setShowAbovePeople}
                         liveMeetup={liveMeetup}
                     />
                 )}
@@ -1257,46 +1272,176 @@ export default MeetupPage;
 const ViewComponent = React.memo(
     ({
         liveMeetup,
-        showOnlyFull,
-        setShowOnlyFull,
+        showAbovePeople,
+        setShowAbovePeople,
     }: {
         liveMeetup: Meetup;
-        showOnlyFull: boolean;
-        setShowOnlyFull: React.Dispatch<React.SetStateAction<boolean>>;
-    }) => (
-        <Stack spacing={4} justifyContent="left">
-            <Box height="80px">
-                <Heading fontSize="lg"> 👥 Others' availability </Heading>
-                <Center>
-                    <ColorExplainer numTotal={liveMeetup.users.length} />
-                </Center>
-                <FormControl>
-                    <Flex justifyContent={"space-between"}>
-                        <FormLabel htmlFor="show-full" m={0}>
-                            {" "}
-                            Show only full attendance
-                        </FormLabel>
-                        <Switch
-                            checked={showOnlyFull}
-                            onChange={(e) => setShowOnlyFull(e.target.checked)}
-                            id="show-full"
+        showAbovePeople: number;
+        setShowAbovePeople: React.Dispatch<React.SetStateAction<number>>;
+    }) => {
+        return (
+            <Stack spacing={4} justifyContent="left">
+                <Box height="120px">
+                    <Heading fontSize="lg"> 👥 Others' availability </Heading>
+                    <Center>
+                        <ColorExplainer
+                            showAbovePeople={showAbovePeople}
+                            setShowAbovePeople={setShowAbovePeople}
+                            numTotal={liveMeetup.users.length}
                         />
-                    </Flex>
-                </FormControl>
-            </Box>
-            <CalendarDisplay meetup={liveMeetup} />
+                    </Center>
+                    <Text textAlign="center" mt={2}>
+                        Move the slider to adjust the availability display
+                    </Text>
+                    <Center px={12}>
+                        <SliderViewComponent
+                            setShowAbovePeople={setShowAbovePeople}
+                            showAbovePeople={showAbovePeople}
+                            meetup={liveMeetup}
+                        />
+                    </Center>
+                    {/* <FormControl>
+                        <Flex justifyContent={"space-between"}>
+                            <FormLabel htmlFor="show-full" m={0}>
+                                {" "}
+                                Show only full attendance
+                            </FormLabel>
+                            <Switch
+                                checked={showAbovePeople === 100}
+                                onChange={(e) =>
+                                    setShowAbovePeople(
+                                        e.target.checked ? 100 : 0
+                                    )
+                                }
+                                id="show-full"
+                            />
+                        </Flex>
+                    </FormControl> */}
+                </Box>
+                <CalendarDisplay meetup={liveMeetup} />
 
-            {!liveMeetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
-            {liveMeetup.isFullDay && <ByDateList meetup={liveMeetup} />}
+                {!liveMeetup.isFullDay && <ByTimeList meetup={liveMeetup} />}
+                {liveMeetup.isFullDay && <ByDateList meetup={liveMeetup} />}
 
-            <UsersDisplay meetup={liveMeetup} />
-        </Stack>
-    ),
+                <UsersDisplay meetup={liveMeetup} />
+            </Stack>
+        );
+    },
     (prevProps, nextProps) => {
         return (
             prevProps.liveMeetup.last_updated ===
                 nextProps.liveMeetup.last_updated &&
-            prevProps.showOnlyFull === nextProps.showOnlyFull
+            prevProps.showAbovePeople === nextProps.showAbovePeople
         );
     }
+);
+
+const labelStyles = {
+    mt: "2",
+    ml: "-0.5",
+    fontSize: "sm",
+};
+
+const SliderViewComponent = React.memo(
+    ({
+        meetup,
+        showAbovePeople,
+        setShowAbovePeople,
+    }: {
+        meetup: Meetup;
+        showAbovePeople: number;
+        setShowAbovePeople: React.Dispatch<React.SetStateAction<number>>;
+    }) => {
+        const filledTrackColor = useColorModeValue("purple.100", "purple.900");
+        const notFilledTrackColor = useColorModeValue(
+            "purple.500",
+            "purple.500"
+        );
+        const [showTooltip, setShowTooltip] = useState(false);
+
+        // convert the percentage into a number of people
+
+        // console.log(showAbovePeople, meetup.users.length);
+        const numPeople = meetup.users.length;
+        // console.log(numPeople);
+
+        // Problem: having a small number of steps makes the slider look very janky
+        // solution: artifically have a larger number by multiplying the value by 100
+        // then, to get the acutal value, just divide it by 100
+        const [val, setVal] = useState(showAbovePeople);
+
+        // useEffect(() => {
+        //     setVal(Math.round((numPeople / meetup.users.length) * 100));
+        // }, [showAbovePeople]);
+
+        useEffect(() => {
+            setVal(showAbovePeople * 100);
+        }, [showAbovePeople]);
+
+        // problem: if there are say 100 people, then we can't have 100 marks.
+        // so, let's say our max marks is 8 (arbitrary figure)
+        // we will then have a mark at the min value (1), one mark at the max value (numPeople)
+        // and up to six marks evenly spread out.
+        // create the array that tells React what marks to render
+        const marks = useMemo(() => {
+            const maxMarks = 6;
+            const marks = [];
+            const step = Math.round(numPeople / maxMarks);
+            for (let i = 0; i < numPeople; i += step) {
+                marks.push(i);
+            }
+            marks.push(numPeople);
+            return marks;
+        }, [numPeople]);
+
+        return (
+            <Slider
+                aria-label="slider-ex-2"
+                colorScheme="pink"
+                defaultValue={1}
+                direction="rtl"
+                min={1}
+                max={meetup.users.length * 100}
+                step={1}
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                value={val}
+                onChange={setVal}
+                onChangeEnd={(value) => {
+                    setShowAbovePeople(Math.round(value / 100));
+
+                    // "Snap " the slider to the nearest mark
+                    setVal(Math.round(value / 100) * 100);
+                }}
+            >
+                {marks.map((val, i) => {
+                    return (
+                        <SliderMark value={val * 100} {...labelStyles} key={i}>
+                            {val}
+                        </SliderMark>
+                    );
+                })}
+                <SliderTrack bg={notFilledTrackColor}>
+                    <SliderFilledTrack bg={filledTrackColor} />
+                </SliderTrack>
+                <SliderThumb />
+                <Tooltip
+                    hasArrow
+                    bg="purple.500"
+                    color="white"
+                    placement="top"
+                    isOpen={showTooltip}
+                    label={`Showing slots with ${Math.round(
+                        val / 100
+                    )} people and above`}
+                >
+                    <SliderThumb />
+                </Tooltip>
+                {/* Create an array of length numPeople to iterate through */}
+            </Slider>
+        );
+    },
+    (prevProps, nextProps) =>
+        prevProps.meetup.last_updated === nextProps.meetup.last_updated &&
+        prevProps.showAbovePeople === nextProps.showAbovePeople
 );
