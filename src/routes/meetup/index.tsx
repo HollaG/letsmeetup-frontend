@@ -1300,23 +1300,6 @@ const ViewComponent = React.memo(
                             meetup={liveMeetup}
                         />
                     </Center>
-                    {/* <FormControl>
-                        <Flex justifyContent={"space-between"}>
-                            <FormLabel htmlFor="show-full" m={0}>
-                                {" "}
-                                Show only full attendance
-                            </FormLabel>
-                            <Switch
-                                checked={showAbovePeople === 100}
-                                onChange={(e) =>
-                                    setShowAbovePeople(
-                                        e.target.checked ? 100 : 0
-                                    )
-                                }
-                                id="show-full"
-                            />
-                        </Flex>
-                    </FormControl> */}
                 </Box>
                 <CalendarDisplay meetup={liveMeetup} />
 
@@ -1370,10 +1353,6 @@ const SliderViewComponent = React.memo(
         // then, to get the acutal value, just divide it by 100
         const [val, setVal] = useState(showAbovePeople);
 
-        // useEffect(() => {
-        //     setVal(Math.round((numPeople / meetup.users.length) * 100));
-        // }, [showAbovePeople]);
-
         useEffect(() => {
             setVal(showAbovePeople * 100);
         }, [showAbovePeople]);
@@ -1386,7 +1365,12 @@ const SliderViewComponent = React.memo(
         const marks = useMemo(() => {
             const maxMarks = 6;
             const marks = [];
-            const step = Math.round(numPeople / maxMarks);
+
+            const step =
+                Math.round(numPeople / maxMarks) < 1
+                    ? 1
+                    : Math.round(numPeople / maxMarks);
+
             for (let i = 0; i < numPeople; i += step) {
                 marks.push(i);
             }
@@ -1400,8 +1384,8 @@ const SliderViewComponent = React.memo(
                 colorScheme="pink"
                 defaultValue={1}
                 direction="rtl"
-                min={1}
-                max={meetup.users.length * 100}
+                min={0}
+                max={meetup.users.length * 100 || 1}
                 step={1}
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
