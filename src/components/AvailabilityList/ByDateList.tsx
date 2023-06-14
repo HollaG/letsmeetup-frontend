@@ -87,7 +87,44 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
             meetup.selectionMap[date] && meetup.selectionMap[date].length > 0
     );
 
+    // preformat: find the 'best' arrangement: what is the most number that any slot is selected?
+    let mostSelected = 0;
+    for (const dateStr in meetup.selectionMap) {
+        if (meetup.selectionMap[dateStr].length > mostSelected) {
+            mostSelected = meetup.selectionMap[dateStr].length;
+        }
+    }
+
     const numberOfUsers = meetup.users.length;
+    const hundredPercentIndicatorColor = useColorModeValue(
+        "green.100",
+        "green.500"
+    );
+    /**
+     * Decides what color the background should be.
+     * It should be green if all users have selected that time slot.
+     *
+     * @param dateStr The date time string
+     * @returns
+     */
+    const getElementBackgroundColor = (dateStr: string) => {
+        if (meetup.selectionMap[dateStr].length === mostSelected) {
+            return hundredPercentIndicatorColor;
+        } else {
+            return dataBgColor;
+        }
+    };
+
+    // TODO: we don't need this but maybe in future we wanna change the text color
+    const textColor = useColorModeValue("black", "white");
+    const getElementTextColor = (dateStr: string) => {
+        if (meetup.selectionMap[dateStr].length === mostSelected) {
+            return textColor;
+        } else {
+            return textColor;
+        }
+    };
+
     return (
         <Grid
             gridTemplateColumns={`${CELL_WIDTH_NUM + FILLER_WIDTH}px 1fr`}
@@ -121,7 +158,8 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                                             ? meetup.selectionMap[date].length
                                             : 0,
                                         fullColor,
-                                        emptyColor
+                                        emptyColor,
+                                        pageBackgroundColor
                                     )}
                                     height={CELL_HEIGHT_NUM}
                                 >
@@ -144,7 +182,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
 
                                 <Box
                                     w={`${FILLER_WIDTH}px`}
-                                    bgColor={dataBgColor}
+                                    bgColor={getElementBackgroundColor(date)}
                                     height={`${CELL_HEIGHT_NUM}px`}
                                 ></Box>
                             </Flex>
@@ -152,7 +190,7 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                         <Box
                             w="100%"
                             height="45%"
-                            bgColor={dataBgColor}
+                            bgColor={getElementBackgroundColor(date)}
                             position="relative"
                         >
                             <Box
@@ -167,10 +205,11 @@ const ByDateList = ({ meetup }: ByDateListProps) => {
                 </GridItem>,
                 <GridItem
                     key={`${date}-3`}
-                    bgColor={dataBgColor}
+                    bgColor={getElementBackgroundColor(date)}
                     mb={2} // TODO: change mb to pb if combining
                     // TODO: see the lower one, #styling
                     borderRadius="0 4px 4px 0"
+                    textColor={getElementTextColor(date)}
                 >
                     <SimpleGrid
                         columns={{

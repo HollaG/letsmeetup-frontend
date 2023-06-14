@@ -47,7 +47,8 @@ export const aC = (
     totalNum: number,
     amount: number,
     fullColor = "#38A169",
-    emptyColor: string
+    emptyColor: string,
+    _backgroundColor: string
 ) => {
     // temp
 
@@ -57,23 +58,56 @@ export const aC = (
         b: number;
     };
 
+    // to check: it must be not chakra right?
+    let backgroundColor = _backgroundColor;
+    if (_backgroundColor === "white") backgroundColor = "#FFFFFF";
+    if (_backgroundColor === "gray.800") backgroundColor = "#1A202C";
+
+    const {
+        r: bgR,
+        g: bgG,
+        b: bgB,
+    } = hexToRgb(backgroundColor) as {
+        r: number;
+        g: number;
+        b: number;
+    };
+
     const percent = amount / totalNum;
+
+    let alpha = 0;
     if (percent === 0) {
         return emptyColor;
+    } else if (percent < 0.25) {
+        alpha = 0.2;
+        // return `rgba(${r}, ${g}, ${b}, 0.2)`;
+    } else if (percent < 0.5) {
+        alpha = 0.4;
+        // return `rgba(${r}, ${g}, ${b}, 0.4)`;
+    } else if (percent < 0.75) {
+        alpha = 0.6;
+        // return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    } else if (percent < 1) {
+        alpha = 0.8;
+        // return `rgba(${r}, ${g}, ${b}, 0.8)`;
+    } else {
+        return `rgba(${r}, ${g}, ${b}, 1)`;
     }
-    if (percent < 0.25) {
-        return `rgba(${r}, ${g}, ${b}, 0.2)`;
-    }
-    if (percent < 0.5) {
-        return `rgba(${r}, ${g}, ${b}, 0.4)`;
-    }
-    if (percent < 0.75) {
-        return `rgba(${r}, ${g}, ${b}, 0.6)`;
-    }
-    if (percent < 1) {
-        return `rgba(${r}, ${g}, ${b}, 0.8)`;
-    }
-    return `rgba(${r}, ${g}, ${b}, 1)`;
+
+    const normR = r / 255;
+    const normG = g / 255;
+    const normB = b / 255;
+
+    const normBgR = bgR / 255;
+    const normBgG = bgG / 255;
+    const normBgB = bgB / 255;
+
+    // see https://stackoverflow.com/questions/2049230/convert-rgba-color-to-rgb
+    const targetR = ((1 - alpha) * normBgR + alpha * normR) * 255;
+    const targetG = ((1 - alpha) * normBgG + alpha * normG) * 255;
+    const targetB = ((1 - alpha) * normBgB + alpha * normB) * 255;
+
+    return `rgb(${targetR}, ${targetG}, ${targetB})`;
 };
 
 /**

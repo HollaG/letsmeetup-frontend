@@ -1,5 +1,6 @@
 import { useColorModeValue, HStack, Flex, Box, Text } from "@chakra-ui/react";
 import React from "react";
+import { useTelegram } from "../../../context/TelegramProvider";
 import { RANGE_EMPTY_LIGHT, RANGE_EMPTY_DARK } from "../../../lib/std";
 import { aC } from "../../../utils/availabilityList.utils";
 
@@ -17,11 +18,15 @@ const ColorExplainer = ({
     const fullColor = "#38A169";
     const emptyColor = range_empty;
 
+    const _bgColor = useColorModeValue("white", "gray.800");
+    const { style } = useTelegram();
+    const bgColor = style?.bg_color ?? _bgColor;
+
     // possible values: from 1 to numTotal (0 is never shown)
     // naive implementation
     const possibleColors = new Set<string>();
     for (let i = 1; i < numTotal + 1; i++) {
-        const color = aC(numTotal, i, fullColor, emptyColor);
+        const color = aC(numTotal, i, fullColor, emptyColor, bgColor);
         possibleColors.add(color);
     }
 

@@ -122,6 +122,44 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
         return atLeastOne;
     });
 
+    // preformat: find the 'best' arrangement: what is the most number that any slot is selected?
+    let mostSelected = 0;
+    for (const dateTimeStr in meetup.selectionMap) {
+        if (meetup.selectionMap[dateTimeStr].length > mostSelected) {
+            mostSelected = meetup.selectionMap[dateTimeStr].length;
+        }
+    }
+
+    const hundredPercentIndicatorColor = useColorModeValue(
+        "green.100",
+        "green.900"
+    );
+
+    /**
+     * Decides what color the background should be.
+     * It should be green if all users have selected that time slot.
+     *
+     * @param dateTimeStr The date time string
+     * @returns
+     */
+    const getElementBackgroundColor = (dateTimeStr: string) => {
+        if (meetup.selectionMap[dateTimeStr].length === mostSelected) {
+            return hundredPercentIndicatorColor;
+        } else {
+            return dataBgColor;
+        }
+    };
+
+    // TODO: we don't need this but maybe in future we wanna change the text color
+    const textColor = useColorModeValue("black", "white");
+    const getElementTextColor = (dateTimeStr: string) => {
+        if (meetup.selectionMap[dateTimeStr].length === mostSelected) {
+            return textColor;
+        } else {
+            return textColor;
+        }
+    };
+
     return (
         <Grid
             gridTemplateColumns={`72px ${CELL_WIDTH_NUM + FILLER_WIDTH}px 1fr`}
@@ -202,7 +240,8 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                                       ].length
                                                                     : 0,
                                                                 fullColor,
-                                                                emptyColor
+                                                                emptyColor,
+                                                                pageBackgroundColor
                                                             )}
                                                             // height={Math.min(
                                                             //     24 * 2,
@@ -248,9 +287,9 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
 
                                                         <Box
                                                             w={`${FILLER_WIDTH}px`}
-                                                            bgColor={
-                                                                dataBgColor
-                                                            }
+                                                            bgColor={getElementBackgroundColor(
+                                                                `${minute}::${date}`
+                                                            )}
                                                             // height={`${Math.min(
                                                             //     24 * 2,
                                                             //     CELL_HEIGHT_NUM *
@@ -267,7 +306,9 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                 <Box
                                                     w="100%"
                                                     height="45%"
-                                                    bgColor={dataBgColor}
+                                                    bgColor={getElementBackgroundColor(
+                                                        `${minute}::${date}`
+                                                    )}
                                                     position="relative"
                                                 >
                                                     <Box
@@ -286,11 +327,16 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                             key={`${minute}::${date}-3`}
                                             //   display="unset"
 
-                                            bgColor={dataBgColor}
+                                            bgColor={getElementBackgroundColor(
+                                                `${minute}::${date}`
+                                            )}
                                             mb={4} // TODO: change mb to pb if combining
                                             // TODO: see the lower one, #styling
                                             borderRadius="0 4px 4px 0"
                                             position="relative"
+                                            textColor={getElementTextColor(
+                                                `${minute}::${date}`
+                                            )}
                                         >
                                             <Box
                                                 position="absolute"

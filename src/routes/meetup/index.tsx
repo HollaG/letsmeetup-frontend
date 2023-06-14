@@ -1279,6 +1279,14 @@ const ViewComponent = React.memo(
         showAbovePeople: number;
         setShowAbovePeople: React.Dispatch<React.SetStateAction<number>>;
     }) => {
+        // preformat: find the 'best' arrangement: what is the most number that any slot is selected?
+        let mostSelected = 0;
+        for (const dateTimeStr in liveMeetup.selectionMap) {
+            if (liveMeetup.selectionMap[dateTimeStr].length > mostSelected) {
+                mostSelected = liveMeetup.selectionMap[dateTimeStr].length;
+            }
+        }
+
         return (
             <Stack spacing={4} justifyContent="left">
                 <Box height="120px">
@@ -1287,7 +1295,7 @@ const ViewComponent = React.memo(
                         <ColorExplainer
                             showAbovePeople={showAbovePeople}
                             setShowAbovePeople={setShowAbovePeople}
-                            numTotal={liveMeetup.users.length}
+                            numTotal={mostSelected}
                         />
                     </Center>
                     <Text textAlign="center" mt={2}>
