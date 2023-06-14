@@ -359,6 +359,7 @@ const ByTimeList = ({ meetup }: ByTimeListProps) => {
                                                     )}
                                                 </Text>
                                             </Box>
+
                                             <SimpleGrid
                                                 mt={2}
                                                 columns={{
