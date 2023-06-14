@@ -54,7 +54,9 @@ export type Meetup = {
         limitNumberRespondents: number;
         limitSlotsPerRespondent: number;
         endAt: Date;
+        notifyOnEveryResponse: 0 | 1 | 2; // 0: don't notify, 1: notify everything, 2: notify new users
     };
+    cannotMakeIt: { user: IMeetupUser; comments: string }[];
 };
 
 export type UserAvailabilityData = {
@@ -133,13 +135,15 @@ export const updateAvailability = async (
     user: IMeetupUser | undefined,
 
     {
-        datesSelected,
-        timesSelected,
+        _datesSelected,
+        _timesSelected,
+        cannotMakeIt,
     }: // isFullDay,
     {
-        datesSelected: string[];
-        timesSelected: string[];
+        _datesSelected: string[];
+        _timesSelected: string[];
         // isFullDay: boolean;
+        cannotMakeIt: boolean;
     },
     comments = ""
 ): Promise<Meetup | null> => {
@@ -150,8 +154,18 @@ export const updateAvailability = async (
         throw new Error("Meetup not found");
     }
 
+    user.id = user.id.toString();
+
     const oldUsers = oldMeetup.users;
     const isFullDay = oldMeetup.isFullDay;
+
+    // if cannot make it, datesSekected and timesSelected are empty
+    let datesSelected = _datesSelected;
+    let timesSelected = _timesSelected;
+    if (cannotMakeIt) {
+        datesSelected = [];
+        timesSelected = [];
+    }
 
     const previousUserData = oldUsers.find((u) => u.user.id === user.id);
 
@@ -223,17 +237,33 @@ export const updateAvailability = async (
         });
     }
 
+    // update the new cannot make it
+    const newCannotMakeIt = [
+        ...(oldMeetup.cannotMakeIt?.filter((u) => u.user?.id !== user.id) ||
+            []),
+        ...(cannotMakeIt
+            ? [
+                  {
+                      user,
+                      comments,
+                  },
+              ]
+            : []),
+    ];
+
     try {
         await updateDoc(docRef, {
             users: newAvailabilityData,
             selectionMap: newMap,
             last_updated: new Date(),
+            cannotMakeIt: newCannotMakeIt,
         });
         return {
             id: docRef.id,
             ...oldMeetup,
             users: newAvailabilityData,
             selectionMap: newMap,
+            cannotMakeIt: newCannotMakeIt,
         } as Meetup;
     } catch (e) {
         console.log(e);

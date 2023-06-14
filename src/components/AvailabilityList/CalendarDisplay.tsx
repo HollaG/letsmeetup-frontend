@@ -1,5 +1,6 @@
 import { ChakraProps, useColorModeValue } from "@chakra-ui/react";
 import { isAfter, isBefore, parse } from "date-fns";
+import { useTelegram } from "../../context/TelegramProvider";
 import { Meetup } from "../../firebase/db/repositories/meetups";
 import {
     RANGE_EMPTY_LIGHT,
@@ -18,10 +19,7 @@ import {
     RANGE_FULL_DARK,
 } from "../../lib/std";
 import { removeTime } from "../../routes/meetup";
-import {
-    aC,
-    RangeColors,
-} from "../../utils/availabilityList.utils";
+import { aC, RangeColors } from "../../utils/availabilityList.utils";
 import { dateEncoder, dateParser } from "../Calendar/CalendarContainer";
 import GeneralCalendar from "../Calendar/GeneralCalendar";
 // Color values
@@ -86,6 +84,10 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
     const startDate = dateParser(startDateStr);
     const endDate = dateParser(endDateStr);
 
+    const _bgColor = useColorModeValue("white", "gray.800");
+    const { style } = useTelegram();
+    const bgColor = style?.bg_color ?? _bgColor;
+
     /**
      * Format the selection map for non-full-day meetups
      *
@@ -120,11 +122,18 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
         if (!meetup.dates.includes(dateStr)) return "unset";
 
         if (numThisDate === 0 || !numThisDate) return "unset";
-        const col = aC(numTotal, numThisDate, fullColor, emptyColor);
+        const col = aC(numTotal, numThisDate, fullColor, emptyColor, bgColor);
 
         return col;
+        // return fullColor;
     };
 
+    /**
+     * Get the text color. Can be either the default color or a grayed out color
+     *
+     * @param date The date of the drawn day
+     * @returns The color of the text
+     */
     const getTextColor = (date: Date) => {
         if (
             isAfter(date, dateParser(endDateStr)) ||
@@ -137,6 +146,11 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
         }
     };
 
+    /**
+     * Scroll to the selected date
+     *
+     * @param date The date of the drawn day
+     */
     const onClick = (date: Date) => {
         const dateStr = dateEncoder(date);
 
@@ -145,6 +159,12 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
         });
     };
 
+    /**
+     * Gets any additional CSS properties that we might want to apply.
+     *
+     * @param date The date of the drawn day
+     * @returns Additional CSS properties
+     */
     const getProperties = (date: Date) => {
         let cursor = "";
         if (
@@ -156,8 +176,31 @@ const CalendarDisplay = ({ meetup }: { meetup: Meetup }) => {
         } else {
             cursor = "pointer";
         }
+
+        // calculate the % of people who can make it
+        // https://stackoverflow.com/questions/21205652/how-to-draw-a-circle-sector-in-css
+        const percent =
+            availabilityPerDayMap[dateEncoder(date)] / meetup.users.length;
+        let backgroundImage = "";
+        if (!Number.isNaN(percent)) {
+            if (percent < 0.5) {
+                const deg1 = 90 + 360 * percent;
+                backgroundImage = `linear-gradient(${deg1}deg, transparent 50%, ${bgColor} 50%), linear-gradient(90deg, ${bgColor} 50%, transparent 50%)`;
+            } else if (percent === 0.5) {
+                backgroundImage = `linear-gradient(90deg, ${bgColor} 50%, transparent 50%);`;
+            } else if (percent < 1) {
+                const deg2 = 90 + 360 * (percent - 0.5);
+                backgroundImage = `linear-gradient(${deg2}deg, transparent 50%, ${getColor(
+                    date
+                )} 50%), linear-gradient(90deg, ${bgColor} 50%, transparent 50%)`;
+            } else {
+                backgroundImage = "inherit";
+            }
+        }
+
         return {
             cursor,
+            backgroundImage,
         } as ChakraProps;
     };
 

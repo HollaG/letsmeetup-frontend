@@ -1,6 +1,7 @@
 import {
     Box,
     ChakraProps,
+    Circle,
     Square,
     Text,
     useColorModeValue,
@@ -17,8 +18,11 @@ const LIGHT__SELECTED_DATE_COLOR = "blue.200";
 /**
  * The props for the CalendarDay component.
  * @param children the text to display in the day
- * @param dataKey the data-key to use for the day
- * @param datesSelected the dates that are selected
+ * @param date the date that the day represents
+ * @param getColor a function that returns the background color of the day
+ * @param getTextColor a function that returns the text color of the day
+ * @param onClick a function that is called when the day is clicked
+ * @param getProperties a function that returns additional CSS properties for the day
  */
 export type GeneralCalendarDayProps = {
     children: React.ReactNode;
@@ -66,115 +70,62 @@ const GeneralCalendarDay = ({
     );
     const CURRENT_DATE_COLOR = useColorModeValue("gray.200", "gray.600");
 
-    /**
-     * Calculates the color of the circle around the date, depending on whether
-     * it's selected, today, or not selected.
-     *
-     * @returns the color of the circle around the date
-     */
-    // const getBgColor = () => {
-    // if (selected) {
-    //     return SELECTED_DATE_COLOR;
-    // } else if (isSameDay(dateParser(dataKey), new Date())) {
-    //     return CURRENT_DATE_COLOR;
-    // } else {
-    //     return "unset";
-    // }
-    // return "unset";
-    // };
+    // Given the percentage of people available on this day, generate the background
+    // https://stackoverflow.com/questions/21205652/how-to-draw-a-circle-sector-in-css
 
-    /**
-     * Formats the class name of the element, based on whether it's selected, selectable, or not.
-     *
-     * @returns the class name for the day
-     */
-    // const getClassName = () => {
-    // let className = "date ";
-    // if (selected) {
-    //     className += "selected ";
-    // }
-    // if (isSelectable) {
-    //     className += "selectable ";
-    // }
-    // return className;
-    // return "";
-    // };
-
-    /**
-     * Gets the text color this day should be. Dark for unselectable (before today), normal for selectable.
-     * @returns the color the text should be
-     */
-    // const getTextColor = () => {
-    // if (!isSelectable) {
-    //     if (isSameDay(dateParser(dataKey), new Date())) {
-    //         return UNSELECTABLE_CURRENT_DAY_TEXT_COLOR;
-    //     } else {
-    //         return UNSELECTABLE_TEXT_COLOR;
-    //     }
-    // } else {
-    //     return "unset";
-    // }
-    // return "unset";
-    // };
-
-    /**
-     *
-     * @returns the border radius of the day depending on the selected state
-     */
-    // const getRadius = () => {
-    // if (!selected) {
-    //     return "99999px";
-    // }
-    // if (prevSelected && nextSelected) {
-    //     return "0";
-    // }
-    // if (!prevSelected && nextSelected) {
-    //     return "99999px 0 0 99999px";
-    // }
-    // if (prevSelected && !nextSelected) {
-    //     return "0 99999px 99999px 0";
-    // }
-    // if (!prevSelected && !nextSelected) {
-    //     return "99999px";
-    // }
-    // return "unset";
-    // };
-
-    // const getWidth = () => {
-    // if (selected && (nextSelected || prevSelected)) {
-    //     return "100%";
-    // } else {
-    //     return "unset";
-    // }
-    // return "unset";
-    // };
+    // return children ? (
+    //     <Box
+    //         {...(getProperties ? getProperties(date) : {})}
+    //         width="100%"
+    //         onClick={() => onClick(date)}
+    //     >
+    //         <Square
+    //             bg={getColor(date)}
+    //             size="36px"
+    //             mx="auto"
+    //             borderRadius={"99999px"}
+    //             // minW={getWidth()}
+    //         >
+    //             <Text {...BODY_STYLES} color={getTextColor(date)}>
+    //                 {children}{" "}
+    //             </Text>
+    //         </Square>
+    //     </Box>
+    // ) : (
+    //     <Box width="100%">
+    //         <Square
+    //             size="36px"
+    //             mx="auto"
+    //             borderRadius={"99999px"}
+    //             // minW={getWidth()}
+    //         ></Square>
+    //     </Box>
+    // );
+    <Square />;
 
     return children ? (
-        <Box
-            {...(getProperties ? getProperties(date) : {})}
-            width="100%"
-            onClick={() => onClick(date)}
-        >
-            <Square
+        <Box width="100%" onClick={() => onClick(date)}>
+            <Circle
                 bg={getColor(date)}
                 size="36px"
                 mx="auto"
-                borderRadius={"99999px"}
+                {...(getProperties ? getProperties(date) : {})}
+                // borderRadius={"99999px"}
                 // minW={getWidth()}
             >
                 <Text {...BODY_STYLES} color={getTextColor(date)}>
                     {children}{" "}
                 </Text>
-            </Square>
+            </Circle>
         </Box>
     ) : (
         <Box width="100%">
-            <Square
+            <Circle
                 size="36px"
                 mx="auto"
-                borderRadius={"99999px"}
+                // borderRadius={"99999px"}
                 // minW={getWidth()}
-            ></Square>
+            ></Circle>
         </Box>
     );
 };
