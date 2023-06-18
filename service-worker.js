@@ -19,10 +19,10 @@ if ("serviceWorker" in navigator) {
 let CACHE_NAME = "look4times-cache";
 const urlsToCache = [
     "/",
-    "/create",
-    "/policies/privacy",
-    "/policies/terms",
-    "/about",
+    "/#/create",
+    "/#/policies/privacy",
+    "/#/policies/terms",
+    "/#/about",
 ];
 self.addEventListener("install", function (event) {
     // Perform install steps
