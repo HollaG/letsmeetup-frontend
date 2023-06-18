@@ -134,7 +134,7 @@ export const removeDate = (time: string) => {
 };
 
 const MeetupPage = () => {
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
 
     // Only on this page, create an anonymous account for the user if there is no webUser detected.
 
@@ -903,9 +903,28 @@ const MeetupPage = () => {
     );
 
     const shareWeb = () => {
-        navigator.share({
-            url: `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`,
-        });
+        const url = `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`;
+        if (navigator && navigator.share) {
+            navigator.share({
+                url,
+                title: `${liveMeetup.title} (by ${liveMeetup.creator.first_name})`,
+                text: `Indicate your availability for ${liveMeetup.creator.first_name}'s meetup by clicking the link!`,
+            });
+        } else if (navigator && navigator.clipboard) {
+            navigator.clipboard.writeText(url);
+            toast({
+                title: "Link copied to clipboard",
+                description: "You can now share the link with others.",
+                ...SUCCESS_TOAST_OPTIONS,
+            });
+        } else {
+            toast({
+                title: "Error sharing link",
+                description:
+                    "Your browser does not support sharing links. Please copy the website URL instead.",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        }
     };
 
     return (

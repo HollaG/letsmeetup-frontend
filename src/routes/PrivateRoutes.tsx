@@ -3,7 +3,7 @@ import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
 const PrivateRoutes = () => {
     const { user } = useTelegram();
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
     // console.log(user);
 
     const location = useLocation();

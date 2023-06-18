@@ -5,10 +5,19 @@ import {
     createIfNotExists,
     IMeetupUser,
 } from "../firebase/db/repositories/users";
+import { ITelegramUser } from "../types/telegram";
 
 export type IWebUser = User;
 
-export const WebUserContext = createContext<IMeetupUser | null | false>(false);
+type IWebUserContext = {
+    webUser: IMeetupUser | null | false;
+    setTelegramWebUser?: (user: ITelegramUser) => void;
+    clearUser?: () => void;
+};
+
+export const WebUserContext = createContext<IWebUserContext>({
+    webUser: null,
+});
 
 const ANONYMOUS_NAMES =
     "alligator, anteater, armadillo, auroch, axolotl, badger, bat, bear, beaver, blobfish, buffalo, camel, chameleon, cheetah, chipmunk, chinchilla, chupacabra, cormorant, coyote, crow, dingo, dinosaur, dog, dolphin, dragon, duck, dumbo octopus, elephant, ferret, fox, frog, giraffe, goose, gopher, grizzly, hamster, hedgehog, hippo, hyena, jackal, jackalope, ibex, ifrit, iguana, kangaroo, kiwi, koala, kraken, lemur, leopard, liger, lion, llama, manatee, mink, monkey, moose, narwhal, nyan cat, orangutan, otter, panda, penguin, platypus, python, pumpkin, quagga, quokka, rabbit, raccoon, rhino, sheep, shrew, skunk, slow loris, squirrel, tiger, turtle, unicorn, walrus, wolf, wolverine, wombat".split(
@@ -32,15 +41,39 @@ export const WebUserProvider = ({
     children: React.ReactNode;
 }) => {
     // false represents the Loading state. null represents the Logged Out state
-    const [user, setUser] = useState<IMeetupUser | null | false>(false);
+    const [user, setUser] = useState<IMeetupUser | null | false>(
+        JSON.parse(localStorage.getItem("user") || "null")
+    );
+
+    // useEffect(() => {
+    //     const savedUser = localStorage.getItem("user");
+    //     if (savedUser) {
+    //         try {
+    //             // savedTelegramUser = JSON.parse(savedUser);
+    //             setUser(JSON.parse(savedUser));
+    //         } catch (e) {
+    //             console.log(e);
+    //         }
+    //     }
+    // }, []);
+
+    // let savedTelegramUser: ITelegramUser | null = null;
+    const [savedTelegramUser, setSavedTelegramUser] =
+        useState<ITelegramUser | null>(null);
 
     // listen to auth changes
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (!user) {
-                setUser(null);
+                console.log("CLEARING");
+                // setUser(null);
+
+                // if (!saved) {
+                //     localStorage.removeItem("user");
+                // }
                 return;
             }
+
             const meetupUser: IMeetupUser = {
                 id: user?.uid || "",
                 first_name: user.displayName || "",
@@ -60,7 +93,10 @@ export const WebUserProvider = ({
                 meetupUser.first_name = `Anonymous ${randomName}`;
             }
 
-            if (user) setUser(meetupUser);
+            if (user) {
+                setUser(meetupUser);
+                localStorage.setItem("user", JSON.stringify(meetupUser));
+            }
 
             if (user) {
                 // add to db if not exist
@@ -70,7 +106,9 @@ export const WebUserProvider = ({
             }
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+        };
     }, []);
 
     // listen to name changes
@@ -96,14 +134,41 @@ export const WebUserProvider = ({
                 meetupUser.first_name = `Anonymous ${randomName}`;
             }
 
-            if (user) setUser(meetupUser);
+            if (user) {
+                setUser(meetupUser);
+                localStorage.setItem("user", JSON.stringify(meetupUser));
+            }
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+        };
     }, []);
 
+    const value: IWebUserContext = {
+        webUser: user,
+        setTelegramWebUser: (user: ITelegramUser) => {
+            const u = {
+                ...user,
+                id: user.id.toString(),
+                type: "telegram",
+                // override
+                photo_url:
+                    "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg",
+            };
+            setUser(u);
+            localStorage.setItem("user", JSON.stringify(u));
+        },
+        clearUser: () => {
+            console.log("clear user ran");
+            // savedTelegramUser = null;
+            setSavedTelegramUser(null);
+            console.log({ user });
+            setUser(null);
+        },
+    };
     return (
-        <WebUserContext.Provider value={user}>
+        <WebUserContext.Provider value={value}>
             {children}
         </WebUserContext.Provider>
     );

@@ -80,7 +80,7 @@ const Create = () => {
     const [isFullDay, setIsFullDay, isFullDayRef] = useStateRef<boolean>(false);
 
     const { user, webApp, style } = useTelegram();
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
 
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
         useStateRef<boolean>(false);
@@ -559,7 +559,7 @@ const Create = () => {
                                 default.
                             </HelperText>
                         </Box>
-                        {user && (
+                        {(user || (webUser && webUser.type === "telegram")) && (
                             <>
                                 <FormControl>
                                     <Flex

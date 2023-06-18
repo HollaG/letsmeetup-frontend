@@ -43,7 +43,7 @@ const MenuNavLink = ({ children }: { children: ReactNode }) => (
 export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
     const { user } = useTelegram();
 
     return (

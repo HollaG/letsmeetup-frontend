@@ -21,21 +21,23 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaGithub, FaMicrosoft } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Navigate, redirect } from "react-router-dom";
+import TelegramLoginButton from "telegram-login-button";
+import HelperText from "../components/Display/HelperText";
+
 import { useWebUser } from "../context/WebAuthProvider";
 import { createAccountEmail, signInEmail } from "../firebase/auth/email";
 import { signInWithGithub } from "../firebase/auth/github";
 import { signInWithGoogle } from "../firebase/auth/google";
-import { signInWithMicrosoft } from "../firebase/auth/microsoft";
 import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
 } from "../utils/toasts.utils";
 
 const AuthPage = () => {
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
 
     // TODO
     const searchParams = new URLSearchParams(document.location.search);
@@ -66,7 +68,7 @@ export function LoginCard() {
             <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
                 <Stack align={"center"}>
                     <Heading fontSize={"4xl"}>Sign in to your account</Heading>
-                    <Text fontSize={"lg"} color={"gray.600"}>
+                    <Text fontSize={"lg"} color={"gray.500"}>
                         to edit your meetups in future ✌️
                         {/* <Link color={"blue.400"}>features</Link>  */}
                     </Text>
@@ -190,92 +192,135 @@ export function LoginInfo() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const { setTelegramWebUser } = useWebUser();
+
     return (
-        <Tabs variant="soft-rounded" isFitted>
-            <TabList>
-                <Tab>Returning User</Tab>
-                <Tab>New User</Tab>
-            </TabList>
+        <>
+            <Stack spacing={4} mb={4}>
+                <Center>
+                    <Stack
+                        justifyContent="center"
+                        textAlign="center"
+                        spacing={1}
+                    >
+                        <TelegramLoginButton
+                            botName="meetupdevbot"
+                            dataOnauth={setTelegramWebUser}
+                            usePic
+                        />
+                        <HelperText>
+                            {" "}
+                            Bonus: Recieve notifications in Telegram!
+                        </HelperText>
+                    </Stack>
+                </Center>
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Divider />
+                    <Text mx={3} fontWeight="semibold">
+                        {" "}
+                        or{" "}
+                    </Text>
+                    <Divider />
+                </Flex>
+            </Stack>
+            <Tabs variant="soft-rounded" isFitted>
+                <TabList>
+                    <Tab>Returning User</Tab>
+                    <Tab>New User</Tab>
+                </TabList>
 
-            <TabPanels>
-                <TabPanel>
-                    <form>
-                        <Stack spacing={4}>
-                            <FormControl
-                                id="email"
-                                isRequired
-                                isInvalid={returningEmailIncorrect}
-                            >
-                                <FormLabel>Email</FormLabel>
-                                <Input
-                                    value={returningEmail}
-                                    onChange={(e) => {
-                                        setReturningEmail(e.target.value);
-                                        setReturningEmailIncorrect(false);
-                                    }}
-                                    type="email"
-                                />
-                                {!returningEmailIncorrect ? (
-                                    <FormHelperText>
-                                        Please enter the email you signed up
-                                        with.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>
-                                        Email does not exist, please sign up
-                                        first!
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                            <FormControl
-                                id="password"
-                                isRequired
-                                isInvalid={returningPasswordIncorrect}
-                            >
-                                <FormLabel>Password</FormLabel>
-                                <Input
-                                    value={returningPassword}
-                                    onChange={(e) => {
-                                        setReturningPassword(e.target.value);
-                                        setReturningPasswordIncorrect(false);
-                                    }}
-                                    type="password"
-                                />
-                                {!returningPasswordIncorrect ? (
-                                    <FormHelperText>
-                                        Your password must be at least 6
-                                        characters long.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>
-                                        Your password is incorrect!
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-
-                            <Stack>
-                                <Button
-                                    colorScheme="purple"
-                                    onClick={signIn}
-                                    isLoading={isSubmitting}
-                                    type="submit"
+                <TabPanels>
+                    <TabPanel>
+                        <form>
+                            <Stack spacing={4}>
+                                <FormControl
+                                    id="email"
+                                    isRequired
+                                    isInvalid={returningEmailIncorrect}
                                 >
-                                    Sign in
-                                </Button>
-                            </Stack>
+                                    <FormLabel>Email</FormLabel>
+                                    <Input
+                                        value={returningEmail}
+                                        onChange={(e) => {
+                                            setReturningEmail(e.target.value);
+                                            setReturningEmailIncorrect(false);
+                                        }}
+                                        type="email"
+                                    />
+                                    {!returningEmailIncorrect ? (
+                                        <FormHelperText>
+                                            Please enter the email you signed up
+                                            with.
+                                        </FormHelperText>
+                                    ) : (
+                                        <FormErrorMessage>
+                                            Email does not exist, please sign up
+                                            first!
+                                        </FormErrorMessage>
+                                    )}
+                                </FormControl>
+                                <FormControl
+                                    id="password"
+                                    isRequired
+                                    isInvalid={returningPasswordIncorrect}
+                                >
+                                    <FormLabel>Password</FormLabel>
+                                    <Input
+                                        value={returningPassword}
+                                        onChange={(e) => {
+                                            setReturningPassword(
+                                                e.target.value
+                                            );
+                                            setReturningPasswordIncorrect(
+                                                false
+                                            );
+                                        }}
+                                        type="password"
+                                    />
+                                    {!returningPasswordIncorrect ? (
+                                        <FormHelperText>
+                                            Your password must be at least 6
+                                            characters long.
+                                        </FormHelperText>
+                                    ) : (
+                                        <FormErrorMessage>
+                                            Your password is incorrect!
+                                        </FormErrorMessage>
+                                    )}
+                                </FormControl>
+                                <Stack>
+                                    <Button
+                                        colorScheme="purple"
+                                        onClick={signIn}
+                                        isLoading={isSubmitting}
+                                        type="submit"
+                                    >
+                                        Sign in
+                                    </Button>
+                                </Stack>
+                                <Flex
+                                    justifyContent={"space-between"}
+                                    alignItems="center"
+                                >
+                                    <Divider />
+                                    <Text mx={3} fontWeight="semibold">
+                                        {" "}
+                                        or{" "}
+                                    </Text>
+                                    <Divider />
+                                </Flex>
 
-                            <Divider />
-                            <Button
-                                w={"full"}
-                                variant={"outline"}
-                                leftIcon={<FcGoogle />}
-                                onClick={signInWithGoogle}
-                            >
-                                <Center>
-                                    <Text>Sign in with Google</Text>
-                                </Center>
-                            </Button>
-                            {/* <Button
+                                <Button
+                                    w={"full"}
+                                    variant={"outline"}
+                                    leftIcon={<FcGoogle />}
+                                    onClick={signInWithGoogle}
+                                >
+                                    <Center>
+                                        <Text>Sign in with Google</Text>
+                                    </Center>
+                                </Button>
+                                {/* <Button
                                 w={"full"}
                                 colorScheme={"facebook"}
                                 leftIcon={<FaFacebook />}
@@ -285,7 +330,7 @@ export function LoginInfo() {
                                     <Text>Continue with Facebook</Text>
                                 </Center>
                             </Button> */}
-                            <Button
+                                {/* <Button
                                 w={"full"}
                                 colorScheme={"gray"}
                                 leftIcon={<FaMicrosoft />}
@@ -294,160 +339,174 @@ export function LoginInfo() {
                                 <Center>
                                     <Text>Sign in with Microsoft</Text>
                                 </Center>
-                            </Button>
-                            <Button
-                                w={"full"}
-                                colorScheme={"purple"}
-                                leftIcon={<FaGithub />}
-                                onClick={signInWithGithub}
-                            >
-                                <Center>
-                                    <Text>Sign in with Github</Text>
-                                </Center>
-                            </Button>
-                        </Stack>
-                    </form>
-                </TabPanel>
-                <TabPanel>
-                    <form>
-                        <Stack spacing={4}>
-                            <FormControl
-                                id="new-email"
-                                isRequired
-                                isInvalid={!(newEmail === "" || emailIsValid)}
-                            >
-                                <FormLabel>Email</FormLabel>
-                                <Input
-                                    value={newEmail}
-                                    onChange={(e) =>
-                                        setNewEmail(e.target.value)
-                                    }
-                                    type="email"
-                                />
-                                {newEmail === "" || emailIsValid ? (
-                                    <FormHelperText>
-                                        Your email will be used to sign in in
-                                        future.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>
-                                        Email is invalid!
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                            <FormControl
-                                id="new-password"
-                                isRequired
-                                isInvalid={
-                                    !(newPassword === "" || passwordIsValid)
-                                }
-                            >
-                                <FormLabel>Password</FormLabel>
-                                <Input
-                                    value={newPassword}
-                                    onChange={(e) =>
-                                        setNewPassword(e.target.value)
-                                    }
-                                    type="password"
-                                />
-                                {newPassword === "" || passwordIsValid ? (
-                                    <FormHelperText>
-                                        Your password must be at least 6
-                                        characters long.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>
-                                        Your password must be at least 6
-                                        characters long!
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                            <FormControl
-                                id="new-confirm-password"
-                                isRequired
-                                isInvalid={
-                                    !(
-                                        newConfirmPassword === "" ||
-                                        confirmSameAsNew
-                                    )
-                                }
-                            >
-                                <FormLabel>Confirm Password</FormLabel>
-                                <Input
-                                    value={newConfirmPassword}
-                                    onChange={(e) =>
-                                        setNewConfirmPassword(e.target.value)
-                                    }
-                                    type="password"
-                                />
-                                {newConfirmPassword === "" ||
-                                confirmSameAsNew ? (
-                                    <FormHelperText>
-                                        Please re-type your password.
-                                    </FormHelperText>
-                                ) : (
-                                    <FormErrorMessage>
-                                        Passwords do not match!
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                            <Flex flexDir={"row"}>
-                                <FormControl
-                                    mr={1}
-                                    id="new-firstname"
-                                    isRequired
-                                    isInvalid={
-                                        newFirstName.trim() === "" &&
-                                        touchedNewFirstName
-                                    }
-                                >
-                                    <FormLabel>First Name</FormLabel>
-                                    <Input
-                                        value={newFirstName}
-                                        onChange={(e) => {
-                                            setNewFirstName(e.target.value);
-                                            setTouchedNewFirstName(true);
-                                        }}
-                                        type="text"
-                                    />
-                                    {/* <HelperText></HelperText> */}
-                                </FormControl>
-                                <FormControl ml={1} id="new-lastname">
-                                    <FormLabel>Last Name</FormLabel>
-                                    <Input
-                                        value={newLastName}
-                                        onChange={(e) =>
-                                            setNewLastName(e.target.value)
-                                        }
-                                        type="text"
-                                        placeholder="Optional"
-                                    />
-                                    {/* <HelperText></HelperText> */}
-                                </FormControl>{" "}
-                            </Flex>
-                            <Stack spacing={10}>
+                            </Button> */}
                                 <Button
-                                    colorScheme="purple"
-                                    onClick={onCreateAccount}
-                                    isDisabled={!canCreate}
-                                    isLoading={isSubmitting}
-                                    type="submit"
+                                    w={"full"}
+                                    colorScheme={"purple"}
+                                    leftIcon={<FaGithub />}
+                                    onClick={signInWithGithub}
                                 >
-                                    Sign up
+                                    <Center>
+                                        <Text>Sign in with Github</Text>
+                                    </Center>
                                 </Button>
                             </Stack>
-                            <Divider />
-                            <Button
-                                w={"full"}
-                                variant={"outline"}
-                                leftIcon={<FcGoogle />}
-                                onClick={signInWithGoogle}
-                            >
-                                <Center>
-                                    <Text>Sign up with Google</Text>
-                                </Center>
-                            </Button>
-                            {/* <Button
+                        </form>
+                    </TabPanel>
+                    <TabPanel>
+                        <form>
+                            <Stack spacing={4}>
+                                <FormControl
+                                    id="new-email"
+                                    isRequired
+                                    isInvalid={
+                                        !(newEmail === "" || emailIsValid)
+                                    }
+                                >
+                                    <FormLabel>Email</FormLabel>
+                                    <Input
+                                        value={newEmail}
+                                        onChange={(e) =>
+                                            setNewEmail(e.target.value)
+                                        }
+                                        type="email"
+                                    />
+                                    {newEmail === "" || emailIsValid ? (
+                                        <FormHelperText>
+                                            Your email will be used to sign in
+                                            in future.
+                                        </FormHelperText>
+                                    ) : (
+                                        <FormErrorMessage>
+                                            Email is invalid!
+                                        </FormErrorMessage>
+                                    )}
+                                </FormControl>
+                                <FormControl
+                                    id="new-password"
+                                    isRequired
+                                    isInvalid={
+                                        !(newPassword === "" || passwordIsValid)
+                                    }
+                                >
+                                    <FormLabel>Password</FormLabel>
+                                    <Input
+                                        value={newPassword}
+                                        onChange={(e) =>
+                                            setNewPassword(e.target.value)
+                                        }
+                                        type="password"
+                                    />
+                                    {newPassword === "" || passwordIsValid ? (
+                                        <FormHelperText>
+                                            Your password must be at least 6
+                                            characters long.
+                                        </FormHelperText>
+                                    ) : (
+                                        <FormErrorMessage>
+                                            Your password must be at least 6
+                                            characters long!
+                                        </FormErrorMessage>
+                                    )}
+                                </FormControl>
+                                <FormControl
+                                    id="new-confirm-password"
+                                    isRequired
+                                    isInvalid={
+                                        !(
+                                            newConfirmPassword === "" ||
+                                            confirmSameAsNew
+                                        )
+                                    }
+                                >
+                                    <FormLabel>Confirm Password</FormLabel>
+                                    <Input
+                                        value={newConfirmPassword}
+                                        onChange={(e) =>
+                                            setNewConfirmPassword(
+                                                e.target.value
+                                            )
+                                        }
+                                        type="password"
+                                    />
+                                    {newConfirmPassword === "" ||
+                                    confirmSameAsNew ? (
+                                        <FormHelperText>
+                                            Please re-type your password.
+                                        </FormHelperText>
+                                    ) : (
+                                        <FormErrorMessage>
+                                            Passwords do not match!
+                                        </FormErrorMessage>
+                                    )}
+                                </FormControl>
+                                <Flex flexDir={"row"}>
+                                    <FormControl
+                                        mr={1}
+                                        id="new-firstname"
+                                        isRequired
+                                        isInvalid={
+                                            newFirstName.trim() === "" &&
+                                            touchedNewFirstName
+                                        }
+                                    >
+                                        <FormLabel>First Name</FormLabel>
+                                        <Input
+                                            value={newFirstName}
+                                            onChange={(e) => {
+                                                setNewFirstName(e.target.value);
+                                                setTouchedNewFirstName(true);
+                                            }}
+                                            type="text"
+                                        />
+                                        {/* <HelperText></HelperText> */}
+                                    </FormControl>
+                                    <FormControl ml={1} id="new-lastname">
+                                        <FormLabel>Last Name</FormLabel>
+                                        <Input
+                                            value={newLastName}
+                                            onChange={(e) =>
+                                                setNewLastName(e.target.value)
+                                            }
+                                            type="text"
+                                            placeholder="Optional"
+                                        />
+                                        {/* <HelperText></HelperText> */}
+                                    </FormControl>{" "}
+                                </Flex>
+                                <Stack spacing={10}>
+                                    <Button
+                                        colorScheme="purple"
+                                        onClick={onCreateAccount}
+                                        isDisabled={!canCreate}
+                                        isLoading={isSubmitting}
+                                        type="submit"
+                                    >
+                                        Sign up
+                                    </Button>
+                                </Stack>
+                                <Flex
+                                    justifyContent={"space-between"}
+                                    alignItems="center"
+                                >
+                                    <Divider />
+                                    <Text mx={3} fontWeight="semibold">
+                                        {" "}
+                                        or{" "}
+                                    </Text>
+                                    <Divider />
+                                </Flex>
+                                <Button
+                                    w={"full"}
+                                    variant={"outline"}
+                                    leftIcon={<FcGoogle />}
+                                    onClick={signInWithGoogle}
+                                >
+                                    <Center>
+                                        <Text>Sign up with Google</Text>
+                                    </Center>
+                                </Button>
+                                {/* <Button
                                 w={"full"}
                                 colorScheme={"facebook"}
                                 leftIcon={<FaFacebook />}
@@ -457,33 +516,34 @@ export function LoginInfo() {
                                     <Text>Continue with Facebook</Text>
                                 </Center>
                             </Button> */}
-                            <Button
-                                w={"full"}
-                                colorScheme={"gray"}
-                                leftIcon={<FaMicrosoft />}
-                                onClick={signInWithMicrosoft}
-                                variant="outline"
-                            >
-                                <Center>
-                                    <Text>Sign up with Microsoft</Text>
-                                </Center>
-                            </Button>
-                            <Button
-                                w={"full"}
-                                colorScheme={"purple"}
-                                leftIcon={<FaGithub />}
-                                onClick={signInWithGithub}
-                                variant="outline"
-                            >
-                                <Center>
-                                    <Text>Sign up with Github</Text>
-                                </Center>
-                            </Button>
-                        </Stack>
-                    </form>
-                </TabPanel>
-            </TabPanels>
-        </Tabs>
+                                {/* <Button
+                                    w={"full"}
+                                    colorScheme={"gray"}
+                                    leftIcon={<FaMicrosoft />}
+                                    onClick={signInWithMicrosoft}
+                                    variant="outline"
+                                >
+                                    <Center>
+                                        <Text>Sign up with Microsoft</Text>
+                                    </Center>
+                                </Button> */}
+                                <Button
+                                    w={"full"}
+                                    colorScheme={"purple"}
+                                    leftIcon={<FaGithub />}
+                                    onClick={signInWithGithub}
+                                    // variant="outline"
+                                >
+                                    <Center>
+                                        <Text>Sign up with Github</Text>
+                                    </Center>
+                                </Button>
+                            </Stack>
+                        </form>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
+        </>
     );
 }
 

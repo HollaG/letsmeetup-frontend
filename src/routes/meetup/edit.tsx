@@ -81,7 +81,7 @@ const MeetupEditPage = () => {
     );
 
     const { user, webApp, style } = useTelegram();
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
 
     const userId = user?.id || (webUser && webUser?.id) || "";
     const [userCanSubmit, setUserCanSubmit, userCanSubmitRef] =
@@ -701,7 +701,7 @@ const MeetupEditPage = () => {
                         Please note that changing any 'limit' setting will NOT
                         remove users who have already indicated!
                     </Alert>
-                    {user && (
+                    {(user || (webUser && webUser.type === "telegram")) && (
                         <>
                             <FormControl>
                                 <Flex
