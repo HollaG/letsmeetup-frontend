@@ -41,15 +41,39 @@ export const WebUserProvider = ({
     children: React.ReactNode;
 }) => {
     // false represents the Loading state. null represents the Logged Out state
-    const [user, setUser] = useState<IMeetupUser | null | false>(false);
+    const [user, setUser] = useState<IMeetupUser | null | false>(
+        JSON.parse(localStorage.getItem("user") || "null")
+    );
+
+    // useEffect(() => {
+    //     const savedUser = localStorage.getItem("user");
+    //     if (savedUser) {
+    //         try {
+    //             // savedTelegramUser = JSON.parse(savedUser);
+    //             setUser(JSON.parse(savedUser));
+    //         } catch (e) {
+    //             console.log(e);
+    //         }
+    //     }
+    // }, []);
+
+    // let savedTelegramUser: ITelegramUser | null = null;
+    const [savedTelegramUser, setSavedTelegramUser] =
+        useState<ITelegramUser | null>(null);
 
     // listen to auth changes
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (!user) {
-                setUser(null);
+                console.log("CLEARING");
+                // setUser(null);
+
+                // if (!saved) {
+                //     localStorage.removeItem("user");
+                // }
                 return;
             }
+
             const meetupUser: IMeetupUser = {
                 id: user?.uid || "",
                 first_name: user.displayName || "",
@@ -84,7 +108,6 @@ export const WebUserProvider = ({
 
         return () => {
             unsubscribe();
-            localStorage.removeItem("user");
         };
     }, []);
 
@@ -119,22 +142,11 @@ export const WebUserProvider = ({
 
         return () => {
             unsubscribe();
-            localStorage.removeItem("user");
         };
     }, []);
 
-    const savedUser = localStorage.getItem("user");
-    let savedTelegramUser: ITelegramUser | null = null;
-    if (savedUser) {
-        try {
-            savedTelegramUser = JSON.parse(savedUser);
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
     const value: IWebUserContext = {
-        webUser: savedTelegramUser || user,
+        webUser: user,
         setTelegramWebUser: (user: ITelegramUser) => {
             const u = {
                 ...user,
@@ -147,7 +159,13 @@ export const WebUserProvider = ({
             setUser(u);
             localStorage.setItem("user", JSON.stringify(u));
         },
-        clearUser: () => setUser(null),
+        clearUser: () => {
+            console.log("clear user ran");
+            // savedTelegramUser = null;
+            setSavedTelegramUser(null);
+            console.log({ user });
+            setUser(null);
+        },
     };
     return (
         <WebUserContext.Provider value={value}>

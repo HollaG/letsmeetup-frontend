@@ -907,6 +907,8 @@ const MeetupPage = () => {
         if (navigator && navigator.share) {
             navigator.share({
                 url,
+                title: `${liveMeetup.title} (by ${liveMeetup.creator.first_name})`,
+                text: `Indicate your availability for ${liveMeetup.creator.first_name}'s meetup by clicking the link!`,
             });
         } else if (navigator && navigator.clipboard) {
             navigator.clipboard.writeText(url);
