@@ -61,8 +61,10 @@ const MeetupsPage = () => {
         });
 
     useEffect(() => {
-        if (meetupUser)
+        if (meetupUser) {
+            console.log("Loading your meetups...");
             getUserMeetups(meetupUser.id).then(setMeetups).catch(console.error);
+        }
     }, [meetupUser]);
 
     const navigate = useNavigate();
@@ -177,6 +179,7 @@ const MeetupsPage = () => {
                                 key={i}
                                 direction="row"
                                 justifyContent="space-between"
+                                flexWrap={"wrap"}
                             >
                                 <Stack spacing={5}>
                                     <Box>
@@ -279,7 +282,10 @@ const MeetupsPage = () => {
                                                         boxSize="4"
                                                     />{" "}
                                                 </Flex>{" "}
-                                                <Flex alignItems="center">
+                                                <Flex
+                                                    alignItems="center"
+                                                    justifyContent="right"
+                                                >
                                                     {" "}
                                                     <Text
                                                         fontSize="sm"
