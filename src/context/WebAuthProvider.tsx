@@ -58,8 +58,6 @@ export const WebUserProvider = ({
     // }, []);
 
     // let savedTelegramUser: ITelegramUser | null = null;
-    const [savedTelegramUser, setSavedTelegramUser] =
-        useState<ITelegramUser | null>(null);
 
     // listen to auth changes
     useEffect(() => {
@@ -160,10 +158,6 @@ export const WebUserProvider = ({
             localStorage.setItem("user", JSON.stringify(u));
         },
         clearUser: () => {
-            console.log("clear user ran");
-            // savedTelegramUser = null;
-            setSavedTelegramUser(null);
-            console.log({ user });
             setUser(null);
         },
     };
