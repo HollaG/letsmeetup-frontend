@@ -194,6 +194,7 @@ export function LoginInfo() {
 
     const { setTelegramWebUser } = useWebUser();
 
+    const botName = process.env.REACT_APP_BOT_NAME || "look4timesbot";
     return (
         <>
             <Stack spacing={4} mb={4}>
@@ -204,9 +205,10 @@ export function LoginInfo() {
                         spacing={1}
                     >
                         <TelegramLoginButton
-                            botName="meetupdevbot"
+                            botName={botName}
                             dataOnauth={setTelegramWebUser}
                             usePic
+                            cornerRadius={6}
                         />
                         <HelperText>
                             {" "}
