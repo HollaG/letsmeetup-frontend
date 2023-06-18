@@ -43,9 +43,10 @@ import {
     SliderTrack,
     Tooltip,
     SliderMark,
+    AlertTitle,
 } from "@chakra-ui/react";
 import { SelectionEvent } from "@viselect/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import useStateRef from "react-usestateref";
@@ -82,6 +83,7 @@ import FancyButton from "../../components/Buttons/FancyButton";
 import { format, isBefore } from "date-fns/esm";
 import { Timestamp } from "firebase/firestore";
 import UsersDisplay from "../../components/AvailabilityList/common/UsersDisplay";
+import { LoginInfo } from "../auth";
 
 /**
  * Swaps the format of encoded string from [minutes]::[date] to [date]::[minutes] if :: is present
@@ -902,6 +904,23 @@ const MeetupPage = () => {
         </AlertDialog>
     );
 
+    // for signing in
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (webUser) {
+            onClose();
+            if (isOpen)
+                toast({
+                    title: "Signed in",
+                    description:
+                        "You have been signed in! You can now proceed to create your meetup.",
+                    ...SUCCESS_TOAST_OPTIONS,
+                });
+        }
+    }, [webUser]);
+
     const shareWeb = () => {
         const url = `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`;
         if (navigator && navigator.share) {
@@ -1258,7 +1277,45 @@ const MeetupPage = () => {
                                         {/* This section is for web users only; let them input a name if they don't have one. */}
                                         {(!webUser || !webUser.first_name) &&
                                             !user && (
-                                                <Box>
+                                                <Stack>
+                                                    <Alert
+                                                        status="info"
+                                                        display="flex"
+                                                        justifyContent="space-between"
+                                                    >
+                                                        <Flex alignItems="center">
+                                                            <AlertIcon />
+                                                            <Flex flexDir="column">
+                                                                <AlertTitle>
+                                                                    We notice
+                                                                    you're not
+                                                                    signed in!
+                                                                </AlertTitle>
+                                                                Create an
+                                                                account now to
+                                                                have access to
+                                                                features such as
+                                                                editing your
+                                                                availability
+                                                                after
+                                                                indicating.
+                                                            </Flex>
+                                                        </Flex>
+                                                        <Button
+                                                            colorScheme="purple"
+                                                            size="sm"
+                                                            onClick={onOpen}
+                                                        >
+                                                            {" "}
+                                                            Sign in{" "}
+                                                        </Button>
+                                                    </Alert>
+
+                                                    <Text>
+                                                        Alternatively, just
+                                                        enter your name below to
+                                                        continue as a guest:{" "}
+                                                    </Text>
                                                     <Input
                                                         placeholder={
                                                             "Your name (required)"
@@ -1274,7 +1331,7 @@ const MeetupPage = () => {
                                                         Your name will help the
                                                         creator identify you!
                                                     </HelperText>
-                                                </Box>
+                                                </Stack>
                                             )}
                                         {!user && (
                                             <Center>
@@ -1326,6 +1383,37 @@ const MeetupPage = () => {
                 )}
 
                 {AlertDelete}
+                <AlertDialog
+                    isOpen={isOpen}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onClose}
+                    size="xl"
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                                Create or sign in to your account
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                <LoginInfo />
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button
+                                    ref={cancelRef}
+                                    onClick={onClose}
+                                    variant="outline"
+                                >
+                                    Never mind, I'll continue as a guest
+                                </Button>
+                                {/* <Button colorScheme="red" onClick={() => {}} ml={3}>
+                                Delete
+                            </Button> */}
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
             </Stack>
         </form>
     );
