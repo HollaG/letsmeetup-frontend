@@ -134,7 +134,7 @@ export const removeDate = (time: string) => {
 };
 
 const MeetupPage = () => {
-    const webUser = useWebUser();
+    const { webUser } = useWebUser();
 
     // Only on this page, create an anonymous account for the user if there is no webUser detected.
 

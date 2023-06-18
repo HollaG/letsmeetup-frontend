@@ -39,7 +39,7 @@ import {
 } from "../utils/toasts.utils";
 const MeetupsPage = () => {
     const { user } = useTelegram();
-    const webUser = useWebUser();
+    const { webUser, clearUser } = useWebUser();
 
     const meetupUser = user ? user : webUser;
     const [meetups, setMeetups] = useState<Meetup[]>([]);
@@ -78,7 +78,7 @@ const MeetupsPage = () => {
         if (meetupUser) {
             setIsDeleting(true);
             deleteData(meetupUser.id)
-                .then(signOutAll)
+                .then(() => signOutAll(clearUser!))
                 .then(() => {
                     toast({
                         title: "User data deleted",
@@ -103,7 +103,7 @@ const MeetupsPage = () => {
 
     const handleSignOut = () => {
         navigate("/");
-        signOutAll();
+        signOutAll(clearUser!);
     };
 
     return (
