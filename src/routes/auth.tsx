@@ -21,9 +21,11 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaGithub, FaMicrosoft } from "react-icons/fa";
+import { FaGithub, FaMicrosoft, FaTelegram } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Navigate, redirect } from "react-router-dom";
+import TelegramLoginButton from "telegram-login-button";
+import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
 import { createAccountEmail, signInEmail } from "../firebase/auth/email";
 import { signInWithGithub } from "../firebase/auth/github";
@@ -190,6 +192,8 @@ export function LoginInfo() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const { setWebTelegramUser } = useTelegram();
+
     return (
         <Tabs variant="soft-rounded" isFitted>
             <TabList>
@@ -252,7 +256,6 @@ export function LoginInfo() {
                                     </FormErrorMessage>
                                 )}
                             </FormControl>
-
                             <Stack>
                                 <Button
                                     colorScheme="purple"
@@ -263,8 +266,25 @@ export function LoginInfo() {
                                     Sign in
                                 </Button>
                             </Stack>
-
                             <Divider />
+                            <Button
+                                w={"full"}
+                                variant={"solid"}
+                                leftIcon={<FaTelegram />}
+                                onClick={signInWithGoogle}
+                                colorScheme="telegram"
+                            >
+                                <Center>
+                                    <Text>Sign in with Telegram</Text>
+                                </Center>
+                            </Button>
+                            <Center>
+                                <TelegramLoginButton
+                                    botName="meetupdevbot"
+                                    dataOnauth={setWebTelegramUser}
+                                    usePic
+                                />
+                            </Center>
                             <Button
                                 w={"full"}
                                 variant={"outline"}

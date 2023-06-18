@@ -1,12 +1,16 @@
 import { useColorMode } from "@chakra-ui/react";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { IMeetupUser } from "../firebase/db/repositories/users";
-import type { IWebApp, ThemeParams } from "../types/telegram";
+import type { ITelegramUser, IWebApp, ThemeParams } from "../types/telegram";
 
 export interface ITelegramContext {
+    // // hideNavbar: hide if on Telegram Web App
+    // hideNavbar: boolean;
     webApp?: IWebApp;
+    unsafeData?: any;
     user?: IMeetupUser;
     style?: ThemeParams;
+    setWebTelegramUser?: (user: ITelegramUser) => void;
 }
 
 export const TelegramContext = createContext<ITelegramContext>({});
@@ -110,6 +114,9 @@ export const TelegramProvider = ({
 
     const app = (window as any).Telegram?.WebApp;
 
+    const [webApp, setWebApp] = useState<IWebApp | undefined>(app);
+    const [user, setUser] = useState<ITelegramUser | undefined>(undefined);
+
     if (app as IWebApp) {
         const initData = app.initData;
 
@@ -125,27 +132,39 @@ export const TelegramProvider = ({
             //     });
             app.ready();
             app.onEvent("themeChanged", updateColorMode);
+            setUser({
+                ...app.initDataUnsafe.user,
+                type: "telegram",
+                id: app.initDataUnsafe.user.id.toString(),
+            });
         }
     }
 
-    const [webApp, setWebApp] = useState<IWebApp | null>(app);
+    const value: ITelegramContext = {
+        webApp: webApp ?? undefined,
+        unsafeData: webApp?.initDataUnsafe,
+        user,
+        style: themeParams || undefined,
+        setWebTelegramUser: (user: ITelegramUser) =>
+            setUser({ ...user, type: "telegram", id: user.id.toString() }),
+    };
 
-    const value = useMemo(() => {
-        return webApp
-            ? {
-                  webApp,
-                  unsafeData: webApp.initDataUnsafe,
-                  user: webApp.initDataUnsafe.user
-                      ? {
-                            ...webApp.initDataUnsafe.user,
-                            type: "telegram",
-                            id: webApp.initDataUnsafe.user.id.toString(),
-                        }
-                      : undefined,
-                  style: themeParams || undefined,
-              }
-            : {};
-    }, [webApp, themeParams]);
+    // const value = useMemo(() => {
+    //     return webApp
+    //         ? {
+    //               webApp,
+    //               unsafeData: webApp.initDataUnsafe,
+    //               user: webApp.initDataUnsafe.user
+    //                   ? {
+    //                         ...webApp.initDataUnsafe.user,
+    //                         type: "telegram",
+    //                         id: webApp.initDataUnsafe.user.id.toString(),
+    //                     }
+    //                   : undefined,
+    //               style: themeParams || undefined,
+    //           }
+    //         : {};
+    // }, [webApp, themeParams]);
 
     return (
         <TelegramContext.Provider value={value}>

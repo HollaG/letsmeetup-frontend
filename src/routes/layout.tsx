@@ -16,12 +16,12 @@ const Layout = ({
     children?: React.ReactNode | React.ReactNode[];
 }) => {
     // Only display navbar if user doesn't use Telegram webapp functionality
-    const { user } = useTelegram();
+    const { webApp } = useTelegram();
     return (
         <>
             <ScrollToTop />
             <Box minHeight={"1500px"} pb={10}>
-                {!user && <Nav />}
+                {webApp && <Nav />}
                 <Container mt={3} maxW="1000px">
                     {children ?? <Outlet />}
                 </Container>
