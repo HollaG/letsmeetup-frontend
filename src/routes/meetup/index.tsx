@@ -903,9 +903,26 @@ const MeetupPage = () => {
     );
 
     const shareWeb = () => {
-        navigator.share({
-            url: `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`,
-        });
+        const url = `${process.env.REACT_APP_BASE_URL}meetup/${meetupId}`;
+        if (navigator && navigator.share) {
+            navigator.share({
+                url,
+            });
+        } else if (navigator && navigator.clipboard) {
+            navigator.clipboard.writeText(url);
+            toast({
+                title: "Link copied to clipboard",
+                description: "You can now share the link with others.",
+                ...SUCCESS_TOAST_OPTIONS,
+            });
+        } else {
+            toast({
+                title: "Error sharing link",
+                description:
+                    "Your browser does not support sharing links. Please copy the website URL instead.",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        }
     };
 
     return (
