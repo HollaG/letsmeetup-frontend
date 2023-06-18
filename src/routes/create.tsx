@@ -34,7 +34,6 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { addYears, format, parse } from "date-fns";
-import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useNavigate } from "react-router-dom";
@@ -47,7 +46,6 @@ import TimeContainer, {
 } from "../components/Time/TimeContainer";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
-import { auth } from "../firebase";
 import { signInWithoutUsername } from "../firebase/auth/anonymous";
 import { create, Meetup } from "../firebase/db/repositories/meetups";
 import {
@@ -445,11 +443,17 @@ const Create = () => {
 
     // on sign in, close the popup, if any
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) onClose();
-        });
-        return () => unsubscribe();
-    }, []);
+        if (webUser) {
+            onClose();
+            if (isOpen)
+                toast({
+                    title: "Signed in",
+                    description:
+                        "You have been signed in! You can now proceed to create your meetup.",
+                    ...SUCCESS_TOAST_OPTIONS,
+                });
+        }
+    }, [webUser]);
 
     return (
         <form>

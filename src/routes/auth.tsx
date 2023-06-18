@@ -204,15 +204,19 @@ export function LoginInfo() {
                         textAlign="center"
                         spacing={1}
                     >
-                        <TelegramLoginButton
-                            botName={botName}
-                            dataOnauth={setTelegramWebUser}
-                            usePic
-                            cornerRadius={6}
-                        />
+                        <Center>
+                            <TelegramLoginButton
+                                botName={botName}
+                                dataOnauth={setTelegramWebUser}
+                                usePic
+                                cornerRadius={6}
+                            />
+                        </Center>
                         <HelperText>
                             {" "}
-                            Bonus: Recieve notifications in Telegram!
+                            If you've previously edited a meetup through
+                            Telegram, you can sign in with Telegram to edit your
+                            meetups here.
                         </HelperText>
                     </Stack>
                 </Center>
