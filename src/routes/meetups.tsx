@@ -22,6 +22,7 @@ import {
     AlertDialogHeader,
     AlertDialogOverlay,
     useToast,
+    SimpleGrid,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import HelperText from "../components/Display/HelperText";
@@ -168,20 +169,15 @@ const MeetupsPage = () => {
                         <NavLink as={Link} to="/create">
                             <Button colorScheme="purple" ml={2}>
                                 {" "}
-                                New event{" "}
+                                New meetup{" "}
                             </Button>
                         </NavLink>
                     </Flex>
                     {/* <Heading mt={5}> Your meetups </Heading> */}
                     <Stack mt={10} spacing={10} divider={<Divider />}>
                         {f.map((meetup, i) => (
-                            <Flex
-                                key={i}
-                                direction="row"
-                                justifyContent="space-between"
-                                flexWrap={"wrap"}
-                            >
-                                <Stack spacing={5}>
+                            <SimpleGrid columns={{ base: 1, md: 2 }} key={i}>
+                                <Stack spacing={5} mb={{ base: 3, md: 0 }}>
                                     <Box>
                                         <NavLink
                                             as={Link}
@@ -256,8 +252,11 @@ const MeetupsPage = () => {
                                     </HelperText>
                                 </Stack>
                                 <Stack
-                                    textAlign={"right"}
-                                    justifyContent="right"
+                                    textAlign={{ base: "left", md: "right" }}
+                                    justifyContent={{
+                                        base: "left",
+                                        md: "right",
+                                    }}
                                     spacing={0}
                                 >
                                     {meetup.creator.type === "telegram" &&
@@ -267,7 +266,10 @@ const MeetupsPage = () => {
                                                 {" "}
                                                 <Flex
                                                     alignItems="center"
-                                                    justifyContent="right"
+                                                    justifyContent={{
+                                                        base: "left",
+                                                        md: "right",
+                                                    }}
                                                 >
                                                     {" "}
                                                     <Text
@@ -284,7 +286,10 @@ const MeetupsPage = () => {
                                                 </Flex>{" "}
                                                 <Flex
                                                     alignItems="center"
-                                                    justifyContent="right"
+                                                    justifyContent={{
+                                                        base: "left",
+                                                        md: "right",
+                                                    }}
                                                 >
                                                     {" "}
                                                     <Text
@@ -312,7 +317,10 @@ const MeetupsPage = () => {
                                         Number.MAX_VALUE && (
                                         <Flex
                                             alignItems="center"
-                                            justifyContent="right"
+                                            justifyContent={{
+                                                base: "left",
+                                                md: "right",
+                                            }}
                                         >
                                             {" "}
                                             <Text
@@ -339,7 +347,10 @@ const MeetupsPage = () => {
                                         Number.MAX_VALUE && (
                                         <Flex
                                             alignItems="center"
-                                            justifyContent="right"
+                                            justifyContent={{
+                                                base: "left",
+                                                md: "right",
+                                            }}
                                         >
                                             {" "}
                                             <Text
@@ -360,7 +371,7 @@ const MeetupsPage = () => {
                                         </Flex>
                                     )}
                                 </Stack>
-                            </Flex>
+                            </SimpleGrid>
                         ))}
                     </Stack>
                 </GridItem>
