@@ -7,6 +7,8 @@ import {
     Image,
     Box,
     useMediaQuery,
+    Flex,
+    AspectRatio,
 } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import CallToActionWithIllustration from "../components/CTA/CTA";
@@ -30,6 +32,35 @@ const Root = () => {
                 </Heading>
                 <SimpleThreeColumns featuresRef={featuresRef} />
             </Stack>
+            <Stack spacing={8}>
+                <Heading
+                    textAlign="center"
+                    fontSize={{ base: "4xl", md: "6xl" }}
+                >
+                    Demo video 📹
+                </Heading>
+                <SimpleGrid columns={{ base: 1, md: 2 }}>
+                    {showSecondIllustration && (
+                        <Flex justifyContent="center" alignItems="center">
+                            <Image
+                                src={"/images/homepage4.svg"}
+                                maxW="350px"
+                                alt="Illustration of tutorial video"
+                            />
+                        </Flex>
+                    )}
+                    <AspectRatio ratio={16 / 9}>
+                        <iframe
+                            width="560"
+                            height="315"
+                            src="https://www.youtube.com/embed/7cBGRAFYNYo"
+                            title="YouTube video player"
+                            allowFullScreen
+                        ></iframe>
+                    </AspectRatio>
+                </SimpleGrid>
+            </Stack>
+
             <SimpleGrid columns={{ base: 1, md: 2 }}>
                 <Center>
                     <Stack>

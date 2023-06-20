@@ -61,7 +61,7 @@ export default function SimpleThreeColumns({
                     </Text>
                     <NavLink
                         as={Link}
-                        to="/meetup/MPwSU7Z4ebZOuzVcwLOR"
+                        to="/meetup/sYJXb76wIA2pkmkZbk0h"
                         fontFamily="Zilla Slab"
                         fontSize={"lg"}
                     >
@@ -81,7 +81,7 @@ export default function SimpleThreeColumns({
                     </Text>{" "}
                     <NavLink
                         as={Link}
-                        to="/meetup/OZDYuUHbAOtFNkfRlYJl"
+                        to="/meetup/oXLVq7XZjxojZSqbhjoB"
                         fontFamily="Zilla Slab"
                         fontSize={"lg"}
                     >
