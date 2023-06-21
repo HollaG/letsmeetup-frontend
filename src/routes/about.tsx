@@ -121,12 +121,6 @@ const AboutPage = () => {
                     </NavLink>{" "}
                     and click on the Delete all user data button.
                 </Text>
-                <Text>
-                    {" "}
-                    If you choose to sign in with Google or Github, I only get
-                    your display name, profile photo, and email. I do not get
-                    your password.
-                </Text>
             </Stack>
             <Divider />
             <Heading fontSize={"xl"}> Tech FAQ </Heading>
