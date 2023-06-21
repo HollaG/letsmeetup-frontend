@@ -11,6 +11,7 @@ import {
     getDoc,
     deleteDoc,
     orderBy,
+    documentId,
 } from "firebase/firestore";
 import { IMeetupUser } from "./users";
 
@@ -89,6 +90,45 @@ export const getUserMeetups = async (id: string): Promise<Array<Meetup>> => {
 
     // return and convert back it array of todo
     return data as Array<Meetup>;
+};
+
+// retrieve all meetups that this user indicated
+export const getUserRepliedMeetups = async (
+    userId: string
+): Promise<Array<Meetup>> => {
+    const user = await getDoc(doc(db, "users", userId));
+    const userDoc = user.data() as IMeetupUser;
+
+    const userIndicated = userDoc.interacted || [];
+
+    if (!userIndicated.length) return [];
+
+    // note: limited to 10
+    // https://stackoverflow.com/questions/46721517/google-firestore-how-to-get-several-documents-by-multiple-ids-in-one-round-tri
+    const q = query(
+        collection(db, COLLECTION_NAME),
+        where(documentId(), "in", userIndicated)
+    );
+
+    const data: Array<any> = [];
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        // console.log(doc.id, " => ", doc.data());
+
+        data.push({
+            id: doc.id,
+            ...doc.data(),
+        });
+    });
+
+    // sort the data by the userIndicated arrangement
+    const sortedData = userIndicated
+        .map((id) => data.find((meetup) => meetup.id === id) || undefined)
+        .filter(Boolean);
+
+    // return and convert back it array of todo
+    return sortedData as Array<Meetup>;
 };
 
 // create a Meetup
@@ -258,6 +298,19 @@ export const updateAvailability = async (
             last_updated: new Date(),
             cannotMakeIt: newCannotMakeIt,
         });
+
+        // update the user with the interacted array and add this id to it, if it doesn't exist
+        // set the latest interaction to be the first element in the array
+        const userRef = doc(db, "users", user.id.toString());
+        const userDb = (await getDoc(userRef)).data() as IMeetupUser;
+
+        const previousInteractions =
+            userDb.interacted?.filter((pId) => pId !== id) || [];
+
+        await updateDoc(userRef, {
+            interacted: [id, ...previousInteractions],
+        });
+
         return {
             id: docRef.id,
             ...oldMeetup,

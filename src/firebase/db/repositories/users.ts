@@ -7,6 +7,7 @@ import {
     doc,
     setDoc,
     deleteDoc,
+    getDoc,
 } from "firebase/firestore";
 import { ITelegramUser } from "../../../types/telegram";
 import { deleteUserMeetups } from "./meetups";
@@ -20,7 +21,9 @@ export type WebUser = {
     photo_url?: string;
 };
 
-export type IMeetupUser = WebUser | ITelegramUser;
+export type IMeetupUser = (WebUser | ITelegramUser) & {
+    interacted?: string[];
+};
 
 // collection name
 export const COLLECTION_NAME = "users";
@@ -48,7 +51,10 @@ export const createIfNotExists = async (
 ): Promise<IMeetupUser> | never => {
     const dbRef = doc(db, COLLECTION_NAME, user.id.toString());
     try {
-        await setDoc(dbRef, user);
+        const existing = await getDoc(dbRef);
+        if (!existing.data()) {
+            await setDoc(dbRef, user);
+        }
 
         return {
             ...user,

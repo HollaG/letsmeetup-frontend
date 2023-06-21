@@ -23,12 +23,21 @@ import {
     AlertDialogOverlay,
     useToast,
     SimpleGrid,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import HelperText from "../components/Display/HelperText";
 import { useTelegram } from "../context/TelegramProvider";
 import { useWebUser } from "../context/WebAuthProvider";
-import { getUserMeetups, Meetup } from "../firebase/db/repositories/meetups";
+import {
+    getUserMeetups,
+    getUserRepliedMeetups,
+    Meetup,
+} from "../firebase/db/repositories/meetups";
 import { Link, useNavigate } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
 import { format } from "date-fns/esm";
@@ -44,14 +53,14 @@ const MeetupsPage = () => {
 
     const meetupUser = user ? user : webUser;
     const [meetups, setMeetups] = useState<Meetup[]>([]);
-
+    const [interactedMeetups, setInteractedMeetups] = useState<Meetup[]>([]);
     useEffect(() => {
         document.title = `Look4Times | Your meetups`;
     }, []);
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     // filter and put all the ended meetups at the end
-    const f = meetups
+    const f1 = meetups
         .filter((m) =>
             m.title.toLowerCase().includes(searchQuery.toLowerCase().trim())
         )
@@ -61,10 +70,17 @@ const MeetupsPage = () => {
             return 0;
         });
 
+    const f2 = interactedMeetups.filter((m) =>
+        m.title.toLowerCase().includes(searchQuery.toLowerCase().trim())
+    );
+
     useEffect(() => {
         if (meetupUser) {
             console.log("Loading your meetups...");
             getUserMeetups(meetupUser.id).then(setMeetups).catch(console.error);
+            getUserRepliedMeetups(meetupUser.id)
+                .then(setInteractedMeetups)
+                .catch(console.error);
         }
     }, [meetupUser]);
 
@@ -174,206 +190,42 @@ const MeetupsPage = () => {
                         </NavLink>
                     </Flex>
                     {/* <Heading mt={5}> Your meetups </Heading> */}
-                    <Stack mt={10} spacing={10} divider={<Divider />}>
-                        {f.map((meetup, i) => (
-                            <SimpleGrid columns={{ base: 1, md: 2 }} key={i}>
-                                <Stack spacing={5} mb={{ base: 3, md: 0 }}>
-                                    <Box>
-                                        <NavLink
-                                            as={Link}
-                                            to={`/meetup/${meetup.id}`}
-                                        >
-                                            <Heading
-                                                fontSize={"xl"}
-                                                fontWeight="semibold"
-                                            >
-                                                {" "}
-                                                {meetup.title}{" "}
-                                                <Badge
-                                                    colorScheme={
-                                                        meetup.isEnded
-                                                            ? "red"
-                                                            : "green"
-                                                    }
-                                                >
-                                                    {" "}
-                                                    {meetup.isEnded
-                                                        ? "Ended"
-                                                        : "Active"}{" "}
-                                                </Badge>
-                                                <Badge
-                                                    colorScheme={
-                                                        meetup.isFullDay
-                                                            ? "purple"
-                                                            : "blue"
-                                                    }
-                                                    ml={1}
-                                                >
-                                                    {" "}
-                                                    {meetup.isFullDay
-                                                        ? "Full Day"
-                                                        : "Part Day"}{" "}
-                                                </Badge>
-                                            </Heading>
-                                        </NavLink>
-                                        {meetup.description && (
-                                            <Text> {meetup.description} </Text>
-                                        )}
-                                    </Box>
-                                    <Flex alignItems={"center"}>
-                                        <CustomBadge
-                                            color={
-                                                meetup.users.length <
-                                                meetup.options
-                                                    .limitNumberRespondents
-                                                    ? "green"
-                                                    : "red"
-                                            }
-                                        />
-                                        <Text ml={2}>
-                                            {" "}
-                                            {meetup.users.length}
-                                            {meetup.options
-                                                .limitNumberRespondents ===
-                                            Number.MAX_VALUE
-                                                ? ""
-                                                : ` / ${meetup.options.limitNumberRespondents}`}{" "}
-                                            responded{" "}
-                                        </Text>
-                                    </Flex>
-                                    <HelperText>
-                                        Last updated{" "}
-                                        {format(
-                                            (
-                                                meetup.date_created as any as Timestamp
-                                            ).toDate(),
-                                            "EEEE, d MMMM yyyy h:mm aaa"
-                                        )}
-                                    </HelperText>
-                                </Stack>
+                    <Tabs isFitted variant="line" mt={1}>
+                        <TabList>
+                            <Tab>Your meetups</Tab>
+                            <Tab>Meetups indicated</Tab>
+                        </TabList>
+                        <TabPanels>
+                            <TabPanel>
                                 <Stack
-                                    textAlign={{ base: "left", md: "right" }}
-                                    justifyContent={{
-                                        base: "left",
-                                        md: "right",
-                                    }}
-                                    spacing={0}
+                                    mt={10}
+                                    spacing={10}
+                                    divider={<Divider />}
                                 >
-                                    {meetup.creator.type === "telegram" &&
-                                        meetup.options.notificationThreshold !==
-                                            Number.MAX_VALUE && (
-                                            <Stack spacing={0}>
-                                                {" "}
-                                                <Flex
-                                                    alignItems="center"
-                                                    justifyContent={{
-                                                        base: "left",
-                                                        md: "right",
-                                                    }}
-                                                >
-                                                    {" "}
-                                                    <Text
-                                                        fontSize="sm"
-                                                        fontWeight="light"
-                                                    >
-                                                        Notification sent:{" "}
-                                                    </Text>
-                                                    <CheckIcon
-                                                        color="green"
-                                                        ml={1}
-                                                        boxSize="4"
-                                                    />{" "}
-                                                </Flex>{" "}
-                                                <Flex
-                                                    alignItems="center"
-                                                    justifyContent={{
-                                                        base: "left",
-                                                        md: "right",
-                                                    }}
-                                                >
-                                                    {" "}
-                                                    <Text
-                                                        fontSize="sm"
-                                                        fontWeight="light"
-                                                    >
-                                                        # users to be notified:{" "}
-                                                    </Text>
-                                                    <Text
-                                                        fontSize="sm"
-                                                        fontWeight="bold"
-                                                        ml={1}
-                                                        minW="16px"
-                                                        textAlign="center"
-                                                    >
-                                                        {
-                                                            meetup.options
-                                                                .notificationThreshold
-                                                        }
-                                                    </Text>
-                                                </Flex>{" "}
-                                            </Stack>
-                                        )}
-                                    {meetup.options.limitNumberRespondents !==
-                                        Number.MAX_VALUE && (
-                                        <Flex
-                                            alignItems="center"
-                                            justifyContent={{
-                                                base: "left",
-                                                md: "right",
-                                            }}
-                                        >
-                                            {" "}
-                                            <Text
-                                                fontSize="sm"
-                                                fontWeight="light"
-                                            >
-                                                Max # of responses:
-                                            </Text>
-                                            <Text
-                                                fontSize="sm"
-                                                fontWeight="bold"
-                                                ml={1}
-                                                minW="16px"
-                                                textAlign="center"
-                                            >
-                                                {
-                                                    meetup.options
-                                                        .limitNumberRespondents
-                                                }
-                                            </Text>
-                                        </Flex>
-                                    )}
-                                    {meetup.options.limitPerSlot !==
-                                        Number.MAX_VALUE && (
-                                        <Flex
-                                            alignItems="center"
-                                            justifyContent={{
-                                                base: "left",
-                                                md: "right",
-                                            }}
-                                        >
-                                            {" "}
-                                            <Text
-                                                fontSize="sm"
-                                                fontWeight="light"
-                                            >
-                                                Max # of responses per slot:
-                                            </Text>
-                                            <Text
-                                                fontSize="sm"
-                                                fontWeight="bold"
-                                                ml={1}
-                                                minW="16px"
-                                                textAlign="center"
-                                            >
-                                                {meetup.options.limitPerSlot}
-                                            </Text>
-                                        </Flex>
-                                    )}
+                                    {f1.map((meetup, i) => (
+                                        <MeetupContainer
+                                            meetup={meetup}
+                                            key={i}
+                                        />
+                                    ))}
                                 </Stack>
-                            </SimpleGrid>
-                        ))}
-                    </Stack>
+                            </TabPanel>
+                            <TabPanel>
+                                <Stack
+                                    mt={10}
+                                    spacing={10}
+                                    divider={<Divider />}
+                                >
+                                    {f2.map((meetup, i) => (
+                                        <MeetupContainer
+                                            meetup={meetup}
+                                            key={i}
+                                        />
+                                    ))}
+                                </Stack>
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
                 </GridItem>
             </Grid>
             <AlertDialog
@@ -426,4 +278,152 @@ const CustomBadge = ({ color }: { color: "green" | "red" }) => {
         </Badge>
     );
 };
+
+const MeetupContainer = ({ meetup }: { meetup: Meetup }) => (
+    <SimpleGrid columns={{ base: 1, md: 2 }}>
+        <Stack spacing={5} mb={{ base: 3, md: 0 }}>
+            <Box>
+                <NavLink as={Link} to={`/meetup/${meetup.id}`}>
+                    <Heading fontSize={"xl"} fontWeight="semibold">
+                        {" "}
+                        {meetup.title}{" "}
+                        <Badge colorScheme={meetup.isEnded ? "red" : "green"}>
+                            {" "}
+                            {meetup.isEnded ? "Ended" : "Active"}{" "}
+                        </Badge>
+                        <Badge
+                            colorScheme={meetup.isFullDay ? "purple" : "blue"}
+                            ml={1}
+                        >
+                            {" "}
+                            {meetup.isFullDay ? "Full Day" : "Part Day"}{" "}
+                        </Badge>
+                    </Heading>
+                </NavLink>
+                {meetup.description && <Text> {meetup.description} </Text>}
+            </Box>
+            <Flex alignItems={"center"}>
+                <CustomBadge
+                    color={
+                        meetup.users.length <
+                        meetup.options.limitNumberRespondents
+                            ? "green"
+                            : "red"
+                    }
+                />
+                <Text ml={2}>
+                    {" "}
+                    {meetup.users.length}
+                    {meetup.options.limitNumberRespondents === Number.MAX_VALUE
+                        ? ""
+                        : ` / ${meetup.options.limitNumberRespondents}`}{" "}
+                    responded{" "}
+                </Text>
+            </Flex>
+            <HelperText>
+                Last updated{" "}
+                {format(
+                    (meetup.date_created as any as Timestamp).toDate(),
+                    "EEEE, d MMMM yyyy h:mm aaa"
+                )}
+            </HelperText>
+        </Stack>
+        <Stack
+            textAlign={{ base: "left", md: "right" }}
+            justifyContent={{
+                base: "left",
+                md: "right",
+            }}
+            spacing={0}
+        >
+            {meetup.creator.type === "telegram" &&
+                meetup.options.notificationThreshold !== Number.MAX_VALUE && (
+                    <Stack spacing={0}>
+                        {" "}
+                        <Flex
+                            alignItems="center"
+                            justifyContent={{
+                                base: "left",
+                                md: "right",
+                            }}
+                        >
+                            {" "}
+                            <Text fontSize="sm" fontWeight="light">
+                                Notification sent:{" "}
+                            </Text>
+                            <CheckIcon color="green" ml={1} boxSize="4" />{" "}
+                        </Flex>{" "}
+                        <Flex
+                            alignItems="center"
+                            justifyContent={{
+                                base: "left",
+                                md: "right",
+                            }}
+                        >
+                            {" "}
+                            <Text fontSize="sm" fontWeight="light">
+                                # users to be notified:{" "}
+                            </Text>
+                            <Text
+                                fontSize="sm"
+                                fontWeight="bold"
+                                ml={1}
+                                minW="16px"
+                                textAlign="center"
+                            >
+                                {meetup.options.notificationThreshold}
+                            </Text>
+                        </Flex>{" "}
+                    </Stack>
+                )}
+            {meetup.options.limitNumberRespondents !== Number.MAX_VALUE && (
+                <Flex
+                    alignItems="center"
+                    justifyContent={{
+                        base: "left",
+                        md: "right",
+                    }}
+                >
+                    {" "}
+                    <Text fontSize="sm" fontWeight="light">
+                        Max # of responses:
+                    </Text>
+                    <Text
+                        fontSize="sm"
+                        fontWeight="bold"
+                        ml={1}
+                        minW="16px"
+                        textAlign="center"
+                    >
+                        {meetup.options.limitNumberRespondents}
+                    </Text>
+                </Flex>
+            )}
+            {meetup.options.limitPerSlot !== Number.MAX_VALUE && (
+                <Flex
+                    alignItems="center"
+                    justifyContent={{
+                        base: "left",
+                        md: "right",
+                    }}
+                >
+                    {" "}
+                    <Text fontSize="sm" fontWeight="light">
+                        Max # of responses per slot:
+                    </Text>
+                    <Text
+                        fontSize="sm"
+                        fontWeight="bold"
+                        ml={1}
+                        minW="16px"
+                        textAlign="center"
+                    >
+                        {meetup.options.limitPerSlot}
+                    </Text>
+                </Flex>
+            )}
+        </Stack>
+    </SimpleGrid>
+);
+
 export default MeetupsPage;

@@ -16,7 +16,7 @@ if ("serviceWorker" in navigator) {
     });
 }
 
-let CACHE_NAME = "look4times-cache";
+let CACHE_NAME = "look4times-cache-v1";
 const urlsToCache = [
     "/",
     "/#/create",
